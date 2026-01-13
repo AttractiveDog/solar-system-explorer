@@ -90,7 +90,7 @@ const Stars = () => {
 
 const Sun = () => {
   return (
-    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-[30%]">
+    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-[65%]">
       {/* Sun glow layers */}
       <div
         className="absolute rounded-full animate-pulse"
