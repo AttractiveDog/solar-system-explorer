@@ -5,55 +5,60 @@ const planets = [
     name: 'TERRA',
     color: 'hsl(210, 100%, 65%)',
     glowColor: 'hsl(210, 100%, 70%)',
-    size: 16,
-    orbitRadius: 80,
+    size: 120,
+    orbitRadius: 200,
     orbitDuration: 12,
     rotationDuration: 4,
     discovered: true,
+    texture: '/planet-terra.png',
   },
   {
     name: 'EMBER',
-    color: 'hsl(20, 100%, 55%)',
-    glowColor: 'hsl(20, 100%, 60%)',
-    size: 12,
-    orbitRadius: 120,
+    color: 'hsl(0, 80%, 50%)',
+    glowColor: 'hsl(0, 100%, 60%)',
+    size: 120,
+    orbitRadius: 300,
     orbitDuration: 18,
     rotationDuration: 3,
     discovered: true,
+    texture: '/planet-ember.png',
   },
   {
     name: 'AZURE',
     color: 'hsl(165, 100%, 42%)',
     glowColor: 'hsl(165, 100%, 50%)',
-    size: 22,
-    orbitRadius: 170,
+    size: 110,
+    orbitRadius: 400,
     orbitDuration: 26,
     rotationDuration: 2,
     discovered: true,
     hasRings: true,
     ringColor: 'hsl(165, 80%, 60%)',
+    texture: '/planet-azure.png',
   },
   {
     name: 'PHANTOM-X',
-    color: 'hsl(270, 60%, 25%)',
-    glowColor: 'hsl(270, 60%, 40%)',
-    size: 18,
-    orbitRadius: 230,
+    color: 'hsl(320, 100%, 70%)',
+    glowColor: 'hsl(320, 100%, 80%)',
+    size: 60,
+    orbitRadius: 500,
     orbitDuration: 35,
     rotationDuration: 6,
-    discovered: false,
+    discovered: true,
+    texture: '/planet-phantom.png',
   },
   {
     name: 'VOID-7',
     color: 'hsl(240, 40%, 12%)',
     glowColor: 'hsl(260, 50%, 30%)',
-    size: 28,
-    orbitRadius: 300,
+    size: 55,
+    orbitRadius: 550,
     orbitDuration: 50,
     rotationDuration: 8,
     discovered: false,
     hasRings: true,
     ringColor: 'hsl(260, 40%, 25%)',
+    texture: '/planet-void.png',
   },
 ];
 
@@ -90,7 +95,7 @@ const Stars = () => {
 
 const Sun = () => {
   return (
-    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-[65%]">
+    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-[90%]">
       {/* Sun glow layers */}
       <div
         className="absolute rounded-full animate-pulse"
@@ -118,10 +123,10 @@ const Sun = () => {
       <div
         className="relative rounded-full"
         style={{
-          width: '100px',
-          height: '100px',
+          width: '1200px',
+          height: '1200px',
           background: 'radial-gradient(circle at 30% 30%, hsl(45, 100%, 70%) 0%, hsl(35, 100%, 55%) 40%, hsl(25, 100%, 45%) 100%)',
-          boxShadow: '0 0 40px 15px hsla(35, 100%, 50%, 0.6), 0 0 80px 30px hsla(35, 100%, 50%, 0.3)',
+          boxShadow: '0 0 60px 25px hsla(35, 100%, 50%, 0.6), 0 0 120px 50px hsla(35, 100%, 50%, 0.3)',
         }}
       >
         {/* Sun surface details */}
@@ -147,6 +152,7 @@ interface PlanetProps {
   discovered: boolean;
   hasRings?: boolean;
   ringColor?: string;
+  texture?: string;
   index: number;
 }
 
@@ -160,78 +166,168 @@ const Planet = ({
   discovered,
   hasRings,
   ringColor,
+  texture,
   index,
 }: PlanetProps) => {
+  // Ellipse dimensions: wider than tall
+  const ellipseWidth = orbitRadius * 5.5;
+  const ellipseHeight = orbitRadius * 1.2;
+  
+  // Generate unique animation name for this planet
+  const animationName = `ellipseOrbit-${index}`;
+  
+  // Calculate keyframe positions for smooth elliptical motion
+  const generateKeyframes = () => {
+    const steps = 36; // Number of keyframe steps
+    let keyframes = '@keyframes ' + animationName + ' {\n';
+    
+    for (let i = 0; i <= steps; i++) {
+      const percent = (i / steps) * 100;
+      // Angle from 180deg (left) to 0deg (right) for top half
+      const angle = (180 - (i / steps) * 180) * (Math.PI / 180);
+      
+      const x = ellipseWidth / 2 + (ellipseWidth / 2) * Math.cos(angle);
+      const y = ellipseHeight - ellipseHeight * Math.sin(angle);
+      
+      keyframes += `  ${percent.toFixed(1)}% {\n`;
+      keyframes += `    left: ${x}px;\n`;
+      keyframes += `    top: ${y}px;\n`;
+      keyframes += `  }\n`;
+    }
+    
+    keyframes += '}';
+    return keyframes;
+  };
+  
   return (
     <div
       className="absolute bottom-0 left-1/2"
       style={{
-        width: `${orbitRadius * 2}px`,
-        height: `${orbitRadius * 2}px`,
-        marginLeft: `-${orbitRadius}px`,
-        marginBottom: '-50px',
+        width: `${ellipseWidth}px`,
+        height: `${ellipseHeight}px`,
+        marginLeft: `-${ellipseWidth / 2}px`,
+        marginBottom: '0px',
       }}
     >
-      {/* Orbit path */}
-      <div
-        className="absolute inset-0 rounded-full"
-        style={{
-          border: `1px solid ${discovered ? 'hsla(210, 100%, 60%, 0.2)' : 'hsla(270, 60%, 40%, 0.15)'}`,
-        }}
-      />
-      
-      {/* Planet container - orbits around center */}
-      <div
+      {/* Elliptical orbit path using SVG */}
+      <svg
         className="absolute inset-0"
+        width={ellipseWidth}
+        height={ellipseHeight}
+        style={{ overflow: 'visible' }}
+      >
+        <ellipse
+          cx={ellipseWidth / 2}
+          cy={ellipseHeight}
+          rx={ellipseWidth / 2}
+          ry={ellipseHeight}
+          fill="none"
+          stroke={discovered ? 'hsla(210, 100%, 60%, 0.2)' : 'hsla(270, 60%, 40%, 0.15)'}
+          strokeWidth="1"
+        />
+      </svg>
+      
+      {/* Inject keyframes for this planet */}
+      <style>{generateKeyframes()}</style>
+      
+      {/* Planet container - orbits along ellipse */}
+      <div
+        className="absolute"
         style={{
-          animation: `orbit ${orbitDuration}s linear infinite`,
+          left: '0',
+          top: '0',
+          animation: `${animationName} ${orbitDuration}s linear infinite`,
           animationDelay: `${index * -5}s`,
+          zIndex: 10,
         }}
       >
-        {/* Planet positioned at top of orbit */}
+        {/* Planet wrapper for centering */}
         <div
-          className="absolute left-1/2 -translate-x-1/2"
           style={{
-            top: '0px',
-            marginTop: `-${size / 2}px`,
+            position: 'relative',
+            width: `${size}px`,
+            height: `${size}px`,
+            transform: 'translate(-50%, -50%)',
           }}
         >
-          {/* Rings (if applicable) */}
+          {/* Glow effect wrapper */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              filter: `drop-shadow(0 0 ${size * 0.5}px ${glowColor}) drop-shadow(0 0 ${size * 0.3}px ${glowColor}) drop-shadow(0 0 ${size * 0.8}px ${glowColor}88)`,
+              animation: 'planetGlow 3s ease-in-out infinite',
+            }}
+          >
+          {/* Rings (if applicable) - rendered behind */}
           {hasRings && (
             <div
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+              className="absolute"
               style={{
+                left: '50%',
+                top: '50%',
                 width: `${size * 2.2}px`,
                 height: `${size * 0.6}px`,
-                border: `2px solid ${ringColor}`,
+                border: `3px solid ${ringColor}`,
                 borderRadius: '50%',
-                opacity: discovered ? 0.6 : 0.3,
+                opacity: discovered ? 0.7 : 0.4,
                 transform: 'translate(-50%, -50%) rotateX(75deg)',
+                zIndex: -1,
               }}
             />
           )}
           
-          {/* Planet body */}
+          {/* Planet body - main sphere */}
           <div
             className="rounded-full relative overflow-hidden"
             style={{
               width: `${size}px`,
               height: `${size}px`,
-              background: `radial-gradient(circle at 30% 30%, ${color}, ${color}88)`,
-              boxShadow: `0 0 ${size / 2}px ${size / 4}px ${glowColor}40, inset -${size / 4}px -${size / 4}px ${size / 2}px rgba(0,0,0,0.4)`,
-              opacity: discovered ? 1 : 0.5,
+              backgroundImage: texture ? `url(${texture})` : `radial-gradient(circle at 35% 30%, ${color}, ${color}dd 50%, ${color}88 100%)`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              boxShadow: `
+                0 0 ${size * 1.2}px ${size * 0.8}px ${glowColor}80,
+                0 0 ${size * 0.8}px ${size * 0.5}px ${glowColor},
+                0 0 ${size * 0.4}px ${size * 0.2}px ${glowColor}ff,
+                inset -${size * 0.2}px -${size * 0.2}px ${size * 0.4}px rgba(0,0,0,0.6),
+                inset ${size * 0.15}px ${size * 0.15}px ${size * 0.3}px rgba(255,255,255,0.1)
+              `,
+              opacity: discovered ? 1 : 0.6,
               animation: `spin ${rotationDuration}s linear infinite`,
+              position: 'relative',
+              zIndex: 1,
             }}
           >
-            {/* Surface detail */}
+            {/* Highlight for 3D sphere effect */}
+            <div
+              className="absolute rounded-full"
+              style={{
+                top: '10%',
+                left: '15%',
+                width: '35%',
+                height: '35%',
+                background: 'radial-gradient(circle, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.15) 40%, transparent 70%)',
+                filter: 'blur(8px)',
+              }}
+            />
+            
+            {/* Rim lighting on the edge */}
             <div
               className="absolute inset-0 rounded-full"
               style={{
-                background: discovered
-                  ? 'linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%)'
-                  : 'linear-gradient(135deg, transparent 40%, rgba(100,50,150,0.2) 50%, transparent 60%)',
+                background: `radial-gradient(circle, transparent 60%, ${glowColor}22 85%, transparent 100%)`,
               }}
             />
+            
+            {/* Shadow terminator (day/night line) */}
+            <div
+              className="absolute inset-0 rounded-full"
+              style={{
+                background: 'linear-gradient(110deg, transparent 35%, rgba(0,0,0,0.25) 60%, rgba(0,0,0,0.5) 85%)',
+              }}
+            />
+          </div>
           </div>
         </div>
       </div>
@@ -250,7 +346,7 @@ export const SolarSystem2D = () => {
       
       {/* CSS for animations */}
       <style>{`
-        @keyframes orbit {
+        @keyframes spin {
           from {
             transform: rotate(0deg);
           }
@@ -259,12 +355,24 @@ export const SolarSystem2D = () => {
           }
         }
         
-        @keyframes spin {
-          from {
-            transform: rotate(0deg);
+        @keyframes planetGlow {
+          0%, 100% {
+            opacity: 0.8;
           }
-          to {
-            transform: rotate(360deg);
+          50% {
+            opacity: 1;
+          }
+        }
+        
+        @keyframes cloudDrift {
+          0% {
+            opacity: 0.8;
+          }
+          50% {
+            opacity: 1;
+          }
+          100% {
+            opacity: 0.8;
           }
         }
         
