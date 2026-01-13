@@ -1,0 +1,90 @@
+import { useState, useEffect } from 'react';
+
+export const HUD = () => {
+  const [time, setTime] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const formatTime = (seconds: number) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <div className="absolute inset-0 pointer-events-none z-10">
+      {/* Top header */}
+      <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-start">
+        <div className="flex flex-col gap-2">
+          <h1 className="font-display text-4xl md:text-5xl font-bold tracking-wider text-glow text-primary">
+            COMET
+          </h1>
+          <p className="text-sm text-muted-foreground tracking-widest uppercase">
+            Solar System Explorer
+          </p>
+        </div>
+        
+        <div className="flex flex-col items-end gap-1">
+          <div className="text-xs text-muted-foreground tracking-widest">MISSION TIME</div>
+          <div className="font-display text-xl text-secondary tracking-wider">
+            {formatTime(time)}
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom info panel */}
+      <div className="absolute bottom-0 left-0 right-0 p-6">
+        <div className="flex flex-wrap justify-between items-end gap-4">
+          {/* Planet legend */}
+          <div className="flex flex-col gap-3">
+            <div className="text-xs text-muted-foreground tracking-widest uppercase mb-1">
+              Celestial Bodies
+            </div>
+            <div className="flex flex-wrap gap-4">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[hsl(210,60%,50%)] shadow-[0_0_10px_hsl(210,60%,50%)]" />
+                <span className="text-sm text-foreground/80">Terra</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[hsl(15,80%,45%)] shadow-[0_0_10px_hsl(15,80%,45%)]" />
+                <span className="text-sm text-foreground/80">Ember</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[hsl(165,80%,42%)] shadow-[0_0_10px_hsl(165,80%,42%)]" />
+                <span className="text-sm text-foreground/80">Azure</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[hsl(270,50%,30%)] shadow-[0_0_10px_hsl(270,50%,30%)] opacity-60" />
+                <span className="text-sm text-foreground/50 italic">Unknown-1</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[hsl(240,40%,15%)] shadow-[0_0_10px_hsl(240,40%,15%)] opacity-60" />
+                <span className="text-sm text-foreground/50 italic">Unknown-2</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Controls hint */}
+          <div className="flex flex-col items-end gap-1">
+            <div className="text-xs text-muted-foreground tracking-widest uppercase">Controls</div>
+            <div className="text-sm text-foreground/60">
+              Drag to rotate • Scroll to zoom
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Corner decorations */}
+      <div className="absolute top-0 left-0 w-20 h-20 border-l-2 border-t-2 border-primary/30 m-4" />
+      <div className="absolute top-0 right-0 w-20 h-20 border-r-2 border-t-2 border-primary/30 m-4" />
+      <div className="absolute bottom-0 left-0 w-20 h-20 border-l-2 border-b-2 border-primary/30 m-4" />
+      <div className="absolute bottom-0 right-0 w-20 h-20 border-r-2 border-b-2 border-primary/30 m-4" />
+    </div>
+  );
+};
