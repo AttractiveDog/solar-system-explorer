@@ -5,9 +5,9 @@ const planets = [
     name: 'TERRA',
     color: 'hsl(210, 100%, 65%)',
     glowColor: 'hsl(210, 100%, 70%)',
-    size: 24,
-    orbitRadius: 120,
-    orbitDuration: 20,
+    size: 16,
+    orbitRadius: 80,
+    orbitDuration: 12,
     rotationDuration: 4,
     discovered: true,
   },
@@ -15,9 +15,9 @@ const planets = [
     name: 'EMBER',
     color: 'hsl(20, 100%, 55%)',
     glowColor: 'hsl(20, 100%, 60%)',
-    size: 18,
-    orbitRadius: 180,
-    orbitDuration: 28,
+    size: 12,
+    orbitRadius: 120,
+    orbitDuration: 18,
     rotationDuration: 3,
     discovered: true,
   },
@@ -25,9 +25,9 @@ const planets = [
     name: 'AZURE',
     color: 'hsl(165, 100%, 42%)',
     glowColor: 'hsl(165, 100%, 50%)',
-    size: 36,
-    orbitRadius: 260,
-    orbitDuration: 40,
+    size: 22,
+    orbitRadius: 170,
+    orbitDuration: 26,
     rotationDuration: 2,
     discovered: true,
     hasRings: true,
@@ -37,9 +37,9 @@ const planets = [
     name: 'PHANTOM-X',
     color: 'hsl(270, 60%, 25%)',
     glowColor: 'hsl(270, 60%, 40%)',
-    size: 28,
-    orbitRadius: 340,
-    orbitDuration: 55,
+    size: 18,
+    orbitRadius: 230,
+    orbitDuration: 35,
     rotationDuration: 6,
     discovered: false,
   },
@@ -47,9 +47,9 @@ const planets = [
     name: 'VOID-7',
     color: 'hsl(240, 40%, 12%)',
     glowColor: 'hsl(260, 50%, 30%)',
-    size: 44,
-    orbitRadius: 440,
-    orbitDuration: 75,
+    size: 28,
+    orbitRadius: 300,
+    orbitDuration: 50,
     rotationDuration: 8,
     discovered: false,
     hasRings: true,
@@ -90,38 +90,38 @@ const Stars = () => {
 
 const Sun = () => {
   return (
-    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2">
+    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-[30%]">
       {/* Sun glow layers */}
       <div
         className="absolute rounded-full animate-pulse"
         style={{
-          width: '600px',
-          height: '600px',
+          width: '300px',
+          height: '300px',
           left: '50%',
           top: '50%',
           transform: 'translate(-50%, -50%)',
-          background: 'radial-gradient(circle, hsla(35, 100%, 60%, 0.15) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, hsla(35, 100%, 60%, 0.2) 0%, transparent 70%)',
         }}
       />
       <div
         className="absolute rounded-full"
         style={{
-          width: '400px',
-          height: '400px',
+          width: '200px',
+          height: '200px',
           left: '50%',
           top: '50%',
           transform: 'translate(-50%, -50%)',
-          background: 'radial-gradient(circle, hsla(35, 100%, 55%, 0.3) 0%, transparent 60%)',
+          background: 'radial-gradient(circle, hsla(35, 100%, 55%, 0.4) 0%, transparent 60%)',
         }}
       />
       {/* Sun core */}
       <div
         className="relative rounded-full"
         style={{
-          width: '200px',
-          height: '200px',
+          width: '100px',
+          height: '100px',
           background: 'radial-gradient(circle at 30% 30%, hsl(45, 100%, 70%) 0%, hsl(35, 100%, 55%) 40%, hsl(25, 100%, 45%) 100%)',
-          boxShadow: '0 0 60px 20px hsla(35, 100%, 50%, 0.6), 0 0 120px 40px hsla(35, 100%, 50%, 0.3)',
+          boxShadow: '0 0 40px 15px hsla(35, 100%, 50%, 0.6), 0 0 80px 30px hsla(35, 100%, 50%, 0.3)',
         }}
       >
         {/* Sun surface details */}
@@ -169,7 +169,7 @@ const Planet = ({
         width: `${orbitRadius * 2}px`,
         height: `${orbitRadius * 2}px`,
         marginLeft: `-${orbitRadius}px`,
-        marginBottom: '-100px',
+        marginBottom: '-50px',
       }}
     >
       {/* Orbit path */}
