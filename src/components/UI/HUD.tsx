@@ -70,11 +70,11 @@ export const HUD = () => {
             </div>
           </div>
 
-          {/* Controls hint */}
+          {/* Status */}
           <div className="flex flex-col items-end gap-1">
-            <div className="text-xs text-muted-foreground tracking-widest uppercase">Controls</div>
+            <div className="text-xs text-muted-foreground tracking-widest uppercase">Status</div>
             <div className="text-sm text-foreground/60">
-              Drag to rotate • Scroll to zoom
+              Orbiting • Active
             </div>
           </div>
         </div>
