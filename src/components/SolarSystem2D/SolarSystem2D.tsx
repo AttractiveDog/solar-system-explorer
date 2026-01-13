@@ -157,6 +157,7 @@ interface PlanetProps {
 }
 
 const Planet = ({
+  name,
   color,
   glowColor,
   size,
@@ -169,6 +170,8 @@ const Planet = ({
   texture,
   index,
 }: PlanetProps) => {
+  const [isHovered, setIsHovered] = useState(false);
+  
   // Ellipse dimensions: wider than tall
   const ellipseWidth = orbitRadius * 5.5;
   const ellipseHeight = orbitRadius * 1.2;
@@ -238,16 +241,25 @@ const Planet = ({
           top: '0',
           animation: `${animationName} ${orbitDuration}s linear infinite`,
           animationDelay: `${index * -5}s`,
+          animationPlayState: isHovered ? 'paused' : 'running',
           zIndex: 10,
         }}
       >
         {/* Planet wrapper for centering */}
         <div
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          onClick={() => {
+            console.log(`Clicked on planet: ${name}`);
+            // Add your planet click logic here
+          }}
           style={{
             position: 'relative',
             width: `${size}px`,
             height: `${size}px`,
-            transform: 'translate(-50%, -50%)',
+            transform: `translate(-50%, -50%) scale(${isHovered ? 1.3 : 1})`,
+            transition: 'transform 0.3s ease-in-out',
+            cursor: 'pointer',
           }}
         >
           {/* Glow effect wrapper */}
@@ -255,8 +267,11 @@ const Planet = ({
             style={{
               position: 'absolute',
               inset: 0,
-              filter: `drop-shadow(0 0 ${size * 0.5}px ${glowColor}) drop-shadow(0 0 ${size * 0.3}px ${glowColor}) drop-shadow(0 0 ${size * 0.8}px ${glowColor}88)`,
+              filter: isHovered 
+                ? `drop-shadow(0 0 ${size * 1.5}px ${glowColor}) drop-shadow(0 0 ${size * 0.9}px ${glowColor}) drop-shadow(0 0 ${size * 2.4}px ${glowColor}88)`
+                : `drop-shadow(0 0 ${size * 0.5}px ${glowColor}) drop-shadow(0 0 ${size * 0.3}px ${glowColor}) drop-shadow(0 0 ${size * 0.8}px ${glowColor}88)`,
               animation: 'planetGlow 3s ease-in-out infinite',
+              transition: 'filter 0.3s ease-in-out',
             }}
           >
           {/* Rings (if applicable) - rendered behind */}
@@ -286,17 +301,27 @@ const Planet = ({
               backgroundImage: texture ? `url(${texture})` : `radial-gradient(circle at 35% 30%, ${color}, ${color}dd 50%, ${color}88 100%)`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
-              boxShadow: `
-                0 0 ${size * 1.2}px ${size * 0.8}px ${glowColor}80,
-                0 0 ${size * 0.8}px ${size * 0.5}px ${glowColor},
-                0 0 ${size * 0.4}px ${size * 0.2}px ${glowColor}ff,
-                inset -${size * 0.2}px -${size * 0.2}px ${size * 0.4}px rgba(0,0,0,0.6),
-                inset ${size * 0.15}px ${size * 0.15}px ${size * 0.3}px rgba(255,255,255,0.1)
-              `,
+              boxShadow: isHovered
+                ? `
+                  0 0 ${size * 2.4}px ${size * 1.6}px ${glowColor}80,
+                  0 0 ${size * 1.6}px ${size * 1.0}px ${glowColor},
+                  0 0 ${size * 0.8}px ${size * 0.4}px ${glowColor}ff,
+                  inset -${size * 0.2}px -${size * 0.2}px ${size * 0.4}px rgba(0,0,0,0.6),
+                  inset ${size * 0.15}px ${size * 0.15}px ${size * 0.3}px rgba(255,255,255,0.1)
+                `
+                : `
+                  0 0 ${size * 1.2}px ${size * 0.8}px ${glowColor}80,
+                  0 0 ${size * 0.8}px ${size * 0.5}px ${glowColor},
+                  0 0 ${size * 0.4}px ${size * 0.2}px ${glowColor}ff,
+                  inset -${size * 0.2}px -${size * 0.2}px ${size * 0.4}px rgba(0,0,0,0.6),
+                  inset ${size * 0.15}px ${size * 0.15}px ${size * 0.3}px rgba(255,255,255,0.1)
+                `,
               opacity: discovered ? 1 : 0.6,
               animation: `spin ${rotationDuration}s linear infinite`,
+              animationPlayState: isHovered ? 'paused' : 'running',
               position: 'relative',
               zIndex: 1,
+              transition: 'box-shadow 0.3s ease-in-out',
             }}
           >
             {/* Highlight for 3D sphere effect */}
