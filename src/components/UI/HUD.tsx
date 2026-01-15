@@ -21,15 +21,9 @@ export const HUD = () => {
     <div className="absolute inset-0 pointer-events-none z-10">
       {/* Top header */}
       <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-start">
-        <div className="flex flex-col gap-2">
-          <h1 className="font-display text-4xl md:text-5xl font-bold tracking-wider text-glow text-primary">
-            COMET
-          </h1>
-          <p className="text-sm text-muted-foreground tracking-widest uppercase">
-            Solar System Explorer
-          </p>
-        </div>
-        
+        {/* Logo moved to Sun */}
+        <div></div>
+
         <div className="flex flex-col items-end gap-1">
           <div className="text-xs text-muted-foreground tracking-widest">MISSION TIME</div>
           <div className="font-display text-xl text-secondary tracking-wider">
