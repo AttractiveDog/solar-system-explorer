@@ -222,23 +222,27 @@ const Asteroid = ({
 interface SunProps {
   isExpanded: boolean;
   onToggle: () => void;
+  isMobile?: boolean;
 }
 
-const Sun = ({ isExpanded, onToggle }: SunProps) => {
+const Sun = ({ isExpanded, onToggle, isMobile = false }: SunProps) => {
   return (
     <div
-      onClick={onToggle}
-      className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-[90%] cursor-pointer"
-      role="button"
-      aria-label="Toggle navigation menu"
+      className={`absolute ${
+        isMobile 
+          ? 'left-0 top-1/2 -translate-x-[85%] -translate-y-1/2' 
+          : 'bottom-0 left-1/2 -translate-x-1/2 translate-y-[90%]'
+      }`}
+      role="presentation"
+      style={{ pointerEvents: 'auto' }}
     >
 
       {/* Sun core - Visual Representation */}
       <div
         className="relative rounded-full transition-all duration-700 ease-in-out group"
         style={{
-          width: '1200px',
-          height: '1200px',
+          width: isMobile ? '600px' : '1200px',
+          height: isMobile ? '600px' : '1200px',
           background: isExpanded
             ? 'radial-gradient(circle at 50% 30%, hsl(45, 100%, 75%) 0%, hsl(40, 100%, 60%) 40%, hsl(25, 100%, 50%) 100%)' // Hotter when expanded
             : 'radial-gradient(circle at 30% 30%, hsl(45, 100%, 70%) 0%, hsl(35, 100%, 55%) 40%, hsl(25, 100%, 45%) 100%)',
@@ -261,8 +265,8 @@ const Sun = ({ isExpanded, onToggle }: SunProps) => {
       <div
         className="absolute rounded-full animate-pulse transition-all duration-700 ease-in-out"
         style={{
-          width: '300px',
-          height: '300px',
+          width: isMobile ? '150px' : '300px',
+          height: isMobile ? '150px' : '300px',
           left: '50%',
           top: '50%',
           transform: 'translate(-50%, -50%)',
@@ -274,8 +278,8 @@ const Sun = ({ isExpanded, onToggle }: SunProps) => {
       <div
         className="absolute rounded-full transition-all duration-700 ease-in-out"
         style={{
-          width: '200px',
-          height: '200px',
+          width: isMobile ? '100px' : '200px',
+          height: isMobile ? '100px' : '200px',
           left: '50%',
           top: '50%',
           transform: 'translate(-50%, -50%)',
@@ -289,18 +293,25 @@ const Sun = ({ isExpanded, onToggle }: SunProps) => {
       {/* COMET Logo - Clickable to toggle menu */}
       <div
         onClick={onToggle}
-        className="absolute flex flex-col items-center justify-center transition-transform duration-500 ease-out cursor-pointer hover:scale-105"
+        className="absolute flex flex-col items-center justify-center transition-all duration-300 ease-out cursor-pointer"
         style={{
-          top: isExpanded ? '60px' : '50px', // Slight movement when expanded
+          top: isExpanded ? (isMobile ? '30px' : '60px') : (isMobile ? '25px' : '50px'), // Slight movement when expanded
           left: '50%',
           transform: 'translateX(-50%)',
           zIndex: 50,
+          pointerEvents: 'auto',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateX(-50%) scale(1.1)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'translateX(-50%) scale(1)';
         }}
       >
         <h1
           className="font-display font-bold tracking-widest transition-all duration-500"
           style={{
-            fontSize: isExpanded ? '2.4rem' : '2.8rem', // Shrink slightly when expanding
+            fontSize: isExpanded ? (isMobile ? '1.2rem' : '2.4rem') : (isMobile ? '1.4rem' : '2.8rem'), // Shrink slightly when expanding
             background: 'radial-gradient(ellipse at center, hsl(20, 100%, 22%) 0%, hsl(15, 90%, 15%) 50%, hsl(10, 80%, 10%) 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -320,7 +331,7 @@ const Sun = ({ isExpanded, onToggle }: SunProps) => {
         <p
           className="tracking-widest uppercase font-semibold transition-opacity duration-500"
           style={{
-            fontSize: '0.55rem',
+            fontSize: isMobile ? '0.35rem' : '0.55rem',
             color: 'rgba(255, 200, 100, 0.8)',
             letterSpacing: '0.8em',
             marginTop: '-5px',
@@ -348,6 +359,7 @@ interface PlanetProps {
   ringColor?: string;
   texture?: string;
   index: number;
+  isMobile?: boolean;
 }
 
 const Planet = ({
@@ -363,12 +375,13 @@ const Planet = ({
   ringColor,
   texture,
   index,
+  isMobile = false,
 }: PlanetProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
   // Ellipse dimensions: wider than tall
-  const ellipseWidth = orbitRadius * 5.5;
-  const ellipseHeight = orbitRadius * 1.2;
+  const ellipseWidth = isMobile ? orbitRadius * 2 : orbitRadius * 5.5;
+  const ellipseHeight = isMobile ? orbitRadius * 3 : orbitRadius * 1.2;
 
   // Generate unique animation name for this planet
   const animationName = `ellipseOrbit-${index}`;
@@ -398,12 +411,14 @@ const Planet = ({
 
   return (
     <div
-      className="absolute bottom-0 left-1/2"
+      className={isMobile ? "absolute right-0 top-1/2" : "absolute bottom-0 left-1/2"}
       style={{
         width: `${ellipseWidth}px`,
         height: `${ellipseHeight}px`,
-        marginLeft: `-${ellipseWidth / 2}px`,
-        marginBottom: '0px',
+        marginLeft: isMobile ? '0' : `-${ellipseWidth / 2}px`,
+        marginRight: isMobile ? `-${ellipseWidth * 0.3}px` : '0',
+        marginTop: isMobile ? `-${ellipseHeight / 2}px` : '0',
+        marginBottom: isMobile ? '0' : '0px',
       }}
     >
       {/* Elliptical orbit path using SVG */}
@@ -557,11 +572,32 @@ const Planet = ({
 export const SolarSystem2D = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [activePlanetIndex, setActivePlanetIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleToggle = () => {
     setIsAnimating(true);
     setIsExpanded(!isExpanded);
     setTimeout(() => setIsAnimating(false), 1000); // Match transition duration
+  };
+
+  const nextPlanet = () => {
+    setActivePlanetIndex((prev) => (prev + 1) % planets.length);
+  };
+
+  const prevPlanet = () => {
+    setActivePlanetIndex((prev) => (prev - 1 + planets.length) % planets.length);
   };
 
   return (
@@ -572,7 +608,9 @@ export const SolarSystem2D = () => {
       <button
         onClick={handleToggle}
         disabled={isAnimating}
-        className="fixed z-50 px-6 py-3 rounded-full font-bold text-sm tracking-wider uppercase transition-all duration-300"
+        className={`fixed z-50 px-6 py-3 rounded-full font-bold text-sm tracking-wider uppercase transition-all duration-300 ${
+          isMobile ? 'hidden' : ''
+        }`}
         style={{
           top: '20px',
           left: '50%',
@@ -596,12 +634,60 @@ export const SolarSystem2D = () => {
         {isAnimating ? '⏳ Animating...' : isExpanded ? '✕ Hide Asteroids' : '☄️ Show Asteroids'}
       </button>
 
+      {/* Mobile Navigation Arrows */}
+      {isMobile && (
+        <>
+          <button
+            onClick={prevPlanet}
+            className="fixed left-4 top-1/2 -translate-y-1/2 z-50 w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-300"
+            style={{
+              boxShadow: '0 0 20px rgba(139, 92, 246, 0.6)',
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <button
+            onClick={nextPlanet}
+            className="fixed right-4 top-1/2 -translate-y-1/2 z-50 w-12 h-12 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-300"
+            style={{
+              boxShadow: '0 0 20px rgba(139, 92, 246, 0.6)',
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+
+          {/* Planet Indicator Dots */}
+          <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex gap-2">
+            {planets.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setActivePlanetIndex(index)}
+                className="w-2 h-2 rounded-full transition-all duration-300"
+                style={{
+                  background: index === activePlanetIndex 
+                    ? 'linear-gradient(135deg, hsl(210, 100%, 65%), hsl(165, 100%, 50%))'
+                    : 'rgba(255, 255, 255, 0.3)',
+                  width: index === activePlanetIndex ? '24px' : '8px',
+                  boxShadow: index === activePlanetIndex ? '0 0 10px rgba(139, 92, 246, 0.8)' : 'none',
+                }}
+              />
+            ))}
+          </div>
+        </>
+      )}
+
       {/* Sun Component with State Control */}
-      <Sun isExpanded={isExpanded} onToggle={handleToggle} />
+      <Sun isExpanded={isExpanded} onToggle={handleToggle} isMobile={isMobile} />
 
       {/* Planets Container - Expands/Moves away when Sun is active */}
       <div
-        className="absolute inset-0 transition-transform duration-1000 ease-in-out pointer-events-none"
+        className={`absolute inset-0 transition-transform duration-1000 ease-in-out pointer-events-none ${
+          isMobile ? 'mobile-planets-container' : ''
+        }`}
         style={{
           transform: isExpanded ? 'scale(1.3) translateY(-10%)' : 'scale(1)', // Move planets back/up slightly
           opacity: isExpanded ? 0.6 : 1, // Fade them out slightly to focus on asteroids
@@ -610,9 +696,15 @@ export const SolarSystem2D = () => {
         }}
       >
         <div className="pointer-events-auto">
-          {planets.map((planet, index) => (
-            <Planet key={planet.name} {...planet} index={index} />
-          ))}
+          {isMobile ? (
+            // Mobile: Show only active planet
+            <Planet key={planets[activePlanetIndex].name} {...planets[activePlanetIndex]} index={activePlanetIndex} isMobile={isMobile} />
+          ) : (
+            // Desktop: Show all planets
+            planets.map((planet, index) => (
+              <Planet key={planet.name} {...planet} index={index} isMobile={isMobile} />
+            ))
+          )}
         </div>
       </div>
 
@@ -724,6 +816,45 @@ export const SolarSystem2D = () => {
           }
           50% {
             opacity: 1;
+          }
+        }
+
+        /* Mobile Responsive Styles */
+        @media only screen and (max-width: 768px) {
+          .mobile-planets-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          
+          /* Adjust planet sizes for mobile */
+          .mobile-planets-container [class*="absolute"] {
+            transform-origin: center !important;
+          }
+        }
+
+        /* Smooth transitions for mobile navigation */
+        @media only screen and (max-width: 768px) {
+          @keyframes slideIn {
+            from {
+              opacity: 0;
+              transform: translateX(100%);
+            }
+            to {
+              opacity: 1;
+              transform: translateX(0);
+            }
+          }
+          
+          @keyframes slideOut {
+            from {
+              opacity: 1;
+              transform: translateX(0);
+            }
+            to {
+              opacity: 0;
+              transform: translateX(-100%);
+            }
           }
         }
       `}</style>

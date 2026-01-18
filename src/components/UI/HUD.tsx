@@ -20,20 +20,20 @@ export const HUD = () => {
   return (
     <div className="absolute inset-0 pointer-events-none z-10">
       {/* Top header */}
-      <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-start">
+      <div className="absolute top-0 left-0 right-0 p-4 md:p-6 flex justify-between items-start">
         {/* Logo moved to Sun */}
         <div></div>
 
         <div className="flex flex-col items-end gap-1">
-          <div className="text-xs text-muted-foreground tracking-widest">MISSION TIME</div>
-          <div className="font-display text-xl text-secondary tracking-wider">
+          <div className="text-[0.6rem] md:text-xs text-muted-foreground tracking-widest">MISSION TIME</div>
+          <div className="font-display text-base md:text-xl text-secondary tracking-wider">
             {formatTime(time)}
           </div>
         </div>
       </div>
 
-      {/* Bottom info panel */}
-      <div className="absolute bottom-0 left-0 right-0 p-6">
+      {/* Bottom info panel - Hidden on mobile */}
+      <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 hidden md:block">
         <div className="flex flex-wrap justify-between items-end gap-4">
           {/* Planet legend */}
           <div className="flex flex-col gap-3">
@@ -74,11 +74,11 @@ export const HUD = () => {
         </div>
       </div>
 
-      {/* Corner decorations */}
-      <div className="absolute top-0 left-0 w-20 h-20 border-l-2 border-t-2 border-primary/30 m-4" />
-      <div className="absolute top-0 right-0 w-20 h-20 border-r-2 border-t-2 border-primary/30 m-4" />
-      <div className="absolute bottom-0 left-0 w-20 h-20 border-l-2 border-b-2 border-primary/30 m-4" />
-      <div className="absolute bottom-0 right-0 w-20 h-20 border-r-2 border-b-2 border-primary/30 m-4" />
+      {/* Corner decorations - Smaller on mobile */}
+      <div className="absolute top-0 left-0 w-12 h-12 md:w-20 md:h-20 border-l-2 border-t-2 border-primary/30 m-2 md:m-4" />
+      <div className="absolute top-0 right-0 w-12 h-12 md:w-20 md:h-20 border-r-2 border-t-2 border-primary/30 m-2 md:m-4" />
+      <div className="absolute bottom-0 left-0 w-12 h-12 md:w-20 md:h-20 border-l-2 border-b-2 border-primary/30 m-2 md:m-4" />
+      <div className="absolute bottom-0 right-0 w-12 h-12 md:w-20 md:h-20 border-r-2 border-b-2 border-primary/30 m-2 md:m-4" />
     </div>
   );
 };
