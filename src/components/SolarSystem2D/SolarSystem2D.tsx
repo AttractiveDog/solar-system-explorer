@@ -605,7 +605,7 @@ export const SolarSystem2D = () => {
       <Stars />
 
       {/* COMET Logo Button - Clickable to toggle asteroids */}
-      <div
+      <button
         onClick={handleToggle}
         disabled={isAnimating}
         className={`fixed z-50 px-6 py-3 rounded-full font-bold text-sm tracking-wider uppercase transition-all duration-300 ${

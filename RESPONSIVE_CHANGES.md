@@ -10,6 +10,7 @@ The website has been made fully responsive with special mobile optimizations as 
 
 - **Sun Positioning**: Moved from bottom-center to left side of screen
 - **Planet Display**: Shows only one planet at a time (carousel mode)
+- **Planet Movement**: Planets are **static** (no orbital animation) for better mobile viewing
 - **Navigation**: Added left/right arrow buttons for planet navigation
 - **Indicators**: Added planet indicator dots at bottom for quick navigation
 
@@ -30,12 +31,13 @@ The website has been made fully responsive with special mobile optimizations as 
 - Created `nextPlanet()` and `prevPlanet()` functions for navigation
 - Updated `Sun` component to accept `isMobile` prop
 - Modified `Planet` component interface to include `isMobile` prop
+- **Disabled orbital animation on mobile** - planets remain in static centered position
 - Added conditional rendering for mobile (single planet) vs desktop (all planets)
 - Added mobile navigation UI:
   - Left/Right arrow buttons
   - Planet indicator dots
   - Responsive styling
-- Updated Planet positioning logic for mobile (right-side vertical orbit)
+- Updated Planet positioning logic for mobile (centered static position)
 - Added mobile-specific CSS animations and media queries
 
 ### 2. `src/components/UI/HUD.tsx`
@@ -71,7 +73,7 @@ The website has been made fully responsive with special mobile optimizations as 
    - COMET logo text scales responsively
 
 4. **Planet Orbit Adjustments**
-   - Mobile: Vertical elliptical orbit on right side
+   - Mobile: **Static centered position** (no orbital animation)
    - Desktop: Horizontal elliptical orbit across screen
    - Only active planet rendered on mobile for performance
 
@@ -129,7 +131,7 @@ useEffect(() => {
 ## Performance Optimizations
 
 1. Only render active planet on mobile (not all 5 planets)
-2. Simplified animations on mobile devices
+2. **Disabled orbital animations on mobile** - planets remain static
 3. Reduced sun size and glow layers on mobile
 4. Hidden unnecessary HUD elements on mobile
 
