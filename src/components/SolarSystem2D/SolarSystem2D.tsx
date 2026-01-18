@@ -93,7 +93,7 @@ const Stars = () => {
   );
 };
 
-import { User, Search, LayoutDashboard, LogIn, Power } from 'lucide-react';
+import { User, Search, LayoutDashboard, LogIn, Power, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface AsteroidProps {
   size: number;
@@ -222,13 +222,20 @@ const Asteroid = ({
 interface SunProps {
   isExpanded: boolean;
   onToggle: () => void;
+  isMobile: boolean;
 }
 
-const Sun = ({ isExpanded, onToggle }: SunProps) => {
+const Sun = ({ isExpanded, onToggle, isMobile }: SunProps) => {
+  const sunSize = isMobile ? 400 : 1200;
+  
   return (
     <div
       onClick={onToggle}
-      className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-[90%] cursor-pointer"
+      className={`absolute cursor-pointer ${
+        isMobile 
+          ? 'left-0 top-1/2 -translate-y-1/2 -translate-x-[75%]' 
+          : 'bottom-0 left-1/2 -translate-x-1/2 translate-y-[90%]'
+      }`}
       role="button"
       aria-label="Toggle navigation menu"
     >
@@ -237,8 +244,8 @@ const Sun = ({ isExpanded, onToggle }: SunProps) => {
       <div
         className="relative rounded-full transition-all duration-700 ease-in-out group"
         style={{
-          width: '1200px',
-          height: '1200px',
+          width: `${sunSize}px`,
+          height: `${sunSize}px`,
           background: isExpanded
             ? 'radial-gradient(circle at 50% 30%, hsl(45, 100%, 75%) 0%, hsl(40, 100%, 60%) 40%, hsl(25, 100%, 50%) 100%)' // Hotter when expanded
             : 'radial-gradient(circle at 30% 30%, hsl(45, 100%, 70%) 0%, hsl(35, 100%, 55%) 40%, hsl(25, 100%, 45%) 100%)',
@@ -304,6 +311,7 @@ interface PlanetProps {
   ringColor?: string;
   texture?: string;
   index: number;
+  isMobile: boolean;
 }
 
 const Planet = ({
@@ -319,6 +327,7 @@ const Planet = ({
   ringColor,
   texture,
   index,
+  isMobile,
 }: PlanetProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -354,39 +363,46 @@ const Planet = ({
 
   return (
     <div
-      className="absolute bottom-0 left-1/2"
-      style={{
+      className={isMobile ? "absolute inset-0 flex items-center justify-center" : "absolute bottom-0 left-1/2"}
+      style={isMobile ? {} : {
         width: `${ellipseWidth}px`,
         height: `${ellipseHeight}px`,
         marginLeft: `-${ellipseWidth / 2}px`,
         marginBottom: '0px',
       }}
     >
-      {/* Elliptical orbit path using SVG */}
-      <svg
-        className="absolute inset-0"
-        width={ellipseWidth}
-        height={ellipseHeight}
-        style={{ overflow: 'visible' }}
-      >
-        <ellipse
-          cx={ellipseWidth / 2}
-          cy={ellipseHeight}
-          rx={ellipseWidth / 2}
-          ry={ellipseHeight}
-          fill="none"
-          stroke={discovered ? 'hsla(210, 100%, 60%, 0.2)' : 'hsla(270, 60%, 40%, 0.15)'}
-          strokeWidth="1"
-        />
-      </svg>
+      {/* Elliptical orbit path using SVG - only in desktop */}
+      {!isMobile && (
+        <svg
+          className="absolute inset-0"
+          width={ellipseWidth}
+          height={ellipseHeight}
+          style={{ overflow: 'visible' }}
+        >
+          <ellipse
+            cx={ellipseWidth / 2}
+            cy={ellipseHeight}
+            rx={ellipseWidth / 2}
+            ry={ellipseHeight}
+            fill="none"
+            stroke={discovered ? 'hsla(210, 100%, 60%, 0.2)' : 'hsla(270, 60%, 40%, 0.15)'}
+            strokeWidth="1"
+          />
+        </svg>
+      )}
 
-      {/* Inject keyframes for this planet */}
-      <style>{generateKeyframes()}</style>
+      {/* Inject keyframes for this planet - only needed for desktop */}
+      {!isMobile && <style>{generateKeyframes()}</style>}
 
-      {/* Planet container - orbits along ellipse */}
+      {/* Planet container - orbits along ellipse in desktop, static in mobile */}
       <div
         className="absolute"
-        style={{
+        style={isMobile ? {
+          // Mobile: center the planet
+          position: 'relative',
+          zIndex: 10,
+        } : {
+          // Desktop: orbital motion
           left: '0',
           top: '0',
           animation: `${animationName} ${orbitDuration}s linear infinite`,
@@ -513,11 +529,33 @@ const Planet = ({
 export const SolarSystem2D = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [currentPlanetIndex, setCurrentPlanetIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleToggle = () => {
     setIsAnimating(true);
     setIsExpanded(!isExpanded);
     setTimeout(() => setIsAnimating(false), 1000); // Match transition duration
+  };
+
+  const nextPlanet = () => {
+    setCurrentPlanetIndex((prev) => (prev + 1) % planets.length);
+  };
+
+  const prevPlanet = () => {
+    setCurrentPlanetIndex((prev) => (prev - 1 + planets.length) % planets.length);
   };
 
   return (
@@ -527,8 +565,13 @@ export const SolarSystem2D = () => {
       {/* COMET Logo Button - Clickable to toggle asteroids */}
       <div
         onClick={handleToggle}
-        className="fixed z-50 flex flex-col items-center justify-center transition-transform duration-500 ease-out cursor-pointer hover:scale-105"
-        style={{
+        className={`fixed z-50 flex flex-col items-center justify-center transition-transform duration-500 ease-out cursor-pointer hover:scale-105 ${
+          isMobile ? 'top-8' : ''
+        }`}
+        style={isMobile ? {
+          left: '50%',
+          transform: 'translateX(-50%)',
+        } : {
           bottom: 'calc(7% - 50px)',
           left: '50%',
           transform: 'translateX(-50%)',
@@ -537,7 +580,7 @@ export const SolarSystem2D = () => {
         <h1
           className="font-display font-bold tracking-widest transition-all duration-500"
           style={{
-            fontSize: isExpanded ? '2.4rem' : '2.8rem',
+            fontSize: isMobile ? (isExpanded ? '1.8rem' : '2rem') : (isExpanded ? '2.4rem' : '2.8rem'),
             background: 'radial-gradient(ellipse at center, hsl(20, 100%, 22%) 0%, hsl(15, 90%, 15%) 50%, hsl(10, 80%, 10%) 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -557,7 +600,7 @@ export const SolarSystem2D = () => {
         <p
           className="tracking-widest uppercase font-semibold transition-opacity duration-500"
           style={{
-            fontSize: '0.55rem',
+            fontSize: isMobile ? '0.45rem' : '0.55rem',
             color: 'rgba(255, 200, 100, 0.8)',
             letterSpacing: '0.8em',
             marginTop: '-5px',
@@ -570,94 +613,136 @@ export const SolarSystem2D = () => {
       </div>
 
       {/* Sun Component with State Control */}
-      <Sun isExpanded={isExpanded} onToggle={handleToggle} />
+      <Sun isExpanded={isExpanded} onToggle={handleToggle} isMobile={isMobile} />
 
       {/* Planets Container - Expands/Moves away when Sun is active */}
       <div
-        className="absolute inset-0 transition-transform duration-1000 ease-in-out pointer-events-none"
-        style={{
+        className={`absolute inset-0 transition-transform duration-1000 ease-in-out pointer-events-none ${isMobile ? '' : ''}`}
+        style={isMobile ? {} : {
           transform: isExpanded ? 'scale(1.3) translateY(-10%)' : 'scale(1)', // Move planets back/up slightly
           opacity: isExpanded ? 0.6 : 1, // Fade them out slightly to focus on asteroids
           filter: isExpanded ? 'blur(1px)' : 'none',
           transformOrigin: '50% 100%'
         }}
       >
-        <div className="pointer-events-auto">
-          {planets.map((planet, index) => (
-            <Planet key={planet.name} {...planet} index={index} />
-          ))}
+        <div className="pointer-events-auto" style={isMobile ? { marginRight: '10%' } : {}}>
+          {isMobile ? (
+            // Mobile: Show only current planet
+            <Planet key={planets[currentPlanetIndex].name} {...planets[currentPlanetIndex]} index={currentPlanetIndex} isMobile={isMobile} />
+          ) : (
+            // Desktop: Show all planets
+            planets.map((planet, index) => (
+              <Planet key={planet.name} {...planet} index={index} isMobile={isMobile} />
+            ))
+          )}
         </div>
       </div>
 
-      {/* New Asteroid Belt - Appears only when Sun is expanded */}
-      <div
-        className={`absolute inset-0 pointer-events-none transition-opacity duration-1000 ${isExpanded ? 'opacity-100' : 'opacity-0'}`}
-        style={{ zIndex: 20 }}
-      >
-        <div className="pointer-events-none">
-          {/* Asteroid 1 - MINING */}
-          <Asteroid
-            size={50}
-            orbitRadius={350}
-            orbitDuration={25}
-            startAngle={150}
-            color="hsl(30, 40%, 40%)"
-            glowColor="hsl(35, 80%, 60%)"
-            label="MINING"
-            icon={LayoutDashboard}
-            active={isExpanded}
-          />
-          {/* Asteroid 2 - RESEARCH */}
-          <Asteroid
-            size={45}
-            orbitRadius={350}
-            orbitDuration={30}
-            startAngle={120}
-            color="hsl(25, 30%, 35%)"
-            glowColor="hsl(30, 70%, 50%)"
-            label="RESEARCH"
-            icon={Search}
-            active={isExpanded}
-          />
-          {/* Asteroid 3 - CREW */}
-          <Asteroid
-            size={55}
-            orbitRadius={350}
-            orbitDuration={28}
-            startAngle={90}
-            delay={-5}
-            color="hsl(40, 20%, 30%)"
-            glowColor="hsl(45, 60%, 40%)"
-            label="CREW"
-            icon={User}
-            active={isExpanded}
-          />
-          {/* Asteroid 4 - SECURITY */}
-          <Asteroid
-            size={40}
-            orbitRadius={350}
-            orbitDuration={35}
-            startAngle={60}
-            color="hsl(20, 35%, 25%)"
-            glowColor="hsl(25, 70%, 45%)"
-            label="SECURITY"
-            icon={LogIn}
-            active={isExpanded}
-          />
-          {/* Asteroid 5 - SYSTEMS */}
-          <Asteroid
-            size={60}
-            orbitRadius={350}
-            orbitDuration={32}
-            startAngle={30}
-            color="hsl(15, 25%, 30%)"
-            glowColor="hsl(20, 60%, 50%)"
-            label="SYSTEMS"
-            icon={Power}
-            active={isExpanded}
-          />
+      {/* New Asteroid Belt - Appears only when Sun is expanded - Hidden in mobile */}
+      {!isMobile && (
+        <div
+          className={`absolute inset-0 pointer-events-none transition-opacity duration-1000 ${isExpanded ? 'opacity-100' : 'opacity-0'}`}
+          style={{ zIndex: 20 }}
+        >
+          <div className="pointer-events-none">
+            {/* Asteroid 1 - MINING */}
+            <Asteroid
+              size={50}
+              orbitRadius={350}
+              orbitDuration={25}
+              startAngle={150}
+              color="hsl(30, 40%, 40%)"
+              glowColor="hsl(35, 80%, 60%)"
+              label="MINING"
+              icon={LayoutDashboard}
+              active={isExpanded}
+            />
+            {/* Asteroid 2 - RESEARCH */}
+            <Asteroid
+              size={45}
+              orbitRadius={350}
+              orbitDuration={30}
+              startAngle={120}
+              color="hsl(25, 30%, 35%)"
+              glowColor="hsl(30, 70%, 50%)"
+              label="RESEARCH"
+              icon={Search}
+              active={isExpanded}
+            />
+            {/* Asteroid 3 - CREW */}
+            <Asteroid
+              size={55}
+              orbitRadius={350}
+              orbitDuration={28}
+              startAngle={90}
+              delay={-5}
+              color="hsl(40, 20%, 30%)"
+              glowColor="hsl(45, 60%, 40%)"
+              label="CREW"
+              icon={User}
+              active={isExpanded}
+            />
+            {/* Asteroid 4 - SECURITY */}
+            <Asteroid
+              size={40}
+              orbitRadius={350}
+              orbitDuration={35}
+              startAngle={60}
+              color="hsl(20, 35%, 25%)"
+              glowColor="hsl(25, 70%, 45%)"
+              label="SECURITY"
+              icon={LogIn}
+              active={isExpanded}
+            />
+            {/* Asteroid 5 - SYSTEMS */}
+            <Asteroid
+              size={60}
+              orbitRadius={350}
+              orbitDuration={32}
+              startAngle={30}
+              color="hsl(15, 25%, 30%)"
+              glowColor="hsl(20, 60%, 50%)"
+              label="SYSTEMS"
+              icon={Power}
+              active={isExpanded}
+            />
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Mobile Navigation Controls */}
+      {isMobile && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-6">
+          <button
+            onClick={prevPlanet}
+            className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-110 active:scale-95"
+            style={{
+              boxShadow: '0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(59, 130, 246, 0.3)',
+            }}
+          >
+            <ChevronLeft size={28} color="white" strokeWidth={3} />
+          </button>
+          
+          <div className="flex flex-col items-center">
+            <span className="text-white text-lg font-bold tracking-wider" style={{ textShadow: '0 0 10px rgba(255, 255, 255, 0.5)' }}>
+              {planets[currentPlanetIndex].name}
+            </span>
+            <span className="text-white/60 text-xs tracking-widest">
+              {currentPlanetIndex + 1} / {planets.length}
+            </span>
+          </div>
+          
+          <button
+            onClick={nextPlanet}
+            className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-110 active:scale-95"
+            style={{
+              boxShadow: '0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(59, 130, 246, 0.3)',
+            }}
+          >
+            <ChevronRight size={28} color="white" strokeWidth={3} />
+          </button>
+        </div>
+      )}
 
       {/* CSS for animations */}
       <style>{`
