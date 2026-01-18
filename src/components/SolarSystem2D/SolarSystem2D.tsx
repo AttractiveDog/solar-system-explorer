@@ -224,14 +224,15 @@ interface SunProps {
 
 const Sun = ({ isExpanded, onToggle, isMobile }: SunProps) => {
   const sunSize = isMobile ? 400 : 1200;
-
+  
   return (
     <div
       onClick={onToggle}
-      className={`absolute cursor-pointer ${isMobile
-        ? 'left-0 top-1/2 -translate-y-1/2 -translate-x-[75%]'
-        : 'bottom-0 left-1/2 -translate-x-1/2 translate-y-[90%]'
-        }`}
+      className={`absolute cursor-pointer ${
+        isMobile 
+          ? 'left-0 top-1/2 -translate-y-1/2 -translate-x-[75%]' 
+          : 'bottom-0 left-1/2 -translate-x-1/2 translate-y-[90%]'
+      }`}
       role="button"
       aria-label="Toggle navigation menu"
     >
@@ -406,8 +407,8 @@ const Planet = ({
           // Mobile: center the planet with orbit animation
           position: 'relative',
           zIndex: 10,
-          transform: isOrbiting
-            ? orbitDirection === 'left'
+          transform: isOrbiting 
+            ? orbitDirection === 'left' 
               ? 'translate(-100px, -150px) scale(0.5) rotate(-30deg)' // Orbit up and to the left
               : 'translate(100px, -150px) scale(0.5) rotate(30deg)'   // Orbit up and to the right
             : 'translate(0, 0) scale(1) rotate(0deg)',
@@ -487,10 +488,10 @@ export const SolarSystem2D = () => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768);
     };
-
+    
     checkMobile();
     window.addEventListener('resize', checkMobile);
-
+    
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
@@ -534,7 +535,7 @@ export const SolarSystem2D = () => {
 
   const onTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
-
+    
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
@@ -547,7 +548,7 @@ export const SolarSystem2D = () => {
   };
 
   return (
-    <div
+    <div 
       className="absolute inset-0 overflow-hidden bg-gradient-to-b from-[hsl(240,50%,5%)] via-[hsl(250,40%,4%)] to-[hsl(260,50%,8%)]"
       onTouchStart={isMobile ? onTouchStart : undefined}
       onTouchMove={isMobile ? onTouchMove : undefined}
@@ -555,26 +556,28 @@ export const SolarSystem2D = () => {
     >
       <Stars />
 
-      {/* Background Logo 'comet' */}
-      <div
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none z-0"
+      {/* Background Watermark */}
+      <div 
+        className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden"
+        style={{ zIndex: 0 }} 
       >
-        <img
-          src="/comet-logo-original.png"
-          alt="Comet"
-          className="w-[50vw] h-auto opacity-100"
-          style={{
-            filter: 'grayscale(1) brightness(10) contrast(100)',
-            maxWidth: '1200px'
-          }}
-        />
+        <span style={{
+          fontFamily: 'Okaluera, sans-serif', // Use the custom font
+          fontSize: '25vw', 
+          color: 'rgba(255, 255, 255, 1)', // Very subtle opacity
+          
+          
+        }}>
+          COMET
+        </span>
       </div>
 
       {/* COMET Logo Button - Clickable to toggle asteroids */}
       <div
         onClick={handleToggle}
-        className={`fixed z-50 flex flex-col items-center justify-center transition-transform duration-500 ease-out cursor-pointer hover:scale-105 ${isMobile ? 'top-8' : ''
-          }`}
+        className={`fixed z-50 flex flex-col items-center justify-center transition-transform duration-500 ease-out cursor-pointer hover:scale-105 ${
+          isMobile ? 'top-8' : ''
+        }`}
         style={isMobile ? {
           left: '50%',
           transform: 'translateX(-50%)',
@@ -602,7 +605,7 @@ export const SolarSystem2D = () => {
             letterSpacing: '0.3em',
           }}
         >
-          ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ
+          ㅤㅤㅤㅤㅤㅤㅤㅤㅤ
         </h1>
         <p
           className="tracking-widest uppercase font-semibold transition-opacity duration-500"
@@ -635,10 +638,10 @@ export const SolarSystem2D = () => {
         <div className="pointer-events-auto">
           {isMobile ? (
             // Mobile: Show only current planet
-            <Planet
-              key={planets[currentPlanetIndex].name}
-              {...planets[currentPlanetIndex]}
-              index={currentPlanetIndex}
+            <Planet 
+              key={planets[currentPlanetIndex].name} 
+              {...planets[currentPlanetIndex]} 
+              index={currentPlanetIndex} 
               isMobile={isMobile}
               isOrbiting={isOrbiting}
               orbitDirection={orbitDirection}
@@ -736,7 +739,7 @@ export const SolarSystem2D = () => {
           >
             <ChevronLeft size={28} color="white" strokeWidth={3} />
           </button>
-
+          
           <div className="flex flex-col items-center">
             <span className="text-white text-lg font-bold tracking-wider" style={{ textShadow: '0 0 10px rgba(255, 255, 255, 0.5)' }}>
               {planets[currentPlanetIndex].name}
@@ -745,7 +748,7 @@ export const SolarSystem2D = () => {
               {currentPlanetIndex + 1} / {planets.length}
             </span>
           </div>
-
+          
           <button
             onClick={nextPlanet}
             className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-110 active:scale-95"
