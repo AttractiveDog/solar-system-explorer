@@ -6,7 +6,7 @@ const planets = [
     name: 'TERRA',
     color: 'hsl(210, 100%, 65%)',
     glowColor: 'hsl(210, 100%, 70%)',
-    size: 120,
+    size: 300,
     orbitRadius: 200,
     orbitDuration: 12,
     rotationDuration: 4,
@@ -17,7 +17,7 @@ const planets = [
     name: 'EMBER',
     color: 'hsl(0, 80%, 50%)',
     glowColor: 'hsl(0, 100%, 60%)',
-    size: 120,
+    size: 400,
     orbitRadius: 300,
     orbitDuration: 18,
     rotationDuration: 3,
@@ -28,20 +28,18 @@ const planets = [
     name: 'AZURE',
     color: 'hsl(165, 100%, 42%)',
     glowColor: 'hsl(165, 100%, 50%)',
-    size: 110,
+    size: 500,
     orbitRadius: 400,
     orbitDuration: 26,
     rotationDuration: 2,
     discovered: true,
-    hasRings: true,
-    ringColor: 'hsl(165, 80%, 60%)',
     texture: '/planet-azure.png',
   },
   {
     name: 'PHANTOM-X',
     color: 'hsl(320, 100%, 70%)',
     glowColor: 'hsl(320, 100%, 80%)',
-    size: 60,
+    size: 90,
     orbitRadius: 500,
     orbitDuration: 35,
     rotationDuration: 6,
@@ -52,13 +50,11 @@ const planets = [
     name: 'VOID-7',
     color: 'hsl(240, 40%, 12%)',
     glowColor: 'hsl(260, 50%, 30%)',
-    size: 55,
+    size: 85,
     orbitRadius: 550,
     orbitDuration: 50,
     rotationDuration: 8,
     discovered: false,
-    hasRings: true,
-    ringColor: 'hsl(260, 40%, 25%)',
     texture: '/planet-void.png',
   },
 ];
@@ -335,7 +331,7 @@ const Planet = ({
   orbitDirection = null,
 }: PlanetProps) => {
   // Use fixed size for all planets in mobile, original size in desktop
-  const displaySize = isMobile ? 250 : size;
+  const displaySize = isMobile ? 350 : size;
   const [isHovered, setIsHovered] = useState(false);
 
   // Ellipse dimensions: wider than tall
@@ -457,24 +453,6 @@ const Planet = ({
               transition: 'filter 0.3s ease-in-out',
             }}
           >
-            {/* Rings (if applicable) - rendered behind */}
-            {hasRings && (
-              <div
-                className="absolute"
-                style={{
-                  left: '50%',
-                  top: '50%',
-                  width: `${displaySize * 2.2}px`,
-                  height: `${displaySize * 0.6}px`,
-                  border: `3px solid ${ringColor}`,
-                  borderRadius: '50%',
-                  opacity: discovered ? 0.7 : 0.4,
-                  transform: 'translate(-50%, -50%) rotateX(75deg)',
-                  zIndex: -1,
-                }}
-              />
-            )}
-
             {/* 3D Planet using Three.js */}
             <Planet3D
               size={displaySize}
