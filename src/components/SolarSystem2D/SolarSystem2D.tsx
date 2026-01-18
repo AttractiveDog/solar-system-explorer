@@ -6,7 +6,7 @@ const planets = [
     name: 'TERRA',
     color: 'hsl(210, 100%, 65%)',
     glowColor: 'hsl(210, 100%, 70%)',
-    size: 300,
+    size: 150, // Adjusted for new camera zoom (was 300)
     orbitRadius: 200,
     orbitDuration: 24,
     rotationDuration: 8,
@@ -17,7 +17,7 @@ const planets = [
     name: 'EMBER',
     color: 'hsl(0, 80%, 50%)',
     glowColor: 'hsl(0, 100%, 60%)',
-    size: 300,
+    size: 150, // Adjusted (was 300)
     orbitRadius: 300,
     orbitDuration: 36,
     rotationDuration: 6,
@@ -28,7 +28,7 @@ const planets = [
     name: 'AZURE',
     color: 'hsl(165, 100%, 42%)',
     glowColor: 'hsl(165, 100%, 50%)',
-    size: 300,
+    size: 150, // Adjusted (was 300)
     orbitRadius: 400,
     orbitDuration: 52,
     rotationDuration: 4,
@@ -39,7 +39,7 @@ const planets = [
     name: 'PHANTOM-X',
     color: 'hsl(320, 100%, 70%)',
     glowColor: 'hsl(320, 100%, 80%)',
-    size: 90,
+    size: 45, // Adjusted (was 90)
     orbitRadius: 500,
     orbitDuration: 70,
     rotationDuration: 12,
@@ -50,7 +50,7 @@ const planets = [
     name: 'VOID-7',
     color: 'hsl(240, 40%, 12%)',
     glowColor: 'hsl(260, 50%, 30%)',
-    size: 85,
+    size: 42, // Adjusted (was 85)
     orbitRadius: 550,
     orbitDuration: 100,
     rotationDuration: 16,
@@ -331,7 +331,7 @@ const Planet = ({
   orbitDirection = null,
 }: PlanetProps) => {
   // Use fixed size for all planets in mobile, original size in desktop
-  const displaySize = isMobile ? 350 : size;
+  const displaySize = isMobile ? 180 : size;
   const [isHovered, setIsHovered] = useState(false);
 
   // Ellipse dimensions: wider than tall
@@ -421,7 +421,7 @@ const Planet = ({
           animation: `${animationName} ${orbitDuration}s linear infinite`,
           animationDelay: `${index * -5}s`,
           animationPlayState: isHovered ? 'paused' : 'running',
-          zIndex: 10,
+          zIndex: isHovered ? 100 : 10,
         }}
       >
         {/* Planet wrapper for centering */}
@@ -437,7 +437,8 @@ const Planet = ({
             width: `${displaySize}px`,
             height: `${displaySize}px`,
             borderRadius: '50%', // Make hit area circular
-            transform: `translate(-50%, -50%) scale(${isHovered ? 1.3 : 1})`,
+            // Removed scale from here to keep hit box constant size
+            transform: `translate(-50%, -50%)`,
             transition: 'transform 0.3s ease-in-out',
             cursor: 'pointer',
           }}
@@ -447,11 +448,13 @@ const Planet = ({
             style={{
               position: 'absolute',
               inset: 0,
+              // Apply scaling here instead so the visual grows but the hit-box stays the same
+              transform: isHovered ? 'scale(1.3)' : 'scale(1)',
               filter: isHovered
                 ? `drop-shadow(0 0 ${displaySize * 1.5}px ${glowColor}) drop-shadow(0 0 ${displaySize * 0.9}px ${glowColor}) drop-shadow(0 0 ${displaySize * 2.4}px ${glowColor}88)`
                 : `drop-shadow(0 0 ${displaySize * 0.5}px ${glowColor}) drop-shadow(0 0 ${displaySize * 0.3}px ${glowColor}) drop-shadow(0 0 ${displaySize * 0.8}px ${glowColor}88)`,
               animation: 'planetGlow 3s ease-in-out infinite',
-              transition: 'filter 0.3s ease-in-out',
+              transition: 'filter 0.3s ease-in-out, transform 0.3s ease-in-out',
             }}
           >
             {/* 3D Planet using Three.js */}

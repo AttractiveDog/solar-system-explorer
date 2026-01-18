@@ -39,7 +39,7 @@ export const Planet3D = ({
       0.1,
       1000
     );
-    camera.position.z = size * 2.5;
+    camera.position.z = size * 1.4;
     cameraRef.current = camera;
 
     // Create renderer
@@ -64,9 +64,13 @@ export const Planet3D = ({
       const planetTexture = textureLoader.load(texture);
       planetTexture.colorSpace = THREE.SRGBColorSpace;
       
+      // Ensure texture wraps correctly if it's meant to be seamless, 
+      // though for 2D icons this might not help much.
+      // We apply the base color as well to tint/fill gaps if the texture has transparency issues.
       material = new THREE.MeshStandardMaterial({
         map: planetTexture,
-        roughness: 0.7,
+        color: new THREE.Color(color), 
+        roughness: 0.8,
         metalness: 0.1,
       });
     } else {
@@ -77,23 +81,65 @@ export const Planet3D = ({
       });
     }
 
-    // Create mesh
+    // Create planet mesh
     const planet = new THREE.Mesh(geometry, material);
     planetMeshRef.current = planet;
     scene.add(planet);
 
+    // Atmosphere Halo
+    // Create a slightly larger sphere for atmosphere
+    const atmosphereGeometry = new THREE.SphereGeometry((size / 2) * 1.2, 64, 64);
+    const atmosphereMaterial = new THREE.ShaderMaterial({
+      vertexShader: `
+        varying vec3 vNormal;
+        void main() {
+          vNormal = normalize(normalMatrix * normal);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 glowColor;
+        varying vec3 vNormal;
+        void main() {
+          // Calculate intensity based on the angle to the camera
+          // For BackSide, normal points towards camera at center (dot=1) and perpendicular at edge (dot=0)
+          // We want it to be bright near the planet (center-ish) and fade out at the edge (dot=0)
+          float intensity = pow(0.6 * dot(vNormal, vec3(0, 0, 1.0)), 2.0);
+          gl_FragColor = vec4(glowColor, 1.0) * intensity;
+        }
+      `,
+      uniforms: {
+        glowColor: { value: new THREE.Color(glowColor) },
+      },
+      blending: THREE.AdditiveBlending,
+      side: THREE.BackSide, // Render the inside of the larger sphere
+      transparent: true,
+      depthWrite: false,
+    });
+
+    const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+    scene.add(atmosphere);
+
     // Add lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+    // Reduce AmbientLight for darker shadows
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.1); 
     scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
-    directionalLight.position.set(-5, 3, 5);
+    // Main Directional Light (Sunlight)
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 2.0);
+    directionalLight.position.set(-5, 3, 5); // From top left front
     scene.add(directionalLight);
 
-    // Add point light for glow effect
-    const glowLight = new THREE.PointLight(new THREE.Color(glowColor), 0.5, size * 3);
-    glowLight.position.set(0, 0, 0);
-    scene.add(glowLight);
+    // Rim Light (Backlight) for edge highlighting
+    const rimLight = new THREE.SpotLight(new THREE.Color(glowColor), 2.0);
+    rimLight.position.set(5, 0, -5); // Behind and right
+    rimLight.lookAt(0, 0, 0);
+    scene.add(rimLight);
+
+    // Add point light for internal glow effect
+    const internalGlowLight = new THREE.PointLight(new THREE.Color(glowColor), 0.5, size * 3);
+    internalGlowLight.position.set(0, 0, 0);
+    scene.add(internalGlowLight);
 
     // Animation loop
     const animate = () => {
@@ -101,9 +147,11 @@ export const Planet3D = ({
 
       if (planetMeshRef.current) {
         // Rotate the planet
-        planetMeshRef.current.rotation.y += rotationSpeed * 0.01;
+        planetMeshRef.current.rotation.y += rotationSpeed * 0.005; // Slower, more majestic rotation
         planetMeshRef.current.rotation.x = Math.PI * 0.1; // Slight tilt
       }
+      
+      // Atmosphere doesn't necessarily need to rotate, but if we wanted moving clouds we'd do it here.
 
       renderer.render(scene, camera);
     };
@@ -120,6 +168,10 @@ export const Planet3D = ({
       
       geometry.dispose();
       if (material) material.dispose();
+      
+      atmosphereGeometry.dispose();
+      atmosphereMaterial.dispose();
+      
       renderer.dispose();
     };
   }, [size, color, glowColor, texture, rotationSpeed]);
