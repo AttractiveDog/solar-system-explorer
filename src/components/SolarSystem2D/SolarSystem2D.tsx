@@ -400,7 +400,7 @@ const Planet = ({
               filter: isHovered
                 ? `drop-shadow(0 0 ${displaySize * 1.5}px ${glowColor}) drop-shadow(0 0 ${displaySize * 0.9}px ${glowColor}) drop-shadow(0 0 ${displaySize * 2.4}px ${glowColor}88)`
                 : `drop-shadow(0 0 ${displaySize * 0.5}px ${glowColor}) drop-shadow(0 0 ${displaySize * 0.3}px ${glowColor}) drop-shadow(0 0 ${displaySize * 0.8}px ${glowColor}88)`,
-              animation: 'planetGlow 3s ease-in-out infinite',
+              // animation: 'planetGlow 3s ease-in-out infinite', <--- Removed to stop opacity pulsing
               transition: 'filter 0.3s ease-in-out, transform 0.3s ease-in-out',
             }}
           >
@@ -577,7 +577,7 @@ export const SolarSystem2D = () => {
         className={`absolute inset-0 transition-transform duration-1000 ease-in-out pointer-events-none ${isMobile ? '' : ''}`}
         style={isMobile ? {} : {
           transform: isExpanded ? 'scale(1.3) translateY(-10%)' : 'scale(1)', // Move planets back/up slightly
-          opacity: isExpanded ? 0.6 : 1, // Fade them out slightly to focus on asteroids
+          opacity: 1, // Keep planets solid
           filter: isExpanded ? 'blur(1px)' : 'none',
           transformOrigin: '50% 100%'
         }}
@@ -767,10 +767,10 @@ export const SolarSystem2D = () => {
         
         @keyframes planetGlow {
           0%, 100% {
-            opacity: 0.8;
+            filter: brightness(1);
           }
           50% {
-            opacity: 1;
+             filter: brightness(1.1);
           }
         }
         

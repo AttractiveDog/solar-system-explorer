@@ -81,6 +81,17 @@ export const Planet3D = ({
       });
     }
 
+    // Create black core to ensure opacity (obscures background text)
+    const coreMaterial = new THREE.MeshBasicMaterial({ 
+      color: 0x000000,
+      opacity: 1,
+      transparent: false,
+      side: THREE.FrontSide
+    });
+    const core = new THREE.Mesh(geometry, coreMaterial);
+    core.scale.setScalar(0.98); // Slightly smaller to avoid z-fighting but large enough to block
+    scene.add(core);
+
     // Create planet mesh
     const planet = new THREE.Mesh(geometry, material);
     planetMeshRef.current = planet;
@@ -168,6 +179,7 @@ export const Planet3D = ({
       
       geometry.dispose();
       if (material) material.dispose();
+      coreMaterial.dispose();
       
       atmosphereGeometry.dispose();
       atmosphereMaterial.dispose();
@@ -183,7 +195,7 @@ export const Planet3D = ({
         width: `${size}px`,
         height: `${size}px`,
         filter: `drop-shadow(0 0 ${size * 0.5}px ${glowColor})`,
-        opacity: discovered ? 1 : 0.6,
+        opacity: 1,
       }}
     />
   );
