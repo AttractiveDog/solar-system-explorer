@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Planet3D } from '../Planet3D';
+import { Sun3D } from '../Sun3D/Sun3D';
 
 const planets = [
   {
@@ -231,66 +232,12 @@ const Sun = ({ isExpanded, onToggle, isMobile }: SunProps) => {
       className={`absolute cursor-pointer ${
         isMobile 
           ? 'left-0 top-1/2 -translate-y-1/2 -translate-x-[75%]' 
-          : 'bottom-0 left-1/2 -translate-x-1/2 translate-y-[90%]'
+          : 'bottom-0 left-1/2 -translate-x-1/2 translate-y-[75%]'
       }`}
       role="button"
       aria-label="Toggle navigation menu"
     >
-
-      {/* Sun core - Visual Representation */}
-      <div
-        className="relative rounded-full transition-all duration-700 ease-in-out group"
-        style={{
-          width: `${sunSize}px`,
-          height: `${sunSize}px`,
-          background: isExpanded
-            ? 'radial-gradient(circle at 50% 30%, hsl(45, 100%, 75%) 0%, hsl(40, 100%, 60%) 40%, hsl(25, 100%, 50%) 100%)' // Hotter when expanded
-            : 'radial-gradient(circle at 30% 30%, hsl(45, 100%, 70%) 0%, hsl(35, 100%, 55%) 40%, hsl(25, 100%, 45%) 100%)',
-          boxShadow: isExpanded
-            ? '0 0 100px 40px hsla(35, 100%, 60%, 0.8), 0 0 200px 80px hsla(35, 100%, 50%, 0.4)'
-            : '0 0 60px 25px hsla(35, 100%, 50%, 0.6), 0 0 120px 50px hsla(35, 100%, 50%, 0.3)',
-        }}
-      >
-        {/* Sun surface details */}
-        <div
-          className="absolute inset-0 rounded-full opacity-30 transition-opacity duration-700"
-          style={{
-            background: 'radial-gradient(circle at 70% 60%, transparent 20%, hsla(20, 100%, 40%, 0.3) 100%)',
-            opacity: isExpanded ? 0.5 : 0.3,
-          }}
-        />
-      </div>
-
-      {/* Sun glow layers */}
-      <div
-        className="absolute rounded-full animate-pulse transition-all duration-700 ease-in-out"
-        style={{
-          width: '300px',
-          height: '300px',
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
-          background: 'radial-gradient(circle, hsla(35, 100%, 60%, 0.2) 0%, transparent 70%)',
-          opacity: isExpanded ? 0.8 : 1,
-          scale: isExpanded ? 1.5 : 1,
-        }}
-      />
-      <div
-        className="absolute rounded-full transition-all duration-700 ease-in-out"
-        style={{
-          width: '200px',
-          height: '200px',
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
-          background: 'radial-gradient(circle, hsla(35, 100%, 55%, 0.4) 0%, transparent 60%)',
-          scale: isExpanded ? 1.3 : 1,
-        }}
-      />
-
-
-
-
+      <Sun3D size={sunSize} isExpanded={isExpanded} />
     </div>
   );
 };
