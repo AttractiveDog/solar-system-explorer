@@ -121,25 +121,25 @@ export const Planet3D = ({
     scene.add(atmosphere);
 
     // Add lighting
-    // Reduce AmbientLight for darker shadows
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.1); 
+    // AmbientLight provides base illumination
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4); 
     scene.add(ambientLight);
 
     // Main Directional Light (Sunlight)
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 2.0);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
     directionalLight.position.set(-5, 3, 5); // From top left front
     scene.add(directionalLight);
 
+    // Fill Light to soften deep shadows
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    fillLight.position.set(5, 0, 5); // From right front
+    scene.add(fillLight);
+
     // Rim Light (Backlight) for edge highlighting
-    const rimLight = new THREE.SpotLight(new THREE.Color(glowColor), 2.0);
-    rimLight.position.set(5, 0, -5); // Behind and right
+    const rimLight = new THREE.SpotLight(new THREE.Color(glowColor), 3.0);
+    rimLight.position.set(0, 5, -10); // Directly behind and above
     rimLight.lookAt(0, 0, 0);
     scene.add(rimLight);
-
-    // Add point light for internal glow effect
-    const internalGlowLight = new THREE.PointLight(new THREE.Color(glowColor), 0.5, size * 3);
-    internalGlowLight.position.set(0, 0, 0);
-    scene.add(internalGlowLight);
 
     // Animation loop
     const animate = () => {
