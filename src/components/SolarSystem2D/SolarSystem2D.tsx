@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Planet3D } from '../Planet3D';
 
 const planets = [
   {
@@ -312,6 +313,8 @@ interface PlanetProps {
   texture?: string;
   index: number;
   isMobile: boolean;
+  isOrbiting?: boolean;
+  orbitDirection?: 'left' | 'right' | null;
 }
 
 const Planet = ({
@@ -328,7 +331,11 @@ const Planet = ({
   texture,
   index,
   isMobile,
+  isOrbiting = false,
+  orbitDirection = null,
 }: PlanetProps) => {
+  // Use fixed size for all planets in mobile, original size in desktop
+  const displaySize = isMobile ? 250 : size;
   const [isHovered, setIsHovered] = useState(false);
 
   // Ellipse dimensions: wider than tall
@@ -364,7 +371,10 @@ const Planet = ({
   return (
     <div
       className={isMobile ? "absolute inset-0 flex items-center justify-center" : "absolute bottom-0 left-1/2"}
-      style={isMobile ? {} : {
+      style={isMobile ? {
+        paddingLeft: '50%', // Shift right to center in visible area (accounting for sun on left)
+        paddingTop: '30%', // Shift down vertically
+      } : {
         width: `${ellipseWidth}px`,
         height: `${ellipseHeight}px`,
         marginLeft: `-${ellipseWidth / 2}px`,
@@ -398,9 +408,16 @@ const Planet = ({
       <div
         className="absolute"
         style={isMobile ? {
-          // Mobile: center the planet
+          // Mobile: center the planet with orbit animation
           position: 'relative',
           zIndex: 10,
+          transform: isOrbiting 
+            ? orbitDirection === 'left' 
+              ? 'translateX(-150%) scale(0.8)' 
+              : 'translateX(150%) scale(0.8)'
+            : 'translateX(0) scale(1)',
+          opacity: isOrbiting ? 0 : 1,
+          transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
         } : {
           // Desktop: orbital motion
           left: '0',
@@ -421,8 +438,8 @@ const Planet = ({
           }}
           style={{
             position: 'relative',
-            width: `${size}px`,
-            height: `${size}px`,
+            width: `${displaySize}px`,
+            height: `${displaySize}px`,
             transform: `translate(-50%, -50%) scale(${isHovered ? 1.3 : 1})`,
             transition: 'transform 0.3s ease-in-out',
             cursor: 'pointer',
@@ -434,8 +451,8 @@ const Planet = ({
               position: 'absolute',
               inset: 0,
               filter: isHovered
-                ? `drop-shadow(0 0 ${size * 1.5}px ${glowColor}) drop-shadow(0 0 ${size * 0.9}px ${glowColor}) drop-shadow(0 0 ${size * 2.4}px ${glowColor}88)`
-                : `drop-shadow(0 0 ${size * 0.5}px ${glowColor}) drop-shadow(0 0 ${size * 0.3}px ${glowColor}) drop-shadow(0 0 ${size * 0.8}px ${glowColor}88)`,
+                ? `drop-shadow(0 0 ${displaySize * 1.5}px ${glowColor}) drop-shadow(0 0 ${displaySize * 0.9}px ${glowColor}) drop-shadow(0 0 ${displaySize * 2.4}px ${glowColor}88)`
+                : `drop-shadow(0 0 ${displaySize * 0.5}px ${glowColor}) drop-shadow(0 0 ${displaySize * 0.3}px ${glowColor}) drop-shadow(0 0 ${displaySize * 0.8}px ${glowColor}88)`,
               animation: 'planetGlow 3s ease-in-out infinite',
               transition: 'filter 0.3s ease-in-out',
             }}
@@ -447,8 +464,8 @@ const Planet = ({
                 style={{
                   left: '50%',
                   top: '50%',
-                  width: `${size * 2.2}px`,
-                  height: `${size * 0.6}px`,
+                  width: `${displaySize * 2.2}px`,
+                  height: `${displaySize * 0.6}px`,
                   border: `3px solid ${ringColor}`,
                   borderRadius: '50%',
                   opacity: discovered ? 0.7 : 0.4,
@@ -458,67 +475,15 @@ const Planet = ({
               />
             )}
 
-            {/* Planet body - main sphere */}
-            <div
-              className="rounded-full relative overflow-hidden"
-              style={{
-                width: `${size}px`,
-                height: `${size}px`,
-                backgroundImage: texture ? `url(${texture})` : `radial-gradient(circle at 35% 30%, ${color}, ${color}dd 50%, ${color}88 100%)`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                boxShadow: isHovered
-                  ? `
-                  0 0 ${size * 2.4}px ${size * 1.6}px ${glowColor}80,
-                  0 0 ${size * 1.6}px ${size * 1.0}px ${glowColor},
-                  0 0 ${size * 0.8}px ${size * 0.4}px ${glowColor}ff,
-                  inset -${size * 0.2}px -${size * 0.2}px ${size * 0.4}px rgba(0,0,0,0.6),
-                  inset ${size * 0.15}px ${size * 0.15}px ${size * 0.3}px rgba(255,255,255,0.1)
-                `
-                  : `
-                  0 0 ${size * 1.2}px ${size * 0.8}px ${glowColor}80,
-                  0 0 ${size * 0.8}px ${size * 0.5}px ${glowColor},
-                  0 0 ${size * 0.4}px ${size * 0.2}px ${glowColor}ff,
-                  inset -${size * 0.2}px -${size * 0.2}px ${size * 0.4}px rgba(0,0,0,0.6),
-                  inset ${size * 0.15}px ${size * 0.15}px ${size * 0.3}px rgba(255,255,255,0.1)
-                `,
-                opacity: discovered ? 1 : 0.6,
-                animation: `spin ${rotationDuration}s linear infinite`,
-                animationPlayState: isHovered ? 'paused' : 'running',
-                position: 'relative',
-                zIndex: 1,
-                transition: 'box-shadow 0.3s ease-in-out',
-              }}
-            >
-              {/* Highlight for 3D sphere effect */}
-              <div
-                className="absolute rounded-full"
-                style={{
-                  top: '10%',
-                  left: '15%',
-                  width: '35%',
-                  height: '35%',
-                  background: 'radial-gradient(circle, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.15) 40%, transparent 70%)',
-                  filter: 'blur(8px)',
-                }}
-              />
-
-              {/* Rim lighting on the edge */}
-              <div
-                className="absolute inset-0 rounded-full"
-                style={{
-                  background: `radial-gradient(circle, transparent 60%, ${glowColor}22 85%, transparent 100%)`,
-                }}
-              />
-
-              {/* Shadow terminator (day/night line) */}
-              <div
-                className="absolute inset-0 rounded-full"
-                style={{
-                  background: 'linear-gradient(110deg, transparent 35%, rgba(0,0,0,0.25) 60%, rgba(0,0,0,0.5) 85%)',
-                }}
-              />
-            </div>
+            {/* 3D Planet using Three.js */}
+            <Planet3D
+              size={displaySize}
+              color={color}
+              glowColor={glowColor}
+              texture={texture}
+              rotationSpeed={1 / rotationDuration}
+              discovered={discovered}
+            />
           </div>
         </div>
       </div>
@@ -531,6 +496,10 @@ export const SolarSystem2D = () => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [currentPlanetIndex, setCurrentPlanetIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+  const [isOrbiting, setIsOrbiting] = useState(false);
+  const [orbitDirection, setOrbitDirection] = useState<'left' | 'right' | null>(null);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
   // Detect mobile screen size
   useEffect(() => {
@@ -551,15 +520,58 @@ export const SolarSystem2D = () => {
   };
 
   const nextPlanet = () => {
-    setCurrentPlanetIndex((prev) => (prev + 1) % planets.length);
+    setIsOrbiting(true);
+    setOrbitDirection('left'); // Swipe left = orbit to left
+    setTimeout(() => {
+      setCurrentPlanetIndex((prev) => (prev + 1) % planets.length);
+      setIsOrbiting(false);
+      setOrbitDirection(null);
+    }, 600); // Duration of orbit animation
   };
 
   const prevPlanet = () => {
-    setCurrentPlanetIndex((prev) => (prev - 1 + planets.length) % planets.length);
+    setIsOrbiting(true);
+    setOrbitDirection('right'); // Swipe right = orbit to right
+    setTimeout(() => {
+      setCurrentPlanetIndex((prev) => (prev - 1 + planets.length) % planets.length);
+      setIsOrbiting(false);
+      setOrbitDirection(null);
+    }, 600); // Duration of orbit animation
+  };
+
+  // Minimum swipe distance (in px)
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null); // Reset touchEnd
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      nextPlanet();
+    } else if (isRightSwipe) {
+      prevPlanet();
+    }
   };
 
   return (
-    <div className="absolute inset-0 overflow-hidden bg-gradient-to-b from-[hsl(240,50%,5%)] via-[hsl(250,40%,4%)] to-[hsl(260,50%,8%)]">
+    <div 
+      className="absolute inset-0 overflow-hidden bg-gradient-to-b from-[hsl(240,50%,5%)] via-[hsl(250,40%,4%)] to-[hsl(260,50%,8%)]"
+      onTouchStart={isMobile ? onTouchStart : undefined}
+      onTouchMove={isMobile ? onTouchMove : undefined}
+      onTouchEnd={isMobile ? onTouchEnd : undefined}
+    >
       <Stars />
 
       {/* COMET Logo Button - Clickable to toggle asteroids */}
@@ -625,10 +637,17 @@ export const SolarSystem2D = () => {
           transformOrigin: '50% 100%'
         }}
       >
-        <div className="pointer-events-auto" style={isMobile ? { marginRight: '10%' } : {}}>
+        <div className="pointer-events-auto">
           {isMobile ? (
             // Mobile: Show only current planet
-            <Planet key={planets[currentPlanetIndex].name} {...planets[currentPlanetIndex]} index={currentPlanetIndex} isMobile={isMobile} />
+            <Planet 
+              key={planets[currentPlanetIndex].name} 
+              {...planets[currentPlanetIndex]} 
+              index={currentPlanetIndex} 
+              isMobile={isMobile}
+              isOrbiting={isOrbiting}
+              orbitDirection={orbitDirection}
+            />
           ) : (
             // Desktop: Show all planets
             planets.map((planet, index) => (
@@ -752,6 +771,52 @@ export const SolarSystem2D = () => {
           }
           to {
             transform: rotate(360deg);
+          }
+        }
+        
+        /* 3D Rotation Keyframes for each planet */
+        @keyframes spin3D-0 {
+          0% {
+            transform: rotateY(0deg) rotateX(15deg);
+          }
+          100% {
+            transform: rotateY(360deg) rotateX(15deg);
+          }
+        }
+        
+        @keyframes spin3D-1 {
+          0% {
+            transform: rotateY(0deg) rotateX(20deg);
+          }
+          100% {
+            transform: rotateY(360deg) rotateX(20deg);
+          }
+        }
+        
+        @keyframes spin3D-2 {
+          0% {
+            transform: rotateY(0deg) rotateX(10deg);
+          }
+          100% {
+            transform: rotateY(360deg) rotateX(10deg);
+          }
+        }
+        
+        @keyframes spin3D-3 {
+          0% {
+            transform: rotateY(0deg) rotateX(25deg);
+          }
+          100% {
+            transform: rotateY(360deg) rotateX(25deg);
+          }
+        }
+        
+        @keyframes spin3D-4 {
+          0% {
+            transform: rotateY(0deg) rotateX(12deg);
+          }
+          100% {
+            transform: rotateY(360deg) rotateX(12deg);
           }
         }
         
