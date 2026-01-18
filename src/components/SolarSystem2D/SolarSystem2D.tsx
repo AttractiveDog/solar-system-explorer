@@ -286,51 +286,7 @@ const Sun = ({ isExpanded, onToggle }: SunProps) => {
 
 
 
-      {/* COMET Logo - Clickable to toggle menu */}
-      <div
-        onClick={onToggle}
-        className="absolute flex flex-col items-center justify-center transition-transform duration-500 ease-out cursor-pointer hover:scale-105"
-        style={{
-          top: isExpanded ? '60px' : '50px', // Slight movement when expanded
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 50,
-        }}
-      >
-        <h1
-          className="font-display font-bold tracking-widest transition-all duration-500"
-          style={{
-            fontSize: isExpanded ? '2.4rem' : '2.8rem', // Shrink slightly when expanding
-            background: 'radial-gradient(ellipse at center, hsl(20, 100%, 22%) 0%, hsl(15, 90%, 15%) 50%, hsl(10, 80%, 10%) 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-            filter: `
-              drop-shadow(0 0 2px rgba(255, 255, 255, 0.9))
-              drop-shadow(0 0 6px rgba(255, 255, 255, 0.7))
-              drop-shadow(0 0 12px rgba(255, 240, 200, 0.6))
-              drop-shadow(0 0 20px rgba(255, 200, 100, 0.5))
-              drop-shadow(0 0 35px rgba(255, 150, 50, 0.4))
-            `,
-            letterSpacing: '0.3em',
-          }}
-        >
-          COMET
-        </h1>
-        <p
-          className="tracking-widest uppercase font-semibold transition-opacity duration-500"
-          style={{
-            fontSize: '0.55rem',
-            color: 'rgba(255, 200, 100, 0.8)',
-            letterSpacing: '0.8em',
-            marginTop: '-5px',
-            opacity: isExpanded ? 0 : 1, // Hide subtitle when expanded
-            textShadow: '0 0 10px rgba(255, 100, 0, 0.5)',
-          }}
-        >
-          System Explorer
-        </p>
-      </div>
+
     </div>
   );
 };
@@ -568,33 +524,50 @@ export const SolarSystem2D = () => {
     <div className="absolute inset-0 overflow-hidden bg-gradient-to-b from-[hsl(240,50%,5%)] via-[hsl(250,40%,4%)] to-[hsl(260,50%,8%)]">
       <Stars />
 
-      {/* TEMPORARY TOGGLE BUTTON - Remove after debugging */}
-      <button
+      {/* COMET Logo Button - Clickable to toggle asteroids */}
+      <div
         onClick={handleToggle}
-        disabled={isAnimating}
-        className="fixed z-50 px-6 py-3 rounded-full font-bold text-sm tracking-wider uppercase transition-all duration-300"
+        className="fixed z-50 flex flex-col items-center justify-center transition-transform duration-500 ease-out cursor-pointer hover:scale-105"
         style={{
-          top: '20px',
+          bottom: 'calc(5% - 50px)',
           left: '50%',
-          transform: `translateX(-50%) ${isAnimating ? 'scale(0.95)' : 'scale(1)'}`,
-          background: isAnimating
-            ? 'linear-gradient(135deg, hsl(0, 0%, 40%), hsl(0, 0%, 30%))'
-            : isExpanded
-              ? 'linear-gradient(135deg, hsl(0, 80%, 50%), hsl(20, 90%, 40%))'
-              : 'linear-gradient(135deg, hsl(35, 100%, 50%), hsl(45, 100%, 60%))',
-          color: '#fff',
-          boxShadow: isAnimating
-            ? '0 0 10px hsla(0, 0%, 40%, 0.4), 0 4px 15px rgba(0,0,0,0.3)'
-            : isExpanded
-              ? '0 0 20px hsla(0, 80%, 50%, 0.6), 0 4px 15px rgba(0,0,0,0.3)'
-              : '0 0 20px hsla(35, 100%, 50%, 0.6), 0 4px 15px rgba(0,0,0,0.3)',
-          border: '2px solid rgba(255,255,255,0.3)',
-          cursor: isAnimating ? 'not-allowed' : 'pointer',
-          opacity: 1,
+          transform: 'translateX(-50%)',
         }}
       >
-        {isAnimating ? '⏳ Animating...' : isExpanded ? '✕ Hide Asteroids' : '☄️ Show Asteroids'}
-      </button>
+        <h1
+          className="font-display font-bold tracking-widest transition-all duration-500"
+          style={{
+            fontSize: isExpanded ? '2.4rem' : '2.8rem',
+            background: 'radial-gradient(ellipse at center, hsl(20, 100%, 22%) 0%, hsl(15, 90%, 15%) 50%, hsl(10, 80%, 10%) 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            filter: `
+              drop-shadow(0 0 2px rgba(255, 255, 255, 0.9))
+              drop-shadow(0 0 6px rgba(255, 255, 255, 0.7))
+              drop-shadow(0 0 12px rgba(255, 240, 200, 0.6))
+              drop-shadow(0 0 20px rgba(255, 200, 100, 0.5))
+              drop-shadow(0 0 35px rgba(255, 150, 50, 0.4))
+            `,
+            letterSpacing: '0.3em',
+          }}
+        >
+          COMET
+        </h1>
+        <p
+          className="tracking-widest uppercase font-semibold transition-opacity duration-500"
+          style={{
+            fontSize: '0.55rem',
+            color: 'rgba(255, 200, 100, 0.8)',
+            letterSpacing: '0.8em',
+            marginTop: '-5px',
+            opacity: isExpanded ? 0 : 1,
+            textShadow: '0 0 10px rgba(255, 100, 0, 0.5)',
+          }}
+        >
+          System Explorer
+        </p>
+      </div>
 
       {/* Sun Component with State Control */}
       <Sun isExpanded={isExpanded} onToggle={handleToggle} />
