@@ -604,15 +604,15 @@ export const SolarSystem2D = () => {
     <div className="absolute inset-0 overflow-hidden bg-gradient-to-b from-[hsl(240,50%,5%)] via-[hsl(250,40%,4%)] to-[hsl(260,50%,8%)]">
       <Stars />
 
-      {/* TEMPORARY TOGGLE BUTTON - Remove after debugging */}
-      <button
+      {/* COMET Logo Button - Clickable to toggle asteroids */}
+      <div
         onClick={handleToggle}
         disabled={isAnimating}
         className={`fixed z-50 px-6 py-3 rounded-full font-bold text-sm tracking-wider uppercase transition-all duration-300 ${
           isMobile ? 'hidden' : ''
         }`}
         style={{
-          top: '20px',
+          bottom: 'calc(5% - 50px)',
           left: '50%',
           transform: `translateX(-50%) ${isAnimating ? 'scale(0.95)' : 'scale(1)'}`,
           background: isAnimating
