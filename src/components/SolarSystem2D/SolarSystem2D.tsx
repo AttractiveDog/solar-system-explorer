@@ -556,6 +556,16 @@ export const SolarSystem2D = () => {
     >
       <Stars />
 
+      {/* Background Text 'comet' */}
+      <div 
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none z-0"
+        style={{ fontFamily: 'Okaluera' }}
+      >
+        <span className="text-[25vw] text-white whitespace-nowrap tracking-tighter leading-none block">
+          comet
+        </span>
+      </div>
+
       {/* COMET Logo Button - Clickable to toggle asteroids */}
       <div
         onClick={handleToggle}
@@ -589,7 +599,7 @@ export const SolarSystem2D = () => {
             letterSpacing: '0.3em',
           }}
         >
-          COMET
+          ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ
         </h1>
         <p
           className="tracking-widest uppercase font-semibold transition-opacity duration-500"
@@ -602,7 +612,7 @@ export const SolarSystem2D = () => {
             textShadow: '0 0 10px rgba(255, 100, 0, 0.5)',
           }}
         >
-          System Explorer
+          ㅤㅤㅤㅤㅤㅤㅤㅤㅤ
         </p>
       </div>
 

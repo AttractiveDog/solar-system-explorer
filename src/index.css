@@ -1,5 +1,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap");
+
+@font-face {
+  font-family: "Okaluera";
+  src: url("/Okaluera.otf") format("opentype");
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -42,19 +48,21 @@
     --sun-core: 38 100% 50%;
     --sun-glow: 32 100% 60%;
     --sun-corona: 25 100% 55%;
-    
+
     --planet-terra: 210 60% 50%;
     --planet-ember: 15 80% 45%;
     --planet-azure: 195 80% 55%;
     --planet-mystery: 270 50% 30%;
     --planet-void: 300 40% 15%;
-    
+
     --star-bright: 45 100% 90%;
     --nebula-purple: 280 60% 40%;
     --nebula-blue: 220 70% 35%;
-    
+
     /* Glow effects */
-    --glow-sun: 0 0 100px hsl(38 100% 50% / 0.8), 0 0 200px hsl(32 100% 60% / 0.5), 0 0 300px hsl(25 100% 55% / 0.3);
+    --glow-sun:
+      0 0 100px hsl(38 100% 50% / 0.8), 0 0 200px hsl(32 100% 60% / 0.5),
+      0 0 300px hsl(25 100% 55% / 0.3);
     --glow-planet: 0 0 20px hsl(var(--secondary) / 0.6);
 
     --sidebar-background: 240 15% 5%;
@@ -72,8 +80,8 @@
     --chart-4: 195 80% 55%;
     --chart-5: 15 80% 45%;
 
-    --font-display: 'Orbitron', sans-serif;
-    --font-sans: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Orbitron", sans-serif;
+    --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   }
 
   .dark {
@@ -137,12 +145,16 @@
   .font-display {
     font-family: var(--font-display);
   }
-  
+
   .text-glow {
-    text-shadow: 0 0 10px hsl(var(--primary) / 0.8), 0 0 30px hsl(var(--primary) / 0.5);
+    text-shadow:
+      0 0 10px hsl(var(--primary) / 0.8),
+      0 0 30px hsl(var(--primary) / 0.5);
   }
-  
+
   .text-glow-secondary {
-    text-shadow: 0 0 10px hsl(var(--secondary) / 0.8), 0 0 30px hsl(var(--secondary) / 0.5);
+    text-shadow:
+      0 0 10px hsl(var(--secondary) / 0.8),
+      0 0 30px hsl(var(--secondary) / 0.5);
   }
 }
