@@ -8,8 +8,8 @@ const planets = [
     glowColor: 'hsl(210, 100%, 70%)',
     size: 300,
     orbitRadius: 200,
-    orbitDuration: 12,
-    rotationDuration: 4,
+    orbitDuration: 24,
+    rotationDuration: 8,
     discovered: true,
     texture: '/planet-terra.png',
   },
@@ -17,10 +17,10 @@ const planets = [
     name: 'EMBER',
     color: 'hsl(0, 80%, 50%)',
     glowColor: 'hsl(0, 100%, 60%)',
-    size: 400,
+    size: 350,
     orbitRadius: 300,
-    orbitDuration: 18,
-    rotationDuration: 3,
+    orbitDuration: 36,
+    rotationDuration: 6,
     discovered: true,
     texture: '/planet-ember.png',
   },
@@ -28,10 +28,10 @@ const planets = [
     name: 'AZURE',
     color: 'hsl(165, 100%, 42%)',
     glowColor: 'hsl(165, 100%, 50%)',
-    size: 500,
+    size: 400,
     orbitRadius: 400,
-    orbitDuration: 26,
-    rotationDuration: 2,
+    orbitDuration: 52,
+    rotationDuration: 4,
     discovered: true,
     texture: '/planet-azure.png',
   },
@@ -41,8 +41,8 @@ const planets = [
     glowColor: 'hsl(320, 100%, 80%)',
     size: 90,
     orbitRadius: 500,
-    orbitDuration: 35,
-    rotationDuration: 6,
+    orbitDuration: 70,
+    rotationDuration: 12,
     discovered: true,
     texture: '/planet-phantom.png',
   },
@@ -52,8 +52,8 @@ const planets = [
     glowColor: 'hsl(260, 50%, 30%)',
     size: 85,
     orbitRadius: 550,
-    orbitDuration: 50,
-    rotationDuration: 8,
+    orbitDuration: 100,
+    rotationDuration: 16,
     discovered: false,
     texture: '/planet-void.png',
   },
@@ -426,8 +426,8 @@ const Planet = ({
       >
         {/* Planet wrapper for centering */}
         <div
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
+          onMouseEnter={() => !isMobile && setIsHovered(true)}
+          onMouseLeave={() => !isMobile && setIsHovered(false)}
           onClick={() => {
             console.log(`Clicked on planet: ${name}`);
             // Add your planet click logic here
@@ -436,6 +436,7 @@ const Planet = ({
             position: 'relative',
             width: `${displaySize}px`,
             height: `${displaySize}px`,
+            borderRadius: '50%', // Make hit area circular
             transform: `translate(-50%, -50%) scale(${isHovered ? 1.3 : 1})`,
             transition: 'transform 0.3s ease-in-out',
             cursor: 'pointer',
