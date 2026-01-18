@@ -413,9 +413,9 @@ const Planet = ({
           zIndex: 10,
           transform: isOrbiting 
             ? orbitDirection === 'left' 
-              ? 'translateX(-150%) scale(0.8)' 
-              : 'translateX(150%) scale(0.8)'
-            : 'translateX(0) scale(1)',
+              ? 'translate(-100px, -150px) scale(0.5) rotate(-30deg)' // Orbit up and to the left
+              : 'translate(100px, -150px) scale(0.5) rotate(30deg)'   // Orbit up and to the right
+            : 'translate(0, 0) scale(1) rotate(0deg)',
           opacity: isOrbiting ? 0 : 1,
           transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
         } : {

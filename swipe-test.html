@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Swipe Gesture Test</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(to bottom, #0a0a1f, #1a1a2e);
+        color: white;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      .container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .swipe-area {
+        width: 90%;
+        height: 400px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .planet {
+        width: 150px;
+        height: 150px;
+        background: radial-gradient(circle at 30% 30%, #4a90e2, #2e5c8a);
+        border-radius: 50%;
+        box-shadow: 0 0 40px rgba(74, 144, 226, 0.6);
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        position: absolute;
+      }
+
+      .planet.orbiting-left {
+        transform: translate(-100px, -150px) scale(0.5) rotate(-30deg);
+        opacity: 0;
+      }
+
+      .planet.orbiting-right {
+        transform: translate(100px, -150px) scale(0.5) rotate(30deg);
+        opacity: 0;
+      }
+
+      .info {
+        text-align: center;
+        margin-top: 30px;
+      }
+
+      .instructions {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+      }
+
+      .feedback {
+        font-size: 24px;
+        font-weight: bold;
+        color: #4a90e2;
+        margin-top: 20px;
+        min-height: 30px;
+      }
+
+      .planet-name {
+        font-size: 32px;
+        font-weight: bold;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="instructions">
+        <h2>Swipe Gesture Test</h2>
+        <p>Swipe left or right on the area below</p>
+        <p>Or use the buttons for testing</p>
+      </div>
+
+      <div class="swipe-area" id="swipeArea">
+        <div class="planet" id="planet"></div>
+      </div>
+
+      <div class="info">
+        <div class="planet-name" id="planetName">TERRA</div>
+        <div class="feedback" id="feedback"></div>
+        <div style="margin-top: 20px">
+          <button
+            onclick="swipeLeft()"
+            style="
+              padding: 10px 20px;
+              margin: 0 10px;
+              background: #4a90e2;
+              color: white;
+              border: none;
+              border-radius: 5px;
+              font-size: 16px;
+              cursor: pointer;
+            "
+          >
+            Prev ←
+          </button>
+          <button
+            onclick="swipeRight()"
+            style="
+              padding: 10px 20px;
+              margin: 0 10px;
+              background: #4a90e2;
+              color: white;
+              border: none;
+              border-radius: 5px;
+              font-size: 16px;
+              cursor: pointer;
+            "
+          >
+            Next →
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const planets = ["TERRA", "EMBER", "AZURE", "PHANTOM-X", "VOID-7"];
+      let currentIndex = 0;
+      let touchStartX = null;
+      let touchEndX = null;
+      let isAnimating = false;
+
+      const planetElement = document.getElementById("planet");
+      const planetName = document.getElementById("planetName");
+      const feedback = document.getElementById("feedback");
+      const swipeArea = document.getElementById("swipeArea");
+
+      const minSwipeDistance = 50;
+
+      function updatePlanetName() {
+        planetName.textContent =
+          planets[currentIndex] + " (" + (currentIndex + 1) + "/5)";
+      }
+
+      function showFeedback(text) {
+        feedback.textContent = text;
+        setTimeout(() => {
+          feedback.textContent = "";
+        }, 2000);
+      }
+
+      function swipeLeft() {
+        if (isAnimating) return;
+        isAnimating = true;
+
+        planetElement.classList.add("orbiting-right");
+        showFeedback("← Swiped Right (Previous)");
+
+        setTimeout(() => {
+          currentIndex = (currentIndex - 1 + planets.length) % planets.length;
+          updatePlanetName();
+          planetElement.classList.remove("orbiting-right");
+          isAnimating = false;
+        }, 600);
+      }
+
+      function swipeRight() {
+        if (isAnimating) return;
+        isAnimating = true;
+
+        planetElement.classList.add("orbiting-left");
+        showFeedback("→ Swiped Left (Next)");
+
+        setTimeout(() => {
+          currentIndex = (currentIndex + 1) % planets.length;
+          updatePlanetName();
+          planetElement.classList.remove("orbiting-left");
+          isAnimating = false;
+        }, 600);
+      }
+
+      // Touch event handlers
+      swipeArea.addEventListener("touchstart", (e) => {
+        touchStartX = e.touches[0].clientX;
+        touchEndX = null;
+      });
+
+      swipeArea.addEventListener("touchmove", (e) => {
+        touchEndX = e.touches[0].clientX;
+      });
+
+      swipeArea.addEventListener("touchend", () => {
+        if (!touchStartX || !touchEndX) return;
+
+        const distance = touchStartX - touchEndX;
+        const isLeftSwipe = distance > minSwipeDistance;
+        const isRightSwipe = distance < -minSwipeDistance;
+
+        if (isLeftSwipe) {
+          swipeRight();
+        } else if (isRightSwipe) {
+          swipeLeft();
+        }
+
+        touchStartX = null;
+        touchEndX = null;
+      });
+
+      // Initialize
+      updatePlanetName();
+    </script>
+  </body>
+</html>
