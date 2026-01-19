@@ -11,11 +11,11 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
       setScale(1); // Grow to full size
     }, 100);
 
-    // Simulate loading time or wait for assets
+    // Wait for scale animation to complete before fading out
     const timer = setTimeout(() => {
       setIsVisible(false);
-      setTimeout(onComplete, 500); // Reduced delay for quicker transition
-    }, 2800); // Show for 2.8 seconds (matches scale animation)
+      setTimeout(onComplete, 600); // Smooth fade-out transition
+    }, 3200); // 100ms delay + 2400ms animation + 700ms hold = smooth completion
 
     return () => {
       clearTimeout(timer);
@@ -27,7 +27,7 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
 
   return (
     <div
-      className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black transition-opacity duration-1000 ${isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+      className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black transition-opacity duration-700 ${isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
     >
       <div className="absolute inset-0">
         <ShaderAnimation />
@@ -38,7 +38,7 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
         color: 'rgba(255, 255, 255, 1)',
         lineHeight: 1,
         transform: `scale(${scale})`,
-        transition: 'transform 2.5s ease-out', // Smooth, gradual easing
+        transition: 'transform 2.4s cubic-bezier(0.34, 1.56, 0.64, 1)', // Smooth easing with gentle bounce
       }}>
         COMET
       </span>

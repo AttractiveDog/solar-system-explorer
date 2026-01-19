@@ -131,7 +131,7 @@ const Profile = () => {
             {/* Navigation */}
             <div className="absolute top-6 left-6 right-6 z-50 flex items-center justify-between">
                 <button
-                    onClick={() => navigate('/dashboard')}
+                    onClick={() => navigate('/')}
                     className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 text-white font-display"
                 >
                     <ChevronLeft size={20} />
@@ -149,7 +149,7 @@ const Profile = () => {
             </div>
 
             {/* Main Content */}
-            <div className="relative z-10 w-full h-full flex items-center justify-center p-8 pt-24 overflow-y-auto custom-scrollbar">
+            <div className="relative z-10 w-full h-full flex items-start justify-center p-8 pt-24 pb-12 overflow-y-auto custom-scrollbar">
                 <div className="w-full max-w-7xl space-y-6">
                     {/* Profile Header Card */}
                     <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-2xl p-8 relative overflow-hidden">

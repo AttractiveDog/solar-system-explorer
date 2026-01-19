@@ -92,7 +92,7 @@ const Stars = () => {
   );
 };
 
-import { User, Search, LayoutDashboard, LogIn, Power, ChevronLeft, ChevronRight } from 'lucide-react';
+import { User, Calendar, Users, LayoutDashboard, Power, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface AsteroidProps {
   size: number;
@@ -119,8 +119,10 @@ const Asteroid = ({
   icon: Icon,
   delay = 0,
   active,
-  onClick
-}: AsteroidProps) => {
+  onClick,
+  onMouseEnter,
+  onMouseLeave
+}: AsteroidProps & { onMouseEnter?: () => void, onMouseLeave?: () => void }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   // Ellipse dimensions
@@ -181,8 +183,14 @@ const Asteroid = ({
             transform: `translate(-50%, -50%) scale(${isHovered ? 1.2 : 1})`,
             pointerEvents: active ? 'auto' : 'none',
           }}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
+          onMouseEnter={() => {
+            setIsHovered(true);
+            onMouseEnter?.();
+          }}
+          onMouseLeave={() => {
+            setIsHovered(false);
+            onMouseLeave?.();
+          }}
           onClick={onClick}
         >
           {/* Asteroid Shape */}
@@ -250,20 +258,32 @@ const Sun = ({ isExpanded, onOpen, onClose, isMobile }: SunProps) => {
 
   return (
     <div
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      className={`absolute cursor-pointer z-50 ${isMobile
+      className={`absolute z-50 ${isMobile
         ? 'left-0 top-1/2 -translate-y-1/2 -translate-x-[75%]'
         : 'bottom-0 left-1/2 -translate-x-1/2 translate-y-[75%]'
         }`}
       style={{
         width: `${sunSize}px`,
         height: `${sunSize}px`,
+        pointerEvents: 'none',
       }}
-      role="button"
-      aria-label="Toggle navigation menu"
     >
+      {/* Visual sun with rays */}
       <Sun3D size={sunSize} isExpanded={isExpanded} isHovered={isHovered} />
+      {/* Invisible circular hover detection area - only covers sun core */}
+      <div
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full cursor-pointer"
+        style={{
+          width: `${sunSize * 0.85}px`,
+          height: `${sunSize * 0.85}px`,
+          pointerEvents: 'auto',
+          zIndex: 100,
+        }}
+        role="button"
+        aria-label="Toggle navigation menu"
+      />
     </div>
   );
 };
@@ -469,12 +489,20 @@ export const SolarSystem2D = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const handleOpen = () => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
     setIsExpanded(true);
   };
 
   const handleClose = () => {
-    setIsExpanded(false);
+    closeTimeoutRef.current = setTimeout(() => {
+      setIsExpanded(false);
+    }, 300); // Delay closing to allow moving mouse to asteroids
   };
 
   const nextPlanet = () => {
@@ -634,73 +662,75 @@ export const SolarSystem2D = () => {
       {/* New Asteroid Belt - Appears only when Sun is expanded - Hidden in mobile */}
       {!isMobile && (
         <div
-          className={`absolute inset-0 transition-all duration-600 ease-out ${isExpanded ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
-          style={{ zIndex: 20 }}
+          className={`absolute inset-0 transition-all duration-600 ease-out pointer-events-none ${isExpanded ? 'opacity-100' : 'opacity-0'}`}
+          style={{ zIndex: 60 }}
         >
           <div>
-            {/* Asteroid 1 - MINING */}
+            {/* Asteroid 1 - DASHBOARD */}
             <Asteroid
-              size={60}
-              orbitRadius={480}
+              size={70}
+              orbitRadius={200}
               orbitDuration={25}
               startAngle={150}
               color="hsl(30, 40%, 40%)"
               glowColor="hsl(35, 80%, 60%)"
-              label="MINING"
+              label="DASHBOARD"
               icon={LayoutDashboard}
               active={isExpanded}
-              onClick={() => {
-                alert('Asteroid clicked! Redirecting to dashboard...');
-                console.log('MINING asteroid clicked! Navigating to /dashboard');
-                try {
-                  navigate('/dashboard');
-                } catch (error) {
-                  console.error('Navigate failed:', error);
-                  window.location.href = '/dashboard';
-                }
-              }}
+              onClick={() => navigate('/dashboard')}
+              onMouseEnter={handleOpen}
+              onMouseLeave={handleClose}
             />
-            {/* Asteroid 2 - RESEARCH */}
+            {/* Asteroid 2 - EVENTS */}
             <Asteroid
-              size={55}
-              orbitRadius={480}
+              size={70}
+              orbitRadius={200}
               orbitDuration={30}
               startAngle={120}
               color="hsl(25, 30%, 35%)"
               glowColor="hsl(30, 70%, 50%)"
-              label="RESEARCH"
-              icon={Search}
+              label="EVENTS"
+              icon={Calendar}
               active={isExpanded}
+              onClick={() => navigate('/events')}
+              onMouseEnter={handleOpen}
+              onMouseLeave={handleClose}
             />
-            {/* Asteroid 3 - CREW */}
+            {/* Asteroid 3 - PROFILE */}
             <Asteroid
-              size={65}
-              orbitRadius={480}
+              size={70}
+              orbitRadius={200}
               orbitDuration={28}
               startAngle={90}
               delay={-5}
               color="hsl(40, 20%, 30%)"
               glowColor="hsl(45, 60%, 40%)"
-              label="CREW"
+              label="PROFILE"
               icon={User}
               active={isExpanded}
+              onClick={() => navigate('/profile')}
+              onMouseEnter={handleOpen}
+              onMouseLeave={handleClose}
             />
-            {/* Asteroid 4 - SECURITY */}
+            {/* Asteroid 4 - TEAM */}
             <Asteroid
-              size={50}
-              orbitRadius={480}
+              size={70}
+              orbitRadius={200}
               orbitDuration={35}
               startAngle={60}
               color="hsl(20, 35%, 25%)"
               glowColor="hsl(25, 70%, 45%)"
-              label="SECURITY"
-              icon={LogIn}
+              label="TEAM"
+              icon={Users}
               active={isExpanded}
+              onClick={() => navigate('/team')}
+              onMouseEnter={handleOpen}
+              onMouseLeave={handleClose}
             />
             {/* Asteroid 5 - SYSTEMS */}
             <Asteroid
               size={70}
-              orbitRadius={480}
+              orbitRadius={200}
               orbitDuration={32}
               startAngle={30}
               color="hsl(15, 25%, 30%)"
