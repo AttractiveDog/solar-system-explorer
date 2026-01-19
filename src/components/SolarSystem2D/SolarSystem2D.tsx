@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Planet3D } from '../Planet3D';
 import { Sun3D } from '../Sun3D/Sun3D';
+import { useNavigate } from 'react-router-dom';
 
 const planets = [
   {
@@ -8,7 +9,7 @@ const planets = [
     color: 'hsl(210, 100%, 65%)',
     glowColor: 'hsl(210, 100%, 70%)',
     size: 150, // Adjusted for new camera zoom (was 300)
-    orbitRadius: 200,
+    orbitRadius: 300,
     orbitDuration: 24,
     rotationDuration: 8,
     discovered: true,
@@ -19,7 +20,7 @@ const planets = [
     color: 'hsl(0, 80%, 50%)',
     glowColor: 'hsl(0, 100%, 60%)',
     size: 150, // Adjusted (was 300)
-    orbitRadius: 300,
+    orbitRadius: 400,
     orbitDuration: 36,
     rotationDuration: 6,
     discovered: true,
@@ -30,7 +31,7 @@ const planets = [
     color: 'hsl(165, 100%, 42%)',
     glowColor: 'hsl(165, 100%, 50%)',
     size: 150, // Adjusted (was 300)
-    orbitRadius: 400,
+    orbitRadius: 500,
     orbitDuration: 52,
     rotationDuration: 4,
     discovered: true,
@@ -41,7 +42,7 @@ const planets = [
     color: 'hsl(320, 100%, 70%)',
     glowColor: 'hsl(320, 100%, 80%)',
     size: 45, // Adjusted (was 90)
-    orbitRadius: 500,
+    orbitRadius: 600,
     orbitDuration: 70,
     rotationDuration: 12,
     discovered: true,
@@ -52,7 +53,7 @@ const planets = [
     color: 'hsl(240, 40%, 12%)',
     glowColor: 'hsl(260, 50%, 30%)',
     size: 42, // Adjusted (was 85)
-    orbitRadius: 550,
+    orbitRadius: 650,
     orbitDuration: 100,
     rotationDuration: 16,
     discovered: false,
@@ -104,6 +105,7 @@ interface AsteroidProps {
   icon: any;
   delay?: number;
   active: boolean;
+  onClick?: () => void;
 }
 
 const Asteroid = ({
@@ -116,7 +118,8 @@ const Asteroid = ({
   label,
   icon: Icon,
   delay = 0,
-  active
+  active,
+  onClick
 }: AsteroidProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -141,7 +144,11 @@ const Asteroid = ({
         className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-[50%]"
         width={ellipseWidth + 40}
         height={ellipseHeight + 40}
-        style={{ overflow: 'visible', opacity: active ? 0.2 : 0, transition: 'opacity 1s' }}
+        style={{
+          overflow: 'visible',
+          opacity: active ? 0.2 : 0,
+          transition: 'opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
+        }}
       >
         <ellipse
           cx={(ellipseWidth + 40) / 2}
@@ -157,10 +164,12 @@ const Asteroid = ({
 
       {/* The Stationary Asteroid Wrapper */}
       <div
-        className="absolute left-0 bottom-0 transition-all duration-1000 ease-out"
+        className="absolute left-0 bottom-0 transition-all ease-out"
         style={{
           transform: active ? `translate(${x}px, ${y}px)` : 'translate(0px, 0px)',
           opacity: active ? 1 : 0,
+          transitionDuration: '0.8s',
+          transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)', // Smooth bounce effect
         }}
       >
         {/* Asteroid Body & Content */}
@@ -174,6 +183,7 @@ const Asteroid = ({
           }}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
+          onClick={onClick}
         >
           {/* Asteroid Shape */}
           <div
@@ -219,25 +229,41 @@ const Asteroid = ({
 
 interface SunProps {
   isExpanded: boolean;
-  onToggle: () => void;
+  onOpen: () => void;
+  onClose: () => void;
   isMobile: boolean;
 }
 
-const Sun = ({ isExpanded, onToggle, isMobile }: SunProps) => {
+const Sun = ({ isExpanded, onOpen, onClose, isMobile }: SunProps) => {
+  const [isHovered, setIsHovered] = useState(false);
   const sunSize = isMobile ? 400 : 1200;
-  
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    onOpen();
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    onClose();
+  };
+
   return (
     <div
-      onClick={onToggle}
-      className={`absolute cursor-pointer ${
-        isMobile 
-          ? 'left-0 top-1/2 -translate-y-1/2 -translate-x-[75%]' 
-          : 'bottom-0 left-1/2 -translate-x-1/2 translate-y-[75%]'
-      }`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      className={`absolute cursor-pointer z-50 ${isMobile
+        ? 'left-0 top-1/2 -translate-y-1/2 -translate-x-[75%]'
+        : 'bottom-0 left-1/2 -translate-x-1/2 translate-y-[75%]'
+        }`}
+      style={{
+        width: `${sunSize}px`,
+        height: `${sunSize}px`,
+      }}
       role="button"
       aria-label="Toggle navigation menu"
     >
-      <Sun3D size={sunSize} isExpanded={isExpanded} />
+      <Sun3D size={sunSize} isExpanded={isExpanded} isHovered={isHovered} />
     </div>
   );
 };
@@ -354,8 +380,8 @@ const Planet = ({
           // Mobile: center the planet with orbit animation
           position: 'relative',
           zIndex: 10,
-          transform: isOrbiting 
-            ? orbitDirection === 'left' 
+          transform: isOrbiting
+            ? orbitDirection === 'left'
               ? 'translate(-100px, -150px) scale(0.5) rotate(-30deg)' // Orbit up and to the left
               : 'translate(100px, -150px) scale(0.5) rotate(30deg)'   // Orbit up and to the right
             : 'translate(0, 0) scale(1) rotate(0deg)',
@@ -421,6 +447,7 @@ const Planet = ({
 };
 
 export const SolarSystem2D = () => {
+  const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [currentPlanetIndex, setCurrentPlanetIndex] = useState(0);
@@ -435,17 +462,19 @@ export const SolarSystem2D = () => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768);
     };
-    
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
+
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const handleToggle = () => {
-    setIsAnimating(true);
-    setIsExpanded(!isExpanded);
-    setTimeout(() => setIsAnimating(false), 1000); // Match transition duration
+  const handleOpen = () => {
+    setIsExpanded(true);
+  };
+
+  const handleClose = () => {
+    setIsExpanded(false);
   };
 
   const nextPlanet = () => {
@@ -482,7 +511,7 @@ export const SolarSystem2D = () => {
 
   const onTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
-    
+
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
@@ -495,7 +524,7 @@ export const SolarSystem2D = () => {
   };
 
   return (
-    <div 
+    <div
       className="absolute inset-0 overflow-hidden bg-gradient-to-b from-[hsl(240,50%,5%)] via-[hsl(250,40%,4%)] to-[hsl(260,50%,8%)]"
       onTouchStart={isMobile ? onTouchStart : undefined}
       onTouchMove={isMobile ? onTouchMove : undefined}
@@ -504,27 +533,25 @@ export const SolarSystem2D = () => {
       <Stars />
 
       {/* Background Watermark */}
-      <div 
+      <div
         className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden"
-        style={{ zIndex: 0 }} 
+        style={{ zIndex: 0 }}
       >
         <span style={{
           fontFamily: 'Okaluera, sans-serif', // Use the custom font
-          fontSize: '25vw', 
+          fontSize: '25vw',
           color: 'rgba(255, 255, 255, 1)', // Very subtle opacity
-          
-          
+
+
         }}>
           COMET
         </span>
       </div>
 
-      {/* COMET Logo Button - Clickable to toggle asteroids */}
+      {/* COMET Logo */}
       <div
-        onClick={handleToggle}
-        className={`fixed z-50 flex flex-col items-center justify-center transition-transform duration-500 ease-out cursor-pointer hover:scale-105 ${
-          isMobile ? 'top-8' : ''
-        }`}
+        className={`fixed z-50 flex flex-col items-center justify-center transition-transform duration-500 ease-out ${isMobile ? 'top-8' : ''
+          }`}
         style={isMobile ? {
           left: '50%',
           transform: 'translateX(-50%)',
@@ -570,25 +597,27 @@ export const SolarSystem2D = () => {
       </div>
 
       {/* Sun Component with State Control */}
-      <Sun isExpanded={isExpanded} onToggle={handleToggle} isMobile={isMobile} />
+      <Sun isExpanded={isExpanded} onOpen={handleOpen} onClose={handleClose} isMobile={isMobile} />
 
       {/* Planets Container - Expands/Moves away when Sun is active */}
       <div
-        className={`absolute inset-0 transition-transform duration-1000 ease-in-out pointer-events-none ${isMobile ? '' : ''}`}
+        className={`absolute inset-0 transition-all ease-out pointer-events-none ${isMobile ? '' : ''}`}
         style={isMobile ? {} : {
           transform: isExpanded ? 'scale(1.3) translateY(-10%)' : 'scale(1)', // Move planets back/up slightly
           opacity: 1, // Keep planets solid
           filter: isExpanded ? 'blur(1px)' : 'none',
-          transformOrigin: '50% 100%'
+          transformOrigin: '50% 100%',
+          transitionDuration: '0.8s',
+          transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       >
         <div className="pointer-events-auto">
           {isMobile ? (
             // Mobile: Show only current planet
-            <Planet 
-              key={planets[currentPlanetIndex].name} 
-              {...planets[currentPlanetIndex]} 
-              index={currentPlanetIndex} 
+            <Planet
+              key={planets[currentPlanetIndex].name}
+              {...planets[currentPlanetIndex]}
+              index={currentPlanetIndex}
               isMobile={isMobile}
               isOrbiting={isOrbiting}
               orbitDirection={orbitDirection}
@@ -605,14 +634,14 @@ export const SolarSystem2D = () => {
       {/* New Asteroid Belt - Appears only when Sun is expanded - Hidden in mobile */}
       {!isMobile && (
         <div
-          className={`absolute inset-0 pointer-events-none transition-opacity duration-1000 ${isExpanded ? 'opacity-100' : 'opacity-0'}`}
+          className={`absolute inset-0 transition-all duration-600 ease-out ${isExpanded ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
           style={{ zIndex: 20 }}
         >
-          <div className="pointer-events-none">
+          <div>
             {/* Asteroid 1 - MINING */}
             <Asteroid
-              size={50}
-              orbitRadius={350}
+              size={60}
+              orbitRadius={480}
               orbitDuration={25}
               startAngle={150}
               color="hsl(30, 40%, 40%)"
@@ -620,11 +649,21 @@ export const SolarSystem2D = () => {
               label="MINING"
               icon={LayoutDashboard}
               active={isExpanded}
+              onClick={() => {
+                alert('Asteroid clicked! Redirecting to dashboard...');
+                console.log('MINING asteroid clicked! Navigating to /dashboard');
+                try {
+                  navigate('/dashboard');
+                } catch (error) {
+                  console.error('Navigate failed:', error);
+                  window.location.href = '/dashboard';
+                }
+              }}
             />
             {/* Asteroid 2 - RESEARCH */}
             <Asteroid
-              size={45}
-              orbitRadius={350}
+              size={55}
+              orbitRadius={480}
               orbitDuration={30}
               startAngle={120}
               color="hsl(25, 30%, 35%)"
@@ -635,8 +674,8 @@ export const SolarSystem2D = () => {
             />
             {/* Asteroid 3 - CREW */}
             <Asteroid
-              size={55}
-              orbitRadius={350}
+              size={65}
+              orbitRadius={480}
               orbitDuration={28}
               startAngle={90}
               delay={-5}
@@ -648,8 +687,8 @@ export const SolarSystem2D = () => {
             />
             {/* Asteroid 4 - SECURITY */}
             <Asteroid
-              size={40}
-              orbitRadius={350}
+              size={50}
+              orbitRadius={480}
               orbitDuration={35}
               startAngle={60}
               color="hsl(20, 35%, 25%)"
@@ -660,8 +699,8 @@ export const SolarSystem2D = () => {
             />
             {/* Asteroid 5 - SYSTEMS */}
             <Asteroid
-              size={60}
-              orbitRadius={350}
+              size={70}
+              orbitRadius={480}
               orbitDuration={32}
               startAngle={30}
               color="hsl(15, 25%, 30%)"
@@ -686,7 +725,7 @@ export const SolarSystem2D = () => {
           >
             <ChevronLeft size={28} color="white" strokeWidth={3} />
           </button>
-          
+
           <div className="flex flex-col items-center">
             <span className="text-white text-lg font-bold tracking-wider" style={{ textShadow: '0 0 10px rgba(255, 255, 255, 0.5)' }}>
               {planets[currentPlanetIndex].name}
@@ -695,7 +734,7 @@ export const SolarSystem2D = () => {
               {currentPlanetIndex + 1} / {planets.length}
             </span>
           </div>
-          
+
           <button
             onClick={nextPlanet}
             className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-110 active:scale-95"

@@ -8,6 +8,14 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'Coolvetica';
+  src: url('/Coolvetica.otf') format('opentype'),
+       url('/Coolvetica.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -50,17 +58,17 @@
     --sun-core: 38 100% 50%;
     --sun-glow: 32 100% 60%;
     --sun-corona: 25 100% 55%;
-    
+
     --planet-terra: 210 60% 50%;
     --planet-ember: 15 80% 45%;
     --planet-azure: 195 80% 55%;
     --planet-mystery: 270 50% 30%;
     --planet-void: 300 40% 15%;
-    
+
     --star-bright: 45 100% 90%;
     --nebula-purple: 280 60% 40%;
     --nebula-blue: 220 70% 35%;
-    
+
     /* Glow effects */
     --glow-sun: 0 0 100px hsl(38 100% 50% / 0.8), 0 0 200px hsl(32 100% 60% / 0.5), 0 0 300px hsl(25 100% 55% / 0.3);
     --glow-planet: 0 0 20px hsl(var(--secondary) / 0.6);
@@ -136,7 +144,7 @@
   }
 
   body {
-    @apply bg-background text-foreground overflow-hidden;
+    @apply bg-background text-foreground;
     font-family: var(--font-sans);
   }
 }
@@ -145,11 +153,11 @@
   .font-display {
     font-family: var(--font-display);
   }
-  
+
   .text-glow {
     text-shadow: 0 0 10px hsl(var(--primary) / 0.8), 0 0 30px hsl(var(--primary) / 0.5);
   }
-  
+
   .text-glow-secondary {
     text-shadow: 0 0 10px hsl(var(--secondary) / 0.8), 0 0 30px hsl(var(--secondary) / 0.5);
   }

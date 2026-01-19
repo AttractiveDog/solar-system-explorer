@@ -4,9 +4,10 @@ import * as THREE from 'three';
 interface Sun3DProps {
   size: number;
   isExpanded: boolean;
+  isHovered?: boolean;
 }
 
-export const Sun3D = ({ size, isExpanded }: Sun3DProps) => {
+export const Sun3D = ({ size, isExpanded, isHovered = false }: Sun3DProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -104,10 +105,10 @@ export const Sun3D = ({ size, isExpanded }: Sun3DProps) => {
         sunMeshRef.current.rotation.y -= 0.001; // Slow rotation
         sunMeshRef.current.rotation.x = 0.05;
       }
-      
+
       if (atmosphereRef.current) {
-         // Atmosphere could pulsate slightly?
-         // atmosphereRef.current.rotation.y -= 0.0005;
+        // Atmosphere could pulsate slightly?
+        // atmosphereRef.current.rotation.y -= 0.0005;
       }
 
       renderer.render(scene, camera);
@@ -131,15 +132,17 @@ export const Sun3D = ({ size, isExpanded }: Sun3DProps) => {
   return (
     <div
       ref={containerRef}
-      className="pointer-events-none" // Let clicks pass through to the parent div
       style={{
         width: size,
         height: size,
         // Add a CSS glow as well for the far-reaching light
-        filter: isExpanded 
-          ? 'drop-shadow(0 0 60px rgba(255, 140, 0, 0.8)) drop-shadow(0 0 120px rgba(255, 100, 0, 0.5))' 
-          : 'drop-shadow(0 0 40px rgba(255, 140, 0, 0.6))',
-        transition: 'filter 1s ease-in-out',
+        filter: isExpanded
+          ? 'drop-shadow(0 0 60px rgba(255, 140, 0, 0.8)) drop-shadow(0 0 120px rgba(255, 100, 0, 0.5))'
+          : isHovered
+            ? 'drop-shadow(0 0 50px rgba(255, 140, 0, 0.9)) drop-shadow(0 0 80px rgba(255, 120, 0, 0.6)) brightness(1.1)'
+            : 'drop-shadow(0 0 40px rgba(255, 140, 0, 0.6))',
+        transition: 'filter 0.3s ease-in-out, transform 0.3s ease-in-out',
+        transform: isHovered ? 'scale(1.05)' : 'scale(1)',
       }}
     />
   );

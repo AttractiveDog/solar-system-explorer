@@ -43,8 +43,8 @@ export const Planet3D = ({
     cameraRef.current = camera;
 
     // Create renderer
-    const renderer = new THREE.WebGLRenderer({ 
-      alpha: true, 
+    const renderer = new THREE.WebGLRenderer({
+      alpha: true,
       antialias: true,
       powerPreference: 'high-performance'
     });
@@ -58,18 +58,18 @@ export const Planet3D = ({
 
     // Create material
     let material: THREE.Material;
-    
+
     if (texture) {
       const textureLoader = new THREE.TextureLoader();
       const planetTexture = textureLoader.load(texture);
       planetTexture.colorSpace = THREE.SRGBColorSpace;
-      
+
       // Ensure texture wraps correctly if it's meant to be seamless, 
       // though for 2D icons this might not help much.
       // We apply the base color as well to tint/fill gaps if the texture has transparency issues.
       material = new THREE.MeshStandardMaterial({
         map: planetTexture,
-        color: new THREE.Color(color), 
+        color: new THREE.Color(color),
         roughness: 0.8,
         metalness: 0.1,
       });
@@ -82,7 +82,7 @@ export const Planet3D = ({
     }
 
     // Create black core to ensure opacity (obscures background text)
-    const coreMaterial = new THREE.MeshBasicMaterial({ 
+    const coreMaterial = new THREE.MeshBasicMaterial({
       color: 0x000000,
       opacity: 1,
       transparent: false,
@@ -133,7 +133,7 @@ export const Planet3D = ({
 
     // Add lighting
     // AmbientLight provides base illumination
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4); 
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
     scene.add(ambientLight);
 
     // Main Directional Light (Sunlight)
@@ -161,7 +161,7 @@ export const Planet3D = ({
         planetMeshRef.current.rotation.y += rotationSpeed * 0.005; // Slower, more majestic rotation
         planetMeshRef.current.rotation.x = Math.PI * 0.1; // Slight tilt
       }
-      
+
       // Atmosphere doesn't necessarily need to rotate, but if we wanted moving clouds we'd do it here.
 
       renderer.render(scene, camera);
@@ -172,18 +172,18 @@ export const Planet3D = ({
     // Cleanup
     return () => {
       cancelAnimationFrame(animationFrameRef.current);
-      
+
       if (containerRef.current && renderer.domElement) {
         containerRef.current.removeChild(renderer.domElement);
       }
-      
+
       geometry.dispose();
       if (material) material.dispose();
       coreMaterial.dispose();
-      
+
       atmosphereGeometry.dispose();
       atmosphereMaterial.dispose();
-      
+
       renderer.dispose();
     };
   }, [size, color, glowColor, texture, rotationSpeed]);
@@ -196,6 +196,7 @@ export const Planet3D = ({
         height: `${size}px`,
         filter: `drop-shadow(0 0 ${size * 0.5}px ${glowColor})`,
         opacity: 1,
+        pointerEvents: 'none', // Let hover events pass through to parent
       }}
     />
   );

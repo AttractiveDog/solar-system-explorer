@@ -14,8 +14,8 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
     // Simulate loading time or wait for assets
     const timer = setTimeout(() => {
       setIsVisible(false);
-      setTimeout(onComplete, 1000); // Wait for fade out animation (matches duration-1000)
-    }, 3000); // Show for 3 seconds
+      setTimeout(onComplete, 500); // Reduced delay for quicker transition
+    }, 2800); // Show for 2.8 seconds (matches scale animation)
 
     return () => {
       clearTimeout(timer);
@@ -38,7 +38,7 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
         color: 'rgba(255, 255, 255, 1)',
         lineHeight: 1,
         transform: `scale(${scale})`,
-        transition: 'transform 2.8s cubic-bezier(0.34, 1.56, 0.64, 1)', // Smooth elastic easing
+        transition: 'transform 2.5s ease-out', // Smooth, gradual easing
       }}>
         COMET
       </span>
