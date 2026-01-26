@@ -1,3 +1,4 @@
+
 import { ShaderAnimation } from "@/components/UI/shader-animation";
 import { useEffect, useState } from "react";
 
@@ -32,6 +33,7 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
       <div className="absolute inset-0">
         <ShaderAnimation />
       </div>
+
       <span className="absolute pointer-events-none z-10 text-center" style={{
         fontFamily: 'Okaluera, sans-serif',
         fontSize: '25vw',

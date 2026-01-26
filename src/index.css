@@ -11,7 +11,7 @@
 @font-face {
   font-family: 'Coolvetica';
   src: url('/Coolvetica.otf') format('opentype'),
-       url('/Coolvetica.ttf') format('truetype');
+    url('/Coolvetica.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
@@ -160,5 +160,17 @@
 
   .text-glow-secondary {
     text-shadow: 0 0 10px hsl(var(--secondary) / 0.8), 0 0 30px hsl(var(--secondary) / 0.5);
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
   }
 }

@@ -21,8 +21,8 @@ const clubs: Club[] = [
         id: 'terra',
         name: 'TERRA',
         planetColor: 'from-blue-400 to-blue-600',
-        color: 'hsl(210, 100%, 65%)',
-        glowColor: 'hsl(210, 100%, 70%)',
+        color: 'hsl(200, 80%, 55%)',
+        glowColor: 'hsl(200, 90%, 60%)',
         texture: '/planet-terra.png',
         mission: 'To explore Earth-like exoplanets.',
         homeBase: 'Terra',
@@ -32,10 +32,10 @@ const clubs: Club[] = [
     {
         id: 'ember',
         name: 'EMBER',
-        planetColor: 'from-red-600 to-orange-600',
-        color: 'hsl(0, 80%, 50%)',
-        glowColor: 'hsl(0, 100%, 60%)',
-        texture: '/planet-ember.png',
+        planetColor: 'from-orange-500 to-red-600',
+        color: 'hsl(15, 85%, 45%)',
+        glowColor: 'hsl(20, 100%, 55%)',
+        texture: '/planet-ember.jpg',
         mission: 'To study volcanic and high-temperature worlds.',
         homeBase: 'Ember',
         description: 'Specialized in extreme environments and thermal energy research.',
@@ -44,10 +44,10 @@ const clubs: Club[] = [
     {
         id: 'azure',
         name: 'AZURE',
-        planetColor: 'from-cyan-400 to-teal-500',
-        color: 'hsl(165, 100%, 42%)',
-        glowColor: 'hsl(165, 100%, 50%)',
-        texture: '/planet-azure.png',
+        planetColor: 'from-blue-500 to-indigo-600',
+        color: 'hsl(220, 80%, 50%)',
+        glowColor: 'hsl(210, 100%, 60%)',
+        texture: '/planet-azure.jpg',
         mission: 'To navigate oceanic planets and moons.',
         homeBase: 'Azure',
         description: 'Experts in underwater exploration and marine xenobiology.',
@@ -56,10 +56,10 @@ const clubs: Club[] = [
     {
         id: 'phantom-x',
         name: 'PHANTOM-X',
-        planetColor: 'from-pink-400 to-pink-600',
-        color: 'hsl(320, 100%, 70%)',
-        glowColor: 'hsl(320, 100%, 80%)',
-        texture: '/planet-phantom.png',
+        planetColor: 'from-amber-400 to-orange-500',
+        color: 'hsl(35, 50%, 55%)',
+        glowColor: 'hsl(30, 80%, 60%)',
+        texture: '/planet-phantom.jpg',
         mission: 'To investigate mysterious cosmic phenomena.',
         homeBase: 'Phantom Station',
         description: 'Pioneers in navigating unknown territories and studying phantom signals.',
@@ -68,10 +68,10 @@ const clubs: Club[] = [
     {
         id: 'void-7',
         name: 'VOID-7',
-        planetColor: 'from-purple-900 to-indigo-950',
-        color: 'hsl(240, 40%, 12%)',
-        glowColor: 'hsl(260, 50%, 30%)',
-        texture: '/planet-void.png',
+        planetColor: 'from-yellow-400 to-amber-500',
+        color: 'hsl(45, 40%, 50%)',
+        glowColor: 'hsl(45, 70%, 55%)',
+        texture: '/planet-void.jpg',
         mission: 'To explore the darkest reaches of space.',
         homeBase: 'Void Station',
         description: 'Elite specialists operating in the most dangerous and uncharted regions.',
@@ -199,6 +199,7 @@ const Dashboard = () => {
                                     texture={selectedClub.texture}
                                     rotationSpeed={0.2}
                                     discovered={true}
+                                    showGlow={false}
                                 />
 
                                 {/* Orbiting Ring */}
