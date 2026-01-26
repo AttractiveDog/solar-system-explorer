@@ -11,6 +11,13 @@ import userRoutes from './routes/userRoutes.js';
 import clubRoutes from './routes/clubRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
 import achievementRoutes from './routes/achievementRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// ES module __dirname equivalent
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Load environment variables
 dotenv.config();
@@ -59,11 +66,15 @@ if (process.env.NODE_ENV === 'development') {
 // API version
 const API_VERSION = process.env.API_VERSION || 'v1';
 
+// Serve static files for admin panel
+app.use('/admin', express.static(path.join(__dirname, 'public/admin')));
+
 // Routes
 app.use(`/api/${API_VERSION}/users`, userRoutes);
 app.use(`/api/${API_VERSION}/clubs`, clubRoutes);
 app.use(`/api/${API_VERSION}/events`, eventRoutes);
 app.use(`/api/${API_VERSION}/achievements`, achievementRoutes);
+app.use(`/api/${API_VERSION}/admin`, adminRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

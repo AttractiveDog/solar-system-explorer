@@ -53,7 +53,7 @@ const clubSchema = new mongoose.Schema({
 
 // Virtual for member count
 clubSchema.virtual('memberCount').get(function() {
-  return this.members.length;
+  return this.members ? this.members.length : 0;
 });
 
 // Ensure virtuals are included when converting to JSON

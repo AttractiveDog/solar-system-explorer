@@ -1,6 +1,11 @@
 import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
+  firebaseUid: {
+    type: String,
+    unique: true,
+    sparse: true, // Allow null values but ensure uniqueness when present
+  },
   username: {
     type: String,
     required: true,
@@ -13,9 +18,21 @@ const userSchema = new mongoose.Schema({
     unique: true,
     lowercase: true,
   },
+  displayName: {
+    type: String,
+    trim: true,
+  },
   avatar: {
     type: String,
     default: 'https://api.dicebear.com/7.x/avataaars/svg?seed=default'
+  },
+  photoURL: {
+    type: String, // Firebase Google profile photo
+  },
+  provider: {
+    type: String,
+    enum: ['google', 'email', 'facebook', 'twitter'],
+    default: 'email',
   },
   bio: {
     type: String,

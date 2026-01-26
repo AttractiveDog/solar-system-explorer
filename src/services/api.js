@@ -57,6 +57,12 @@ export const userAPI = {
   delete: (id) => apiRequest(`/users/${id}`, {
     method: 'DELETE',
   }),
+
+  // Sync user with Firebase
+  syncWithFirebase: (userData) => apiRequest('/users/auth/sync', {
+    method: 'POST',
+    body: JSON.stringify(userData),
+  }),
 };
 
 // Club API
@@ -174,6 +180,12 @@ export const achievementAPI = {
     method: 'POST',
     body: JSON.stringify({ userId }),
   }),
+  
+};
+
+// Auth API helper
+export const syncUserWithBackend = async (userData) => {
+  return userAPI.syncWithFirebase(userData);
 };
 
 // Export all APIs

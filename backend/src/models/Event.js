@@ -58,7 +58,7 @@ const eventSchema = new mongoose.Schema({
 
 // Virtual for participant count
 eventSchema.virtual('participantCount').get(function() {
-  return this.participants.length;
+  return this.participants ? this.participants.length : 0;
 });
 
 // Index for querying events by date and status

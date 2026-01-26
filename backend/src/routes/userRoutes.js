@@ -8,12 +8,16 @@ import {
   deleteUser,
   getLeaderboard,
 } from '../controllers/userController.js';
+import { syncFirebaseUser } from '../controllers/authController.js';
 
 const router = express.Router();
 
 router.route('/')
   .get(getUsers)
   .post(createUser);
+
+router.route('/auth/sync')
+  .post(syncFirebaseUser);
 
 router.route('/stats/leaderboard')
   .get(getLeaderboard);

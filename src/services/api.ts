@@ -1,9 +1,13 @@
 // API Types
 export interface User {
   _id: string;
+  firebaseUid?: string;
   username: string;
   email: string;
+  displayName?: string;
   avatar?: string;
+  photoURL?: string;
+  provider?: 'google' | 'email' | 'facebook' | 'twitter';
   bio?: string;
   stats: {
     rank: 'Voyager' | 'Explorer' | 'Navigator' | 'Pioneer' | 'Legend';
@@ -154,6 +158,18 @@ export const userAPI = {
     apiRequest<{}>(`/users/${id}`, {
       method: 'DELETE',
     }),
+  
+  syncWithFirebase: (userData: {
+    firebaseUid: string;
+    email: string;
+    displayName: string;
+    photoURL: string;
+    provider: string;
+  }) =>
+    apiRequest<User>('/users/auth/sync', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+    }),
 };
 
 // Club API
@@ -264,6 +280,17 @@ export const achievementAPI = {
       method: 'POST',
       body: JSON.stringify({ userId }),
     }),
+};
+
+// Auth API helper
+export const syncUserWithBackend = async (userData: {
+  firebaseUid: string;
+  email: string;
+  displayName: string;
+  photoURL: string;
+  provider: string;
+}) => {
+  return userAPI.syncWithFirebase(userData);
 };
 
 // Export all APIs

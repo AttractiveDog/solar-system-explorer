@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, User } from 'lucide-react';
+import { ChevronLeft, User, Loader2 } from 'lucide-react';
 import { Planet3D } from '../components/Planet3D/Planet3D';
+import { clubAPI, Club as APIClub } from '../services/api';
+import AuthHeader from '../components/AuthHeader';
 
 interface Club {
     id: string;
@@ -16,72 +18,83 @@ interface Club {
     specialization: string[];
 }
 
-const clubs: Club[] = [
-    {
-        id: 'terra',
-        name: 'TERRA',
-        planetColor: 'from-blue-400 to-blue-600',
-        color: 'hsl(210, 100%, 65%)',
-        glowColor: 'hsl(210, 100%, 70%)',
-        texture: '/planet-terra.png',
-        mission: 'To explore Earth-like exoplanets.',
-        homeBase: 'Terra',
-        description: 'The club utilizes advanced probes and manned missions to gather data on potential habitable worlds.',
-        specialization: ['Atmospheric analysis', 'Geological surveys', 'Life detection']
-    },
-    {
-        id: 'ember',
-        name: 'EMBER',
-        planetColor: 'from-red-600 to-orange-600',
-        color: 'hsl(0, 80%, 50%)',
-        glowColor: 'hsl(0, 100%, 60%)',
-        texture: '/planet-ember.png',
-        mission: 'To study volcanic and high-temperature worlds.',
-        homeBase: 'Ember',
-        description: 'Specialized in extreme environments and thermal energy research.',
-        specialization: ['Volcanic activity', 'Heat resistance tech', 'Mineral extraction']
-    },
-    {
-        id: 'azure',
-        name: 'AZURE',
-        planetColor: 'from-cyan-400 to-teal-500',
-        color: 'hsl(165, 100%, 42%)',
-        glowColor: 'hsl(165, 100%, 50%)',
-        texture: '/planet-azure.png',
-        mission: 'To navigate oceanic planets and moons.',
-        homeBase: 'Azure',
-        description: 'Experts in underwater exploration and marine xenobiology.',
-        specialization: ['Deep sea exploration', 'Aquatic life forms', 'Hydro technology']
-    },
-    {
-        id: 'phantom-x',
-        name: 'PHANTOM-X',
-        planetColor: 'from-pink-400 to-pink-600',
-        color: 'hsl(320, 100%, 70%)',
-        glowColor: 'hsl(320, 100%, 80%)',
-        texture: '/planet-phantom.png',
-        mission: 'To investigate mysterious cosmic phenomena.',
-        homeBase: 'Phantom Station',
-        description: 'Pioneers in navigating unknown territories and studying phantom signals.',
-        specialization: ['Phantom tracking', 'Dark energy', 'Signal analysis']
-    },
-    {
-        id: 'void-7',
-        name: 'VOID-7',
-        planetColor: 'from-purple-900 to-indigo-950',
-        color: 'hsl(240, 40%, 12%)',
-        glowColor: 'hsl(260, 50%, 30%)',
-        texture: '/planet-void.png',
-        mission: 'To explore the darkest reaches of space.',
-        homeBase: 'Void Station',
-        description: 'Elite specialists operating in the most dangerous and uncharted regions.',
-        specialization: ['Deep space operations', 'Void navigation', 'Dark matter research']
-    }
-];
-
 const Dashboard = () => {
-    const [selectedClub, setSelectedClub] = useState<Club>(clubs[0]);
+    const [selectedClub, setSelectedClub] = useState<Club | null>(null);
+    const [clubs, setClubs] = useState<Club[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
+
+    // Fetch clubs from MongoDB
+    useEffect(() => {
+        const fetchClubs = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+
+                const response = await clubAPI.getAll();
+                
+                // Map MongoDB clubs to Dashboard Club format
+                const formattedClubs: Club[] = response.data.map((club: APIClub, index: number) => {
+                    // Define color schemes for each club category
+                    const colorSchemes: Record<string, { planetColor: string, color: string, glowColor: string }> = {
+                        'development': {
+                            planetColor: 'from-blue-400 to-blue-600',
+                            color: 'hsl(210, 100%, 65%)',
+                            glowColor: 'hsl(210, 100%, 70%)'
+                        },
+                        'design': {
+                            planetColor: 'from-pink-400 to-pink-600',
+                            color: 'hsl(320, 100%, 70%)',
+                            glowColor: 'hsl(320, 100%, 80%)'
+                        },
+                        'data': {
+                            planetColor: 'from-cyan-400 to-teal-500',
+                            color: 'hsl(165, 100%, 42%)',
+                            glowColor: 'hsl(165, 100%, 50%)'
+                        },
+                        'business': {
+                            planetColor: 'from-red-600 to-orange-600',
+                            color: 'hsl(0, 80%, 50%)',
+                            glowColor: 'hsl(0, 100%, 60%)'
+                        },
+                        'other': {
+                            planetColor: 'from-purple-900 to-indigo-950',
+                            color: 'hsl(240, 40%, 12%)',
+                            glowColor: 'hsl(260, 50%, 30%)'
+                        }
+                    };
+
+                    const scheme = colorSchemes[club.category] || colorSchemes['other'];
+                    
+                    return {
+                        id: club._id,
+                        name: club.name,
+                        planetColor: scheme.planetColor,
+                        color: scheme.color,
+                        glowColor: scheme.glowColor,
+                        texture: `/planet-${club.category}.png`,
+                        mission: club.description,
+                        homeBase: club.name + ' Station',
+                        description: club.description,
+                        specialization: [club.category.charAt(0).toUpperCase() + club.category.slice(1), `${club.memberCount || club.members.length} Members`, club.createdAt ? 'Established ' + new Date(club.createdAt).getFullYear() : 'Active']
+                    };
+                });
+
+                setClubs(formattedClubs);
+                if (formattedClubs.length > 0) {
+                    setSelectedClub(formattedClubs[0]);
+                }
+            } catch (err: any) {
+                console.error('Error fetching clubs:', err);
+                setError(err.message || 'Failed to load clubs');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchClubs();
+    }, []);
 
     return (
         <div className="relative w-screen h-screen overflow-hidden bg-[#050510] font-sans">
@@ -103,6 +116,9 @@ const Dashboard = () => {
                     />
                 ))}
             </div>
+
+            {/* Auth Header */}
+            <AuthHeader />
 
             {/* Back Button */}
             <button
@@ -133,7 +149,33 @@ const Dashboard = () => {
                 </div>
             </div>
 
+            {/* Loading State */}
+            {loading && (
+                <div className="relative z-10 w-full h-full flex items-center justify-center">
+                    <div className="text-center">
+                        <Loader2 size={48} className="text-cyan-400 animate-spin mx-auto mb-4" />
+                        <p className="text-white text-lg font-display">Loading clubs...</p>
+                    </div>
+                </div>
+            )}
+
+            {/* Error State */}
+            {error && !loading && (
+                <div className="relative z-10 w-full h-full flex items-center justify-center">
+                    <div className="text-center bg-red-500/10 border border-red-500/30 rounded-xl p-8 max-w-md">
+                        <p className="text-red-400 text-lg mb-4">⚠️ {error}</p>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="px-6 py-2 bg-red-500/20 border border-red-400/30 rounded-lg hover:bg-red-500/30 transition-all text-white"
+                        >
+                            Retry
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/* Main Content Container */}
+            {!loading && !error && selectedClub && (
             <div className="relative z-10 w-full h-full flex items-center justify-center p-8">
                 <div className="w-full max-w-7xl h-full max-h-[800px] grid grid-cols-2 gap-6">
                     {/* Left Panel - Club Selection */}
@@ -246,6 +288,7 @@ const Dashboard = () => {
                     </div>
                 </div>
             </div>
+            )}
 
             {/* Custom Scrollbar Styles */}
             <style>{`
