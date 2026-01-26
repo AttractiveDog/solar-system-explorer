@@ -371,7 +371,7 @@ const Team = () => {
 
             {/* Back Button */}
             <button
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate('/')}
                 className="absolute top-6 left-6 z-50 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 text-white royal-font"
             >
                 <ChevronLeft size={20} />

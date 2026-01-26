@@ -6,58 +6,63 @@ import { useNavigate } from 'react-router-dom';
 const planets = [
   {
     name: 'TERRA',
-    color: 'hsl(210, 100%, 65%)',
-    glowColor: 'hsl(210, 100%, 70%)',
-    size: 150, // Adjusted for new camera zoom (was 300)
+    color: 'hsl(200, 80%, 55%)',      // Blue ocean
+    glowColor: 'hsl(200, 90%, 60%)',  // Blue glow
+    size: 180,
     orbitRadius: 300,
-    orbitDuration: 24,
+    orbitDuration: 30, // Slower
     rotationDuration: 8,
     discovered: true,
     texture: '/planet-terra.png',
+    delay: 0, // Starts at 0
   },
   {
     name: 'EMBER',
-    color: 'hsl(0, 80%, 50%)',
-    glowColor: 'hsl(0, 100%, 60%)',
-    size: 150, // Adjusted (was 300)
+    color: 'hsl(15, 85%, 45%)',       // Mars red-orange
+    glowColor: 'hsl(20, 100%, 55%)',  // Orange-red glow
+    size: 160,
     orbitRadius: 400,
-    orbitDuration: 36,
+    orbitDuration: 45, // Slower to separate
     rotationDuration: 6,
     discovered: true,
-    texture: '/planet-ember.png',
+    texture: '/planet-ember.jpg',
+    delay: -18, // Start almost halfway opposite
   },
   {
     name: 'AZURE',
-    color: 'hsl(165, 100%, 42%)',
-    glowColor: 'hsl(165, 100%, 50%)',
-    size: 150, // Adjusted (was 300)
+    color: 'hsl(220, 80%, 50%)',      // Deep blue
+    glowColor: 'hsl(210, 100%, 60%)', // Blue glow
+    size: 200,
     orbitRadius: 500,
-    orbitDuration: 52,
+    orbitDuration: 62, // Different speed
     rotationDuration: 4,
     discovered: true,
-    texture: '/planet-azure.png',
+    texture: '/planet-azure.jpg',
+    delay: -12, // Start slightly offset
   },
   {
     name: 'PHANTOM-X',
-    color: 'hsl(320, 100%, 70%)',
-    glowColor: 'hsl(320, 100%, 80%)',
-    size: 45, // Adjusted (was 90)
+    color: 'hsl(35, 50%, 55%)',       // Tan/Jupiter bands
+    glowColor: 'hsl(30, 80%, 60%)',   // Warm tan-orange glow
+    size: 120,
     orbitRadius: 600,
-    orbitDuration: 70,
+    orbitDuration: 78, // Slower
     rotationDuration: 12,
     discovered: true,
-    texture: '/planet-phantom.png',
+    texture: '/planet-phantom.jpg',
+    delay: -40, // Far offset
   },
   {
     name: 'VOID-7',
-    color: 'hsl(240, 40%, 12%)',
-    glowColor: 'hsl(260, 50%, 30%)',
-    size: 42, // Adjusted (was 85)
+    color: 'hsl(45, 40%, 50%)',       // Saturn gold/tan
+    glowColor: 'hsl(45, 70%, 55%)',   // Golden glow
+    size: 90,
     orbitRadius: 650,
-    orbitDuration: 100,
+    orbitDuration: 95,
     rotationDuration: 16,
     discovered: false,
-    texture: '/planet-void.png',
+    texture: '/planet-void.jpg',
+    delay: -60, // Very far offset
   },
 ];
 
@@ -92,7 +97,7 @@ const Stars = () => {
   );
 };
 
-import { User, Calendar, Users, LayoutDashboard, Power, ChevronLeft, ChevronRight } from 'lucide-react';
+import { User, Calendar, Users, LayoutDashboard, Power, ChevronLeft, ChevronRight, Trophy } from 'lucide-react';
 
 interface AsteroidProps {
   size: number;
@@ -304,6 +309,7 @@ interface PlanetProps {
   isMobile: boolean;
   isOrbiting?: boolean;
   orbitDirection?: 'left' | 'right' | null;
+  delay?: number; // Custom start delay
 }
 
 const Planet = ({
@@ -322,10 +328,12 @@ const Planet = ({
   isMobile,
   isOrbiting = false,
   orbitDirection = null,
+  delay = 0, // Default delay
 }: PlanetProps) => {
   // Use fixed size for all planets in mobile, original size in desktop
   const displaySize = isMobile ? 180 : size;
   const [isHovered, setIsHovered] = useState(false);
+  const [isClicked, setIsClicked] = useState(false); // Track click state for glow
 
   // Ellipse dimensions: wider than tall
   const ellipseWidth = orbitRadius * 5.5;
@@ -335,21 +343,54 @@ const Planet = ({
   const animationName = `ellipseOrbit-${index}`;
 
   // Calculate keyframe positions for smooth elliptical motion
+  // For TERRA (index 0), add delay AFTER going off-screen (not while visible)
   const generateKeyframes = () => {
-    const steps = 36; // Number of keyframe steps
+    const steps = 36;
     let keyframes = '@keyframes ' + animationName + ' {\n';
 
+    // For TERRA: full visible orbit 0-85%, then off-screen pause 85-100%
+    const orbitEndPercent = index === 0 ? 85 : 100;
+
     for (let i = 0; i <= steps; i++) {
-      const percent = (i / steps) * 100;
-      // Angle from 180deg (left) to 0deg (right) for top half
+      const percent = (i / steps) * orbitEndPercent;
+      // Angle from 180deg (left) to 0deg (right) - follows the visible orbit line
       const angle = (180 - (i / steps) * 180) * (Math.PI / 180);
 
       const x = ellipseWidth / 2 + (ellipseWidth / 2) * Math.cos(angle);
       const y = ellipseHeight - ellipseHeight * Math.sin(angle);
 
+      // Dynamic Z-Index: Objects lower on screen (higher y) should be in front
+      // Base z-index 20, plus y-offset. Max y is ellipseHeight.
+      // This ensures correct layering when orbits cross.
+      const dynamicZ = Math.floor(y) + 20;
+
       keyframes += `  ${percent.toFixed(1)}% {\n`;
       keyframes += `    left: ${x}px;\n`;
       keyframes += `    top: ${y}px;\n`;
+      keyframes += `    z-index: ${dynamicZ};\n`;
+      keyframes += `  }\n`;
+    }
+
+    // For TERRA, continue past visible area then pause OFF-SCREEN
+    if (index === 0) {
+      // Continue the orbit curve beyond visible area (going right and down)
+      const offAngle1 = -20 * (Math.PI / 180); // Past 0 degrees
+      const offX1 = ellipseWidth / 2 + (ellipseWidth / 2) * Math.cos(offAngle1);
+      const offY1 = ellipseHeight - ellipseHeight * Math.sin(offAngle1);
+      const offZ1 = Math.floor(offY1) + 20;
+
+      // Move off-screen smoothly (86-88%)
+      keyframes += `  88% {\n`;
+      keyframes += `    left: ${offX1}px;\n`;
+      keyframes += `    top: ${offY1}px;\n`;
+      keyframes += `    z-index: ${offZ1};\n`;
+      keyframes += `  }\n`;
+
+      // Stay off-screen for the pause (88-100% = ~2.9 seconds)
+      keyframes += `  100% {\n`;
+      keyframes += `    left: ${offX1}px;\n`;
+      keyframes += `    top: ${offY1}px;\n`;
+      keyframes += `    z-index: ${offZ1};\n`;
       keyframes += `  }\n`;
     }
 
@@ -412,25 +453,29 @@ const Planet = ({
           left: '0',
           top: '0',
           animation: `${animationName} ${orbitDuration}s linear infinite`,
-          animationDelay: `${index * -5}s`,
+          animationDelay: `${delay}s`, // Use custom delay
           animationPlayState: isHovered ? 'paused' : 'running',
-          zIndex: isHovered ? 100 : 10,
+          // zIndex removed from here as it's controllable by keyframes now (except hover)
+          zIndex: isHovered ? 1000 : 'auto', // Hover always on top
         }}
       >
         {/* Planet wrapper for centering */}
         <div
           onMouseEnter={() => !isMobile && setIsHovered(true)}
           onMouseLeave={() => !isMobile && setIsHovered(false)}
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent bubbling issues
             console.log(`Clicked on planet: ${name}`);
-            // Add your planet click logic here
+            // Toggle clicked state for glow
+            setIsClicked(true);
+            setTimeout(() => setIsClicked(false), 2000);
           }}
           style={{
             position: 'relative',
             width: `${displaySize}px`,
             height: `${displaySize}px`,
             borderRadius: '50%', // Make hit area circular
-            // Removed scale from here to keep hit box constant size
+            // overflow: 'hidden', // REMOVED to allow glow to spill outside
             transform: `translate(-50%, -50%)`,
             transition: 'transform 0.3s ease-in-out',
             cursor: 'pointer',
@@ -441,12 +486,12 @@ const Planet = ({
             style={{
               position: 'absolute',
               inset: 0,
+              borderRadius: '50%', // Ensure glow is circular
               // Apply scaling here instead so the visual grows but the hit-box stays the same
-              transform: isHovered ? 'scale(1.3)' : 'scale(1)',
-              filter: isHovered
-                ? `drop-shadow(0 0 ${displaySize * 1.5}px ${glowColor}) drop-shadow(0 0 ${displaySize * 0.9}px ${glowColor}) drop-shadow(0 0 ${displaySize * 2.4}px ${glowColor}88)`
-                : `drop-shadow(0 0 ${displaySize * 0.5}px ${glowColor}) drop-shadow(0 0 ${displaySize * 0.3}px ${glowColor}) drop-shadow(0 0 ${displaySize * 0.8}px ${glowColor}88)`,
-              // animation: 'planetGlow 3s ease-in-out infinite', <--- Removed to stop opacity pulsing
+              transform: isHovered || isClicked ? 'scale(1.3)' : 'scale(1)',
+              filter: isHovered || isClicked
+                ? `drop-shadow(0 0 ${displaySize * 0.8}px ${glowColor}) drop-shadow(0 0 ${displaySize * 0.5}px ${glowColor}) drop-shadow(0 0 ${displaySize * 0.3}px ${glowColor}FF)`
+                : `drop-shadow(0 0 ${displaySize * 0.15}px ${glowColor}99) drop-shadow(0 0 ${displaySize * 0.08}px ${glowColor}DD)`,
               transition: 'filter 0.3s ease-in-out, transform 0.3s ease-in-out',
             }}
           >
@@ -458,6 +503,7 @@ const Planet = ({
               texture={texture}
               rotationSpeed={1 / rotationDuration}
               discovered={discovered}
+              isHovered={isHovered || isClicked}
             />
           </div>
         </div>
@@ -727,7 +773,7 @@ export const SolarSystem2D = () => {
               onMouseEnter={handleOpen}
               onMouseLeave={handleClose}
             />
-            {/* Asteroid 5 - SYSTEMS */}
+            {/* Asteroid 5 - LEADERBOARD */}
             <Asteroid
               size={70}
               orbitRadius={200}
@@ -735,9 +781,12 @@ export const SolarSystem2D = () => {
               startAngle={30}
               color="hsl(15, 25%, 30%)"
               glowColor="hsl(20, 60%, 50%)"
-              label="SYSTEMS"
-              icon={Power}
+              label="LEADERBOARD"
+              icon={Trophy}
               active={isExpanded}
+              onClick={() => navigate('/leaderboard')}
+              onMouseEnter={handleOpen}
+              onMouseLeave={handleClose}
             />
           </div>
         </div>

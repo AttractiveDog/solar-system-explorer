@@ -241,6 +241,7 @@ const Dashboard = () => {
                                     texture={selectedClub.texture}
                                     rotationSpeed={0.2}
                                     discovered={true}
+                                    showGlow={false}
                                 />
 
                                 {/* Orbiting Ring */}
