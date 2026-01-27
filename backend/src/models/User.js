@@ -70,6 +70,10 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Achievement'
   }],
+  events: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Event'
+  }],
   joinedDate: {
     type: Date,
     default: Date.now,

@@ -680,6 +680,23 @@ async function editEvent(id) {
             clubsOptions += '<option value="" disabled>Error loading clubs</option>';
         }
 
+        // Fetch users for participants selection
+        let usersOptions = '';
+        try {
+            const usersRes = await fetch(`${API_BASE_URL}/admin/users?limit=1000`);
+            const usersData = await usersRes.json();
+            
+            if (usersData.success) {
+                const currentParticipantEmails = new Set((event.participants || []).map(p => p.email));
+                usersOptions = usersData.data.map(u => 
+                    `<option value="${u.email}" ${currentParticipantEmails.has(u.email) ? 'selected' : ''}>${u.username} (${u.email})</option>`
+                ).join('');
+            }
+        } catch (e) {
+            console.error('Error fetching users for select', e);
+            usersOptions = '<option value="" disabled>Error loading users</option>';
+        }
+
         modalTitle.textContent = 'Edit Event';
         
         // Format date for date input (YYYY-MM-DD)
@@ -746,6 +763,13 @@ async function editEvent(id) {
                         <input type="number" id="editEventMaxParticipants" name="maxParticipants" placeholder="Leave empty for unlimited" value="${event.maxParticipants || ''}">
                     </div>
                 </div>
+
+                <div class="form-group">
+                    <label for="editEventParticipants">Participants (Hold Ctrl/Cmd to select multiple)</label>
+                    <select multiple id="editEventParticipants" name="participants" style="height: 150px; width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        ${usersOptions}
+                    </select>
+                </div>
                 
                 <div class="form-group" id="meetingLinkGroup" style="${event.location === 'offline' ? 'display:none;' : 'display:block;'}">
                     <label for="editEventMeetingLink">Meeting Link</label>
@@ -801,7 +825,11 @@ async function editEvent(id) {
                 status: document.getElementById('editEventStatus').value,
                 meetingLink: document.getElementById('editEventMeetingLink').value,
                 venue: document.getElementById('editEventVenue').value,
-                maxParticipants: document.getElementById('editEventMaxParticipants').value ? parseInt(document.getElementById('editEventMaxParticipants').value) : null
+                maxParticipants: document.getElementById('editEventMaxParticipants').value ? parseInt(document.getElementById('editEventMaxParticipants').value) : null,
+                meetingLink: document.getElementById('editEventMeetingLink').value,
+                venue: document.getElementById('editEventVenue').value,
+                maxParticipants: document.getElementById('editEventMaxParticipants').value ? parseInt(document.getElementById('editEventMaxParticipants').value) : null,
+                participants: Array.from(document.getElementById('editEventParticipants').selectedOptions).map(opt => opt.value)
             };
 
             try {
@@ -975,6 +1003,22 @@ async function showAddEventModal() {
         clubsOptions += '<option value="" disabled>Error loading clubs</option>';
     }
 
+    // Fetch users for participants selection
+    let usersOptions = '';
+    try {
+        const usersRes = await fetch(`${API_BASE_URL}/admin/users?limit=1000`);
+        const usersData = await usersRes.json();
+        
+        if (usersData.success) {
+            usersOptions = usersData.data.map(u => 
+                `<option value="${u.email}">${u.username} (${u.email})</option>`
+            ).join('');
+        }
+    } catch (e) {
+        console.error('Error fetching users for select', e);
+        usersOptions = '<option value="" disabled>Error loading users</option>';
+    }
+
     modalBody.innerHTML = `
         <form id="addEventForm" class="edit-form">
             <div class="form-group">
@@ -1022,6 +1066,13 @@ async function showAddEventModal() {
                     <label for="eventMaxParticipants">Max Participants</label>
                     <input type="number" id="eventMaxParticipants" name="maxParticipants" placeholder="Leave empty for unlimited">
                 </div>
+            </div>
+
+            <div class="form-group">
+                <label for="eventParticipants">Participants (Hold Ctrl/Cmd to select multiple)</label>
+                <select multiple id="eventParticipants" name="participants" style="height: 150px; width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    ${usersOptions}
+                </select>
             </div>
             
             <div class="form-group" id="meetingLinkGroup">
@@ -1077,7 +1128,9 @@ async function showAddEventModal() {
             location: document.getElementById('eventLocation').value,
             meetingLink: document.getElementById('eventMeetingLink').value,
             venue: document.getElementById('eventVenue').value,
-            maxParticipants: document.getElementById('eventMaxParticipants').value ? parseInt(document.getElementById('eventMaxParticipants').value) : null
+            maxParticipants: document.getElementById('eventMaxParticipants').value ? parseInt(document.getElementById('eventMaxParticipants').value) : null,
+            maxParticipants: document.getElementById('eventMaxParticipants').value ? parseInt(document.getElementById('eventMaxParticipants').value) : null,
+            participants: Array.from(document.getElementById('eventParticipants').selectedOptions).map(opt => opt.value)
         };
 
         try {

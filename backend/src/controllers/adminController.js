@@ -244,7 +244,7 @@ export const getEventByIdAdmin = async (req, res) => {
     const event = await Event.findById(req.params.id)
       .populate('club', 'name')
       .populate('createdBy', 'username email')
-      .populate('participants.user', 'username email');
+      .populate('participants', 'username email');
 
     if (!event) {
       return res.status(404).json({
@@ -464,6 +464,28 @@ export const updateClubAdmin = async (req, res) => {
 // @access  Private (Admin)
 export const updateEventAdmin = async (req, res) => {
   try {
+    // Process participants if provided
+    if (req.body.participants) {
+      let participantEmails = [];
+      if (typeof req.body.participants === 'string') {
+        participantEmails = req.body.participants.split(',').map(email => email.trim());
+      } else if (Array.isArray(req.body.participants)) {
+        participantEmails = req.body.participants;
+      }
+
+      if (participantEmails.length > 0) {
+        const users = await User.find({ email: { $in: participantEmails } });
+        const participantIds = users.map(user => user._id);
+        req.body.participants = participantIds;
+
+        // Add event to these users' events array
+         await User.updateMany(
+          { _id: { $in: participantIds } },
+          { $addToSet: { events: req.params.id } }
+        );
+      }
+    }
+
     const event = await Event.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -589,6 +611,22 @@ export const createEventAdmin = async (req, res) => {
       });
     }
 
+    // Process participants (expecting comma-separated emails or array of emails)
+    let participantIds = [];
+    if (req.body.participants) {
+      let participantEmails = [];
+      if (typeof req.body.participants === 'string') {
+        participantEmails = req.body.participants.split(',').map(email => email.trim());
+      } else if (Array.isArray(req.body.participants)) {
+        participantEmails = req.body.participants;
+      }
+
+      if (participantEmails.length > 0) {
+        const users = await User.find({ email: { $in: participantEmails } });
+        participantIds = users.map(user => user._id);
+      }
+    }
+
     // Create event
     const event = await Event.create({
       title,
@@ -601,9 +639,18 @@ export const createEventAdmin = async (req, res) => {
       venue,
       meetingLink,
       maxParticipants: maxParticipants || null,
+      participants: participantIds,
       createdBy: createdBy || clubDoc.createdBy,
       status: 'upcoming'
     });
+
+    // Add event to users' events array
+    if (participantIds.length > 0) {
+      await User.updateMany(
+        { _id: { $in: participantIds } },
+        { $addToSet: { events: event._id } }
+      );
+    }
 
     res.status(201).json({
       success: true,
