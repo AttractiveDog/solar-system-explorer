@@ -1,10 +1,6 @@
 /* STRATATHON - Cosmic Comet Theme */
 @import url('https://fonts.googleapis.com/css2?family=Bungee&family=Press+Start+2P&family=VT323&family=Audiowide&family=Michroma&display=swap');
 
-body {
-    background: #0B0D17;
-}
-
 :root {
     /* Comet Color Theme */
     --deep-void: #0B0D17;

@@ -17,6 +17,9 @@ import {
   createEventAdmin,
   getClubByIdAdmin,
   getEventByIdAdmin,
+  createAllowedEmailAdmin,
+  getAllowedEmailsAdmin,
+  deleteAllowedEmailAdmin,
 } from '../controllers/adminController.js';
 
 import { upload } from '../utils/upload.js';
@@ -48,5 +51,10 @@ router.get('/events', getAllEventsAdmin);
 router.get('/events/:id', getEventByIdAdmin);
 router.put('/events/:id', upload.array('images', 5), updateEventAdmin);
 router.delete('/events/:id', deleteEventAdmin);
+
+// Allowed Emails management
+router.post('/allowed-emails', createAllowedEmailAdmin);
+router.get('/allowed-emails', getAllowedEmailsAdmin);
+router.delete('/allowed-emails/:id', deleteAllowedEmailAdmin);
 
 export default router;

@@ -176,8 +176,8 @@ const Dashboard = () => {
 
             {/* Main Content Container */}
             {!loading && !error && selectedClub && (
-            <div className="relative z-10 w-full h-full flex items-center justify-center p-8">
-                <div className="w-full max-w-7xl h-full max-h-[800px] grid grid-cols-2 gap-6">
+            <div className="relative z-10 w-full h-full flex flex-col items-center justify-start p-8 pt-24">
+                <div className="w-full max-w-7xl flex-1 grid grid-cols-2 gap-6">
                     {/* Left Panel - Club Selection */}
                     <div className="flex flex-col h-full">
                         <div className="mb-4">

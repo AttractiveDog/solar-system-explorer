@@ -35,7 +35,7 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-space-dark via-purple-900/20 to-space-dark relative overflow-hidden">
+    <div className="min-h-screen flex items-start justify-center pt-32 bg-gradient-to-br from-space-dark via-purple-900/20 to-space-dark relative overflow-hidden">
       {/* Animated background stars */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="stars"></div>
@@ -76,7 +76,6 @@ const Login = () => {
             <Button
               onClick={handleGoogleSignIn}
               className="w-full h-12 bg-white hover:bg-gray-100 text-gray-900 font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
-              disabled={loading}
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path

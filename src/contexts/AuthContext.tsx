@@ -7,6 +7,7 @@ import {
 } from 'firebase/auth';
 import { auth, googleProvider } from '@/config/firebase';
 import { syncUserWithBackend } from '@/services/api';
+import { toast } from 'sonner';
 
 interface AuthContextType {
   user: User | null;
@@ -58,8 +59,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             provider: 'google',
           });
           console.log('✅ User synced with backend');
-        } catch (error) {
+        } catch (error: any) {
           console.error('❌ Error syncing user with backend:', error);
+          // If sync fails (e.g. not allowed), sign out immediately
+          await firebaseSignOut(auth);
+          setUser(null);
+          toast.error(error.message || 'Authentication failed. Please try again.');
         }
       } else {
         setUser(null);
@@ -90,8 +95,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         photoURL: result.user.photoURL || '',
         provider: 'google',
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error signing in with Google:', error);
+      // Clean up firebase session if sync failed
+      if (auth.currentUser) {
+        await firebaseSignOut(auth);
+        setUser(null);
+      }
       throw error;
     } finally {
       setLoading(false);

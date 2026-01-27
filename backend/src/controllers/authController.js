@@ -1,4 +1,5 @@
 import User from '../models/User.js';
+import AllowedEmail from '../models/AllowedEmail.js';
 
 /**
  * Sync Firebase user with MongoDB
@@ -37,6 +38,16 @@ export const syncFirebaseUser = async (req, res) => {
         await user.save();
       } else {
         // Create new user
+        // Check if email is in the allowed list
+        const isAllowed = await AllowedEmail.findOne({ email });
+        
+        if (!isAllowed) {
+          return res.status(403).json({
+            success: false,
+            message: 'Email not authorized for registration. Please contact administrator.',
+          });
+        }
+
         const username = email.split('@')[0] + '_' + Date.now(); // Generate unique username
         
         user = await User.create({

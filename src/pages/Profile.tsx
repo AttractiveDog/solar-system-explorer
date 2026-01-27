@@ -99,16 +99,16 @@ const Profile = () => {
                     const userClubs = clubsResponse.data
                         .filter((club: APIClub) =>
                             club.members.some((member: any) =>
-                                typeof member.user === 'string'
+                                member.user && (typeof member.user === 'string'
                                     ? member.user === currentUser._id
-                                    : member.user._id === currentUser._id
+                                    : member.user._id === currentUser._id)
                             )
                         )
                         .map((club: APIClub) => {
                             const memberInfo = club.members.find((m: any) =>
-                                typeof m.user === 'string'
+                                m.user && (typeof m.user === 'string'
                                     ? m.user === currentUser._id
-                                    : m.user._id === currentUser._id
+                                    : m.user._id === currentUser._id)
                             );
 
                             const iconMap: any = {
@@ -173,7 +173,7 @@ const Profile = () => {
 
     if (!authLoading && !authUser) {
         return (
-            <div className="relative w-screen h-screen overflow-hidden bg-[#050510] flex items-center justify-center">
+            <div className="relative w-screen h-screen overflow-hidden bg-[#050510] flex items-start justify-center pt-32">
                 {/* Animated Starfield Background */}
                 <div className="absolute inset-0 overflow-hidden">
                     {[...Array(150)].map((_, i) => (
@@ -194,41 +194,16 @@ const Profile = () => {
                 </div>
 
                 {/* Coming Soon Banner */}
-                <div className="absolute top-20 md:top-32 left-1/2 -translate-x-1/2 z-20 text-center">
-                    <div className="relative inline-block">
-                        {/* Glow effect */}
-                        <div className="absolute inset-0 blur-2xl opacity-60" style={{
-                            background: 'radial-gradient(ellipse, hsl(30, 100%, 60%), hsl(20, 100%, 50%), transparent)'
-                        }} />
-
-                        {/* Main text */}
-                        <h1
-                            className="relative text-5xl md:text-7xl font-display font-bold tracking-widest"
-                            style={{
-                                background: 'linear-gradient(to right, hsl(45, 70%, 75%), hsl(30, 90%, 65%), hsl(20, 100%, 55%), hsl(30, 90%, 65%), hsl(45, 70%, 75%))',
-                                backgroundSize: '200% auto',
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
-                                backgroundClip: 'text',
-                                filter: 'drop-shadow(0 0 15px rgba(255, 150, 50, 0.6)) drop-shadow(0 0 30px rgba(255, 100, 0, 0.4))',
-                                animation: 'shimmer 3s linear infinite'
-                            }}
-                        >
-                            ONLY FOR MEMBERS
-                        </h1>
-                    </div>
-                </div>
-
-                <div className="relative z-10 p-8 bg-white/5 backdrop-blur-md border border-white/20 rounded-2xl max-w-md w-full text-center mt-32 md:mt-40">
+                <div className="relative z-10 p-8 bg-white/5 backdrop-blur-md border border-white/20 rounded-2xl max-w-md w-full text-center">
                     <h2 className="text-3xl font-bold text-white mb-4 font-display">Identity Verification</h2>
                     <p className="text-gray-400 mb-8">Please authenticate your credentials to access your explorer profile.</p>
 
                     <button
-                        disabled
-                        className="flex items-center justify-center gap-3 w-full px-6 py-4 bg-gradient-to-r from-cyan-500/40 to-blue-500/40 rounded-xl font-bold text-white/50 opacity-60 cursor-not-allowed"
+                        onClick={handleLogin}
+                        className="flex items-center justify-center gap-3 w-full px-6 py-4 bg-gradient-to-r from-cyan-500/40 to-blue-500/40 rounded-xl font-bold text-white hover:shadow-lg hover:from-cyan-500/50 hover:to-blue-500/50 transition-all cursor-pointer"
                     >
-                        <div className="w-6 h-6 bg-white/50 rounded-full flex items-center justify-center">
-                            <span className="text-blue-500/70 text-xs font-bold">G</span>
+                        <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
+                            <span className="text-blue-500 text-xs font-bold">G</span>
                         </div>
                         Connect with Google
                     </button>

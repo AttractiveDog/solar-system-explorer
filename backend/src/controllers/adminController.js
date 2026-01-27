@@ -3,6 +3,7 @@ import User from '../models/User.js';
 import Club from '../models/Club.js';
 import Event from '../models/Event.js';
 import { Achievement } from '../models/Achievement.js';
+import AllowedEmail from '../models/AllowedEmail.js';
 
 // @desc    Admin login
 // @route   POST /api/v1/admin/login
@@ -692,6 +693,97 @@ export const createEventAdmin = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error creating event',
+      error: error.message,
+    });
+  }
+};
+// @desc    Add allowed email
+// @route   POST /api/v1/admin/allowed-emails
+// @access  Private (Admin)
+export const createAllowedEmailAdmin = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide an email',
+      });
+    }
+    
+    // Check if email already exists
+    const emailExists = await AllowedEmail.findOne({ email });
+    if (emailExists) {
+        return res.status(400).json({
+            success: false,
+            message: 'Email already exists in allowed list',
+        });
+    }
+
+    const allowedEmail = await AllowedEmail.create({
+      email,
+      // createdBy: req.user._id // Assuming you have authentication middleware that sets req.user
+    });
+
+    res.status(201).json({
+      success: true,
+      data: allowedEmail,
+      message: 'Email added to allowlist successfully',
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error adding email',
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Get all allowed emails
+// @route   GET /api/v1/admin/allowed-emails
+// @access  Private (Admin)
+export const getAllowedEmailsAdmin = async (req, res) => {
+  try {
+    const emails = await AllowedEmail.find().sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: emails.length,
+      data: emails,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching allowed emails',
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Delete allowed email
+// @route   DELETE /api/v1/admin/allowed-emails/:id
+// @access  Private (Admin)
+export const deleteAllowedEmailAdmin = async (req, res) => {
+  try {
+    const allowedEmail = await AllowedEmail.findById(req.params.id);
+
+    if (!allowedEmail) {
+      return res.status(404).json({
+        success: false,
+        message: 'Email not found',
+      });
+    }
+
+    await allowedEmail.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      message: 'Email removed from allowlist',
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error removing email',
       error: error.message,
     });
   }

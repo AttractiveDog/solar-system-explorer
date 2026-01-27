@@ -109,6 +109,14 @@
                     <span>Users</span>
                 </a>
                 
+                <a href="#" class="nav-link" data-section="allowed-emails">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                    </svg>
+                    <span>Allowed Emails</span>
+                </a>
+                
                 <a href="#" class="nav-link" data-section="clubs">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polygon points="12 2 2 7 12 12 22 7 12 2"/>
@@ -243,6 +251,37 @@
                     </table>
                 </div>
                 <div class="pagination" id="usersPagination"></div>
+            </section>
+
+            <!-- Allowed Emails Section -->
+            <section id="allowed-emailsSection" class="content-section">
+                <div class="section-header">
+                    <h2>Allowed Emails Management</h2>
+                    <div class="header-actions-row" style="display: flex; gap: 10px; align-items: center;">
+                        <button class="btn-primary" id="addAllowedEmailBtn">
+                            <span class="btn-text">Add Email</span>
+                        </button>
+                        <div class="search-box">
+                            <input type="text" id="allowedEmailSearch" placeholder="Search emails...">
+                        </div>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Added Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="allowedEmailsTableBody">
+                            <tr>
+                                <td colspan="3" class="loading">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </section>
 
             <!-- Clubs Section -->

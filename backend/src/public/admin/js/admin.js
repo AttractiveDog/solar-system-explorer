@@ -30,6 +30,7 @@ const modalBody = document.getElementById('modalBody');
 const modalTitle = document.getElementById('modalTitle');
 const addClubBtn = document.getElementById('addClubBtn');
 const addEventBtn = document.getElementById('addEventBtn');
+const addAllowedEmailBtn = document.getElementById('addAllowedEmailBtn');
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -55,6 +56,7 @@ function setupEventListeners() {
     logoutBtn.addEventListener('click', handleLogout);
     if(addClubBtn) addClubBtn.addEventListener('click', showAddClubModal);
     if(addEventBtn) addEventBtn.addEventListener('click', showAddEventModal);
+    if(addAllowedEmailBtn) addAllowedEmailBtn.addEventListener('click', showAddAllowedEmailModal);
     
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
@@ -105,6 +107,9 @@ function setupEventListeners() {
                 break;
             case 'deleteEvent':
                 await deleteEvent(id);
+                break;
+            case 'deleteAllowedEmail':
+                await deleteAllowedEmail(id);
                 break;
         }
     });
@@ -204,6 +209,7 @@ function switchSection(section) {
         users: 'User Management',
         clubs: 'Club Management',
         events: 'Event Management',
+        'allowed-emails': 'Allowed Emails Management',
     };
     sectionTitle.textContent = titles[section] || section;
     
@@ -216,6 +222,8 @@ function switchSection(section) {
         loadClubs();
     } else if (section === 'events') {
         loadEvents();
+    } else if (section === 'allowed-emails') {
+        loadAllowedEmails();
     }
 }
 
@@ -795,9 +803,11 @@ async function editEvent(id) {
         `;
         
         // Helper to toggle fields
+
         window.toggleLocationFields = function(val) {
             const linkGroup = document.getElementById('meetingLinkGroup');
             const venueGroup = document.getElementById('venueGroup');
+
             
             if (val === 'online') {
                 linkGroup.style.display = 'block';
@@ -1316,4 +1326,119 @@ function previewImages(input, containerId = 'imagePreviewContainer') {
             reader.readAsDataURL(file);
         });
     }
+}
+
+// Allowed Emails Functions
+async function loadAllowedEmails() {
+    const tbody = document.getElementById('allowedEmailsTableBody');
+    tbody.innerHTML = '<tr><td colspan="3" class="loading">Loading...</td></tr>';
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/admin/allowed-emails`);
+        const data = await response.json();
+        
+        if (data.success && data.data.length > 0) {
+            tbody.innerHTML = data.data.map(email => `
+                <tr>
+                    <td>${email.email}</td>
+                    <td>${formatDateTime(email.createdAt || email.addedAt)}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-delete" data-action="deleteAllowedEmail" data-id="${email._id}">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        } else {
+            tbody.innerHTML = '<tr><td colspan="3" class="loading">No emails found</td></tr>';
+        }
+    } catch (error) {
+        tbody.innerHTML = '<tr><td colspan="3" class="loading">Error loading emails</td></tr>';
+        console.error('Error loading allowed emails:', error);
+    }
+}
+
+async function deleteAllowedEmail(id) {
+    if (!confirm('Are you sure you want to remove this email?')) return;
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/admin/allowed-emails/${id}`, {
+            method: 'DELETE',
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Email removed successfully');
+            loadAllowedEmails();
+        } else {
+            alert('Error removing email: ' + data.message);
+        }
+    } catch (error) {
+        alert('Error removing email');
+        console.error('Error:', error);
+    }
+}
+
+function showAddAllowedEmailModal() {
+    modalTitle.textContent = 'Add Allowed Email';
+    modalBody.innerHTML = `
+        <form id="addAllowedEmailForm" class="edit-form">
+            <div class="form-group">
+                <label for="allowedEmailInput">Email Address</label>
+                <input type="email" id="allowedEmailInput" name="email" required placeholder="user@example.com">
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" onclick="document.getElementById('editModal').style.display='none'">Cancel</button>
+                <button type="submit" class="btn-primary">Add Email</button>
+            </div>
+        </form>
+    `;
+    
+    editModal.style.display = 'block';
+    
+    document.getElementById('addAllowedEmailForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Adding...';
+        submitBtn.disabled = true;
+        
+        const email = document.getElementById('allowedEmailInput').value;
+        
+        try {
+            const response = await fetch(`${API_BASE_URL}/admin/allowed-emails`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email }),
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                alert('Email added successfully');
+                editModal.style.display = 'none';
+                if (state.currentSection === 'allowed-emails') {
+                    loadAllowedEmails();
+                }
+            } else {
+                alert('Error adding email: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Error adding email:', error);
+            alert('Error adding email');
+        } finally {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    });
+}
+
+function formatDateTime(dateString) {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
 }
