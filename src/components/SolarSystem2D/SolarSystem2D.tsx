@@ -97,7 +97,7 @@ const Stars = () => {
   );
 };
 
-import { User, Calendar, Users, LayoutDashboard, Power, ChevronLeft, ChevronRight, Trophy } from 'lucide-react';
+import { User, Calendar, Users, LayoutDashboard, Power, ChevronLeft, ChevronRight, Trophy, X } from 'lucide-react';
 
 interface AsteroidProps {
   size: number;
@@ -252,13 +252,23 @@ const Sun = ({ isExpanded, onOpen, onClose, isMobile }: SunProps) => {
   const sunSize = isMobile ? 400 : 1200;
 
   const handleMouseEnter = () => {
-    setIsHovered(true);
-    onOpen();
+    if (!isMobile) {
+      setIsHovered(true);
+      onOpen();
+    }
   };
 
   const handleMouseLeave = () => {
     setIsHovered(false);
-    onClose();
+    if (!isMobile) {
+      onClose();
+    }
+  };
+
+  const handleClick = () => {
+    if (isMobile) {
+      onOpen();
+    }
   };
 
   return (
@@ -279,6 +289,7 @@ const Sun = ({ isExpanded, onOpen, onClose, isMobile }: SunProps) => {
       <div
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
+        onClick={handleClick}
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full cursor-pointer"
         style={{
           width: `${sunSize * 0.85}px`,
@@ -612,11 +623,9 @@ export const SolarSystem2D = () => {
         style={{ zIndex: 0 }}
       >
         <span style={{
-          fontFamily: 'Okaluera, sans-serif', // Use the custom font
+          fontFamily: 'Okaluera, sans-serif',
           fontSize: '25vw',
-          color: 'rgba(255, 255, 255, 1)', // Very subtle opacity
-
-
+          color: 'rgba(255, 255, 255, 0.05)', // Reduced opacity for less clutter
         }}>
           COMET
         </span>
@@ -705,12 +714,52 @@ export const SolarSystem2D = () => {
         </div>
       </div>
 
-      {/* New Asteroid Belt - Appears only when Sun is expanded - Hidden in mobile */}
-      {!isMobile && (
-        <div
-          className={`absolute inset-0 transition-all duration-600 ease-out pointer-events-none ${isExpanded ? 'opacity-100' : 'opacity-0'}`}
-          style={{ zIndex: 60 }}
-        >
+      {/* Navigation Menu - Visible when Sun is expanded */}
+      <div
+        className={`absolute inset-0 transition-all duration-500 ease-out pointer-events-none ${isExpanded ? 'opacity-100' : 'opacity-0'
+          }`}
+        style={{ zIndex: 60 }}
+      >
+        {isMobile ? (
+          /* Mobile Navigation Menu - Vertical Stack */
+          isExpanded && (
+            <div className="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-black/80 backdrop-blur-md pointer-events-auto p-6 animate-in fade-in duration-300">
+              <h2 className="text-2xl font-display text-white mb-8 tracking-widest border-b border-primary/50 pb-2">
+                NAVIGATION
+              </h2>
+              <div className="flex flex-col gap-6 w-full max-w-xs">
+                {[
+                  { label: "DASHBOARD", icon: LayoutDashboard, path: "/dashboard", color: "hsl(30, 80%, 60%)" },
+                  { label: "EVENTS", icon: Calendar, path: "/events", color: "hsl(30, 70%, 50%)" },
+                  { label: "PROFILE", icon: User, path: "/profile", color: "hsl(45, 60%, 40%)" },
+                  { label: "TEAM", icon: Users, path: "/team", color: "hsl(25, 70%, 45%)" },
+                  { label: "LEADERBOARD", icon: Trophy, path: "/leaderboard", color: "hsl(20, 60%, 50%)" },
+                ].map((item) => (
+                  <button
+                    key={item.label}
+                    onClick={() => navigate(item.path)}
+                    className="flex items-center gap-4 w-full p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 active:scale-95 transition-all text-left group"
+                  >
+                    <div className="p-3 rounded-full bg-white/5 group-hover:bg-white/10 transition-colors">
+                      <item.icon size={24} style={{ color: item.color }} />
+                    </div>
+                    <span className="text-lg font-bold tracking-widest text-white group-hover:text-primary transition-colors">
+                      {item.label}
+                    </span>
+                    <ChevronRight className="ml-auto text-white/30" />
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={handleClose}
+                className="mt-12 p-4 rounded-full bg-white/10 text-white hover:bg-white/20 transition-all"
+              >
+                <X size={24} />
+              </button>
+            </div>
+          )
+        ) : (
+          /* Desktop Asteroid Belt */
           <div>
             {/* Asteroid 1 - DASHBOARD */}
             <Asteroid
@@ -789,39 +838,38 @@ export const SolarSystem2D = () => {
               onMouseLeave={handleClose}
             />
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Mobile Navigation Controls */}
       {isMobile && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-6">
+        <div className="fixed bottom-12 left-1/2 -translate-x-1/2 z-50 flex items-center gap-8">
           <button
             onClick={prevPlanet}
-            className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-110 active:scale-95"
-            style={{
-              boxShadow: '0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(59, 130, 246, 0.3)',
-            }}
+            className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center cursor-pointer transition-all duration-300 hover:bg-white/20 active:scale-95 text-white/80"
           >
-            <ChevronLeft size={28} color="white" strokeWidth={3} />
+            <ChevronLeft size={24} />
           </button>
 
-          <div className="flex flex-col items-center">
-            <span className="text-white text-lg font-bold tracking-wider" style={{ textShadow: '0 0 10px rgba(255, 255, 255, 0.5)' }}>
+          <div className="flex flex-col items-center min-w-[120px]">
+            <span className="text-white text-lg font-bold tracking-wider font-display drop-shadow-md">
               {planets[currentPlanetIndex].name}
             </span>
-            <span className="text-white/60 text-xs tracking-widest">
-              {currentPlanetIndex + 1} / {planets.length}
-            </span>
+            <div className="flex gap-1 mt-1">
+              {planets.map((_, i) => (
+                <div
+                  key={i}
+                  className={`w-1.5 h-1.5 rounded-full transition-all ${i === currentPlanetIndex ? 'bg-white scale-125' : 'bg-white/30'}`}
+                />
+              ))}
+            </div>
           </div>
 
           <button
             onClick={nextPlanet}
-            className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-110 active:scale-95"
-            style={{
-              boxShadow: '0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(59, 130, 246, 0.3)',
-            }}
+            className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center cursor-pointer transition-all duration-300 hover:bg-white/20 active:scale-95 text-white/80"
           >
-            <ChevronRight size={28} color="white" strokeWidth={3} />
+            <ChevronRight size={24} />
           </button>
         </div>
       )}

@@ -97,24 +97,6 @@ const Team = () => {
                     branch: 'Entrepreneurship',
                     year: 'Faculty',
                     linkedin: 'atlasstorm'
-                },
-                {
-                    id: 'm3',
-                    name: 'Luna Martinez',
-                    role: 'Technical Mentor',
-                    image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400',
-                    branch: 'Systems',
-                    year: 'Faculty',
-                    linkedin: 'lunamartinez'
-                },
-                {
-                    id: 'm4',
-                    name: 'Phoenix Wright',
-                    role: 'Creative Mentor',
-                    image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400',
-                    branch: 'Design',
-                    year: 'Faculty',
-                    linkedin: 'phoenixwright'
                 }
             ]
         },
@@ -134,33 +116,6 @@ const Team = () => {
                     branch: 'Administration',
                     year: 'Dean',
                     email: 'vega@college.edu'
-                },
-                {
-                    id: 'cs2',
-                    name: 'Deneb Kumar',
-                    role: 'Coordinator',
-                    image: 'https://images.unsplash.com/photo-1531384441138-2736e62e0919?auto=format&fit=crop&q=80&w=400',
-                    branch: 'Academics',
-                    year: 'Coordinator',
-                    email: 'deneb@college.edu'
-                },
-                {
-                    id: 'cs3',
-                    name: 'Sirius Johnson',
-                    role: 'Advisor',
-                    image: 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&q=80&w=400',
-                    branch: 'CS Department',
-                    year: 'Professor',
-                    email: 'sirius@college.edu'
-                },
-                {
-                    id: 'cs4',
-                    name: 'Polaris Smith',
-                    role: 'Manager',
-                    image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400',
-                    branch: 'Resources',
-                    year: 'Manager',
-                    email: 'polaris@college.edu'
                 }
             ]
         },
@@ -201,25 +156,6 @@ const Team = () => {
                     year: 'Third Year',
                     github: 'altairpatel',
                     linkedin: 'altairpatel'
-                },
-                {
-                    id: 't4',
-                    name: 'Vela Rodriguez',
-                    role: 'DevOps Engineer',
-                    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400',
-                    branch: 'IT',
-                    year: 'Third Year',
-                    github: 'velarodriguez',
-                    linkedin: 'velarodriguez'
-                },
-                {
-                    id: 't5',
-                    name: 'Carina Lee',
-                    role: 'Quality Assurance',
-                    image: 'https://images.unsplash.com/photo-1548142813-c348350df52b?auto=format&fit=crop&q=80&w=400',
-                    branch: 'Computer Science',
-                    year: 'Second Year',
-                    github: 'carinalee'
                 }
             ]
         },
@@ -280,7 +216,7 @@ const Team = () => {
         },
         {
             id: 'pr-team',
-            title: 'PR Team',
+            title: 'Management and Outreach Team',
             icon: <Megaphone size={24} />,
             gradient: 'from-orange-500/20 via-red-500/20 to-pink-500/20',
             color: 'text-orange-400',
@@ -348,8 +284,156 @@ const Team = () => {
         }
     };
 
+    const renderSection = (section: TeamSection | undefined, isFounders: boolean = false, className: string = '') => {
+        if (!section) return null;
+
+        const cardWidth = isFounders ? 'w-96' : 'w-72';
+        const imageSize = isFounders ? 'w-64 h-64' : 'w-40 h-40';
+        const nameSize = isFounders ? 'text-4xl' : 'text-xl';
+        const roleSize = isFounders ? 'text-sm' : 'text-xs';
+
+        return (
+            <div key={section.id} className={`space-y-4 ${className}`}>
+                {/* Compact Section Header */}
+                <div className={`inline-flex items-center gap-3 bg-gradient-to-r ${section.gradient} backdrop-blur-md border border-white/20 rounded-full px-6 py-3`}>
+                    <div className={`${section.color} flex-shrink-0`}>
+                        {section.icon}
+                    </div>
+                    <h2 className="text-xl font-bold text-white tracking-widest royal-font whitespace-nowrap">
+                        {section.title.toUpperCase()}
+                    </h2>
+                    <div className="flex items-center gap-2 ml-2 pl-2 border-l border-white/30">
+                        <div className="text-lg font-bold text-white royal-font">{section.members.length}</div>
+                        <div className="text-xs text-gray-300 uppercase tracking-wider">Members</div>
+                    </div>
+                </div>
+
+                {/* Description */}
+                <p className="text-gray-300 text-sm max-w-2xl font-light leading-relaxed pl-2">
+                    {section.description}
+                </p>
+
+                {/* Carousel with Navigation */}
+                <div className="relative group">
+                    {/* Left Button */}
+                    <button
+                        onClick={() => scrollCarousel(section.id, 'left')}
+                        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-full hover:bg-white/20 transition-all duration-300 opacity-0 group-hover:opacity-100"
+                    >
+                        <ChevronLeft size={24} className="text-white" />
+                    </button>
+
+                    {/* Scrollable Container */}
+                    <div
+                        id={`carousel-${section.id}`}
+                        className="overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 flex"
+                        style={{ scrollPaddingLeft: '8px' }}
+                    >
+                        <div className="flex gap-6 px-2 mx-auto md:mx-0">
+                            {section.members.map((member) => (
+                                <div
+                                    key={member.id}
+                                    className={`group/card relative flex-shrink-0 ${cardWidth} snap-start`}
+                                    onMouseEnter={() => setHoveredMember(member.id)}
+                                    onMouseLeave={() => setHoveredMember(null)}
+                                >
+                                    {/* Card Glow Effect */}
+                                    {hoveredMember === member.id && (
+                                        <div className={`absolute -inset-1 bg-gradient-to-r ${section.gradient} rounded-2xl blur-lg opacity-75 animate-pulse`} />
+                                    )}
+
+                                    {/* Square Member Card */}
+                                    <div className={`relative bg-white/5 backdrop-blur-md border border-white/20 rounded-2xl p-6 hover:scale-105 transition-all duration-300 aspect-square flex flex-col items-center justify-between ${hoveredMember === member.id ? 'border-white/40' : ''
+                                        }`}>
+                                        {/* Large Photo */}
+                                        <div className="flex justify-center mb-4">
+                                            <div className="relative">
+                                                <div className={`absolute inset-0 bg-gradient-to-br ${section.gradient} rounded-3xl blur-xl opacity-60`} />
+                                                <div className={`relative ${imageSize} rounded-3xl bg-gradient-to-br ${section.gradient} p-1.5`}>
+                                                    {member.image.startsWith('http') ? (
+                                                        <img
+                                                            src={member.image}
+                                                            alt={member.name}
+                                                            className="w-full h-full rounded-3xl object-cover"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-full h-full rounded-3xl bg-[#0a0a1f] flex items-center justify-center text-7xl">
+                                                            {member.image}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                {hoveredMember === member.id && (
+                                                    <div className="absolute -top-2 -right-2">
+                                                        <Star size={24} className={`${section.color} animate-spin`} style={{ animationDuration: '3s' }} />
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Minimal Details */}
+                                        <div className="text-center space-y-1 flex-1 flex flex-col justify-center">
+                                            <h4 className={`${nameSize} font-bold text-white royal-font tracking-wide`}>
+                                                {member.name}
+                                            </h4>
+                                            <p className={`${roleSize} text-gray-400 uppercase tracking-wider`}>
+                                                {member.branch}
+                                            </p>
+                                            <p className="text-xs text-gray-500 tracking-wide">
+                                                {member.year}
+                                            </p>
+                                        </div>
+
+                                        {/* Social Links */}
+                                        <div className="flex items-center justify-center gap-2 pt-4">
+                                            {member.linkedin && (
+                                                <a
+                                                    href={`https://linkedin.com/in/${member.linkedin}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="p-2 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-400/30 rounded-lg transition-all duration-300"
+                                                >
+                                                    <Linkedin size={18} className="text-blue-400" />
+                                                </a>
+                                            )}
+                                            {member.github && (
+                                                <a
+                                                    href={`https://github.com/${member.github}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="p-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-all duration-300"
+                                                >
+                                                    <Github size={18} className="text-white" />
+                                                </a>
+                                            )}
+                                            {member.email && (
+                                                <a
+                                                    href={`mailto:${member.email}`}
+                                                    className="p-2 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-400/30 rounded-lg transition-all duration-300"
+                                                >
+                                                    <Mail size={18} className="text-purple-400" />
+                                                </a>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Right Button */}
+                    <button
+                        onClick={() => scrollCarousel(section.id, 'right')}
+                        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-full hover:bg-white/20 transition-all duration-300 opacity-0 group-hover:opacity-100"
+                    >
+                        <ChevronRight size={24} className="text-white" />
+                    </button>
+                </div>
+            </div>
+        );
+    };
+
     return (
-        <div className="relative w-screen h-screen overflow-hidden bg-[#050510] font-sans">
+        <div className="relative w-full min-h-screen h-auto bg-[#050510] font-sans overflow-x-hidden overflow-y-auto">
             {/* Starfield Background */}
             <div className="absolute inset-0 overflow-hidden">
                 {[...Array(100)].map((_, i) => (
@@ -372,7 +456,7 @@ const Team = () => {
             {/* Back Button */}
             <button
                 onClick={() => navigate('/')}
-                className="absolute top-6 left-6 z-50 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 text-white royal-font"
+                className="absolute top-24 left-6 z-50 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 text-white royal-font"
             >
                 <ChevronLeft size={20} />
                 <span className="text-sm font-medium tracking-wider">BACK</span>
@@ -390,175 +474,33 @@ const Team = () => {
             {/* Main Scrollable Content */}
             <div className="relative z-10 w-full h-full pt-24 pb-8 overflow-y-auto custom-scrollbar">
                 <div className="w-full max-w-7xl mx-auto px-8 space-y-10">
-                    {teamSections.map((section) => {
-                        const isFounders = section.id === 'founders';
-                        const cardWidth = isFounders ? 'w-96' : 'w-72';
-                        const imageSize = isFounders ? 'w-64 h-64' : 'w-40 h-40';
-                        const nameSize = isFounders ? 'text-4xl' : 'text-xl';
-                        const roleSize = isFounders ? 'text-sm' : 'text-xs';
 
-                        return (
-                            <div key={section.id} className="space-y-4">
-                                {/* Compact Section Header */}
-                                <div className={`inline-flex items-center gap-3 bg-gradient-to-r ${section.gradient} backdrop-blur-md border border-white/20 rounded-full px-6 py-3`}>
-                                    <div className={`${section.color} flex-shrink-0`}>
-                                        {section.icon}
-                                    </div>
-                                    <h2 className="text-2xl font-bold text-white tracking-widest royal-font">
-                                        {section.title.toUpperCase()}
-                                    </h2>
-                                    <div className="flex items-center gap-2 ml-2 pl-2 border-l border-white/30">
-                                        <div className="text-lg font-bold text-white royal-font">{section.members.length}</div>
-                                        <div className="text-xs text-gray-300 uppercase tracking-wider">Members</div>
-                                    </div>
-                                </div>
+                    {/* Founders */}
+                    {renderSection(teamSections.find(s => s.id === 'founders'), true)}
 
-                                {/* Description */}
-                                <p className="text-gray-300 text-sm max-w-2xl font-light leading-relaxed pl-2">
-                                    {section.description}
-                                </p>
-
-                                {/* Carousel with Navigation */}
-                                <div className="relative group">
-                                    {/* Left Button */}
-                                    <button
-                                        onClick={() => scrollCarousel(section.id, 'left')}
-                                        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-full hover:bg-white/20 transition-all duration-300 opacity-0 group-hover:opacity-100"
-                                    >
-                                        <ChevronLeft size={24} className="text-white" />
-                                    </button>
-
-                                    {/* Scrollable Container */}
-                                    <div
-                                        id={`carousel-${section.id}`}
-                                        className="overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4"
-                                        style={{ scrollPaddingLeft: '8px' }}
-                                    >
-                                        <div className="flex gap-6 px-2">
-                                            {section.members.map((member) => (
-                                                <div
-                                                    key={member.id}
-                                                    className={`group/card relative flex-shrink-0 ${cardWidth} snap-start`}
-                                                    onMouseEnter={() => setHoveredMember(member.id)}
-                                                    onMouseLeave={() => setHoveredMember(null)}
-                                                >
-                                                    {/* Card Glow Effect */}
-                                                    {hoveredMember === member.id && (
-                                                        <div className={`absolute -inset-1 bg-gradient-to-r ${section.gradient} rounded-2xl blur-lg opacity-75 animate-pulse`} />
-                                                    )}
-
-                                                    {/* Square Member Card */}
-                                                    <div className={`relative bg-white/5 backdrop-blur-md border border-white/20 rounded-2xl p-6 hover:scale-105 transition-all duration-300 aspect-square flex flex-col items-center justify-between ${hoveredMember === member.id ? 'border-white/40' : ''
-                                                        }`}>
-                                                        {/* Large Photo */}
-                                                        <div className="flex justify-center mb-4">
-                                                            <div className="relative">
-                                                                <div className={`absolute inset-0 bg-gradient-to-br ${section.gradient} rounded-3xl blur-xl opacity-60`} />
-                                                                <div className={`relative ${imageSize} rounded-3xl bg-gradient-to-br ${section.gradient} p-1.5`}>
-                                                                    {member.image.startsWith('http') ? (
-                                                                        <img
-                                                                            src={member.image}
-                                                                            alt={member.name}
-                                                                            className="w-full h-full rounded-3xl object-cover"
-                                                                        />
-                                                                    ) : (
-                                                                        <div className="w-full h-full rounded-3xl bg-[#0a0a1f] flex items-center justify-center text-7xl">
-                                                                            {member.image}
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                                {hoveredMember === member.id && (
-                                                                    <div className="absolute -top-2 -right-2">
-                                                                        <Star size={24} className={`${section.color} animate-spin`} style={{ animationDuration: '3s' }} />
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </div>
-
-                                                        {/* Minimal Details */}
-                                                        <div className="text-center space-y-1 flex-1 flex flex-col justify-center">
-                                                            <h4 className={`${nameSize} font-bold text-white royal-font tracking-wide`}>
-                                                                {member.name}
-                                                            </h4>
-                                                            <p className={`${roleSize} text-gray-400 uppercase tracking-wider`}>
-                                                                {member.branch}
-                                                            </p>
-                                                            <p className="text-xs text-gray-500 tracking-wide">
-                                                                {member.year}
-                                                            </p>
-                                                        </div>
-
-                                                        {/* Social Links */}
-                                                        <div className="flex items-center justify-center gap-2 pt-4">
-                                                            {member.linkedin && (
-                                                                <a
-                                                                    href={`https://linkedin.com/in/${member.linkedin}`}
-                                                                    target="_blank"
-                                                                    rel="noopener noreferrer"
-                                                                    className="p-2 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-400/30 rounded-lg transition-all duration-300"
-                                                                >
-                                                                    <Linkedin size={18} className="text-blue-400" />
-                                                                </a>
-                                                            )}
-                                                            {member.github && (
-                                                                <a
-                                                                    href={`https://github.com/${member.github}`}
-                                                                    target="_blank"
-                                                                    rel="noopener noreferrer"
-                                                                    className="p-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-all duration-300"
-                                                                >
-                                                                    <Github size={18} className="text-white" />
-                                                                </a>
-                                                            )}
-                                                            {member.email && (
-                                                                <a
-                                                                    href={`mailto:${member.email}`}
-                                                                    className="p-2 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-400/30 rounded-lg transition-all duration-300"
-                                                                >
-                                                                    <Mail size={18} className="text-purple-400" />
-                                                                </a>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    {/* Right Button */}
-                                    <button
-                                        onClick={() => scrollCarousel(section.id, 'right')}
-                                        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-full hover:bg-white/20 transition-all duration-300 opacity-0 group-hover:opacity-100"
-                                    >
-                                        <ChevronRight size={24} className="text-white" />
-                                    </button>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-
-                {/* Footer Sections */}
-                <div className="max-w-7xl mx-auto px-8 pb-20 space-y-8">
-                    {/* Join Us Section */}
-                    <div className="relative overflow-hidden rounded-3xl border border-white/20 p-8 bg-gradient-to-r from-blue-900/40 to-purple-900/40 backdrop-blur-md">
-                        <div className="absolute inset-0 bg-grid-white/[0.05]" />
-                        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-                            <div className="space-y-2 text-center md:text-left">
-                                <h2 className="text-3xl font-bold text-white royal-font tracking-wide">
-                                    JOIN THE CREW
-                                </h2>
-                                <p className="text-gray-300 max-w-xl">
-                                    Ready to explore the universe with us? We're always looking for passionate
-                                    astronauts to join our mission.
-                                </p>
-                            </div>
-                            <button className="px-8 py-3 bg-white text-black font-bold rounded-full hover:scale-105 transition-transform duration-300 royal-font tracking-wide">
-                                APPLY NOW
-                            </button>
+                    {/* Mentors and College Support Side-by-Side */}
+                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                        <div className="xl:col-span-2">
+                            {renderSection(teamSections.find(s => s.id === 'mentors'))}
+                        </div>
+                        <div className="xl:col-span-1">
+                            {renderSection(teamSections.find(s => s.id === 'college-support'))}
                         </div>
                     </div>
 
+                    {/* Core Team */}
+                    {renderSection(teamSections.find(s => s.id === 'core-team'))}
+
+                    {/* Graphics Team */}
+                    {renderSection(teamSections.find(s => s.id === 'graphics-team'))}
+
+                    {/* Management */}
+                    {renderSection(teamSections.find(s => s.id === 'pr-team'))}
+
+                </div>
+
+                {/* Footer Sections */}
+                <div className="max-w-7xl mx-auto px-8 pb-20 space-y-8 mt-16">
                     {/* Contact Us Section */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="p-6 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md hover:bg-white/10 transition-colors">

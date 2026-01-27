@@ -24,7 +24,7 @@ export const HUD = () => {
         {/* Logo moved to Sun */}
         <div></div>
 
-        <div className="flex flex-col items-end gap-1">
+        <div className="flex flex-col items-end gap-1 mr-14 md:mr-32">
           <div className="text-[0.6rem] md:text-xs text-muted-foreground tracking-widest">MISSION TIME</div>
           <div className="font-display text-base md:text-xl text-secondary tracking-wider">
             {formatTime(time)}

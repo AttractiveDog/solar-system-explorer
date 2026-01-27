@@ -45,7 +45,7 @@ const Leaderboard = () => {
     };
 
     return (
-        <div className="relative w-screen h-screen overflow-hidden bg-[#050510] font-sans">
+        <div className="relative w-full min-h-screen h-auto bg-[#050510] font-sans overflow-x-hidden overflow-y-auto">
             {/* Starfield Background */}
             <div className="absolute inset-0 overflow-hidden">
                 {[...Array(100)].map((_, i) => (
@@ -74,7 +74,7 @@ const Leaderboard = () => {
             {/* Back Button */}
             <button
                 onClick={() => navigate('/')}
-                className="absolute top-6 left-6 z-50 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 text-white font-display"
+                className="absolute top-24 left-6 z-50 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 text-white font-display"
             >
                 <ChevronLeft size={20} />
                 <span className="text-sm font-medium">BACK</span>
@@ -106,10 +106,10 @@ const Leaderboard = () => {
                         </div>
                     </div>
 
-                    {/* Leaderboard Table */}
-                    <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-2xl overflow-hidden relative">
+                    {/* Leaderboard Table Container */}
+                    <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-2xl overflow-hidden relative overflow-x-auto">
                         {/* Header Row */}
-                        <div className="grid grid-cols-12 gap-4 p-4 border-b border-white/10 bg-white/5 text-gray-400 font-semibold text-sm uppercase tracking-wider">
+                        <div className="grid grid-cols-12 gap-2 md:gap-4 p-4 border-b border-white/10 bg-white/5 text-gray-400 font-semibold text-xs md:text-sm uppercase tracking-wider min-w-[600px]">
                             <div className="col-span-1 text-center">Rank</div>
                             <div className="col-span-1 text-center"></div> {/* Avatar */}
                             <div className="col-span-3">Name</div>
@@ -124,7 +124,7 @@ const Leaderboard = () => {
                                 filteredStudents.map((student, index) => (
                                     <div
                                         key={student.id}
-                                        className="grid grid-cols-12 gap-4 p-4 items-center hover:bg-white/5 transition-colors duration-200 group"
+                                        className="grid grid-cols-12 gap-2 md:gap-4 p-4 items-center hover:bg-white/5 transition-colors duration-200 group min-w-[600px]"
                                     >
                                         <div className="col-span-1 flex justify-center items-center">
                                             {getRankIcon(student.rank)}

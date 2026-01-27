@@ -171,7 +171,7 @@ const EventLogs = () => {
     };
 
     return (
-        <div className="relative w-screen h-screen overflow-hidden bg-[#050510] font-sans">
+        <div className="relative w-full min-h-screen h-auto bg-[#050510] font-sans overflow-x-hidden overflow-y-auto">
             {/* Starfield Background */}
             <div className="absolute inset-0 overflow-hidden">
                 {[...Array(150)].map((_, i) => (
@@ -192,7 +192,7 @@ const EventLogs = () => {
             </div>
 
             {/* Navigation Header */}
-            <div className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between p-6">
+            <div className="absolute top-16 left-0 right-0 z-50 flex items-center justify-between p-6">
                 <button
                     onClick={() => navigate('/')}
                     className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 text-white font-display"
@@ -201,7 +201,7 @@ const EventLogs = () => {
                     <span className="text-sm font-medium">BACK</span>
                 </button>
 
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 mr-14 md:mr-32">
                     <button
                         onClick={() => navigate('/profile')}
                         className="p-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 group"
@@ -299,9 +299,9 @@ const EventLogs = () => {
                                         {filteredEvents.map((event, index) => {
                                             const CategoryIcon = categoryIcons[event.category];
                                             return (
-                                                <div key={event.id} className="relative pl-20">
+                                                <div key={event.id} className="relative pl-12 md:pl-20">
                                                     {/* Timeline Node */}
-                                                    <div className={`absolute left-4 top-6 w-8 h-8 rounded-full border-4 border-[#050510] ${event.type === 'major'
+                                                    <div className={`absolute left-2 md:left-4 top-6 w-6 h-6 md:w-8 md:h-8 rounded-full border-2 md:border-4 border-[#050510] ${event.type === 'major'
                                                         ? 'bg-gradient-to-br from-cyan-400 to-purple-500 shadow-lg shadow-cyan-400/50'
                                                         : 'bg-white/20 shadow-md'
                                                         } flex items-center justify-center z-10`}>

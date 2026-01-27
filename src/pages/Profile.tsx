@@ -101,7 +101,7 @@ const Profile = () => {
     const experiencePercent = (user.experience / user.nextLevelExp) * 100;
 
     return (
-        <div className="relative w-screen h-screen overflow-hidden bg-[#050510]">
+        <div className="relative w-full min-h-screen h-auto bg-[#050510] overflow-x-hidden overflow-y-auto">
             {/* Animated Starfield Background */}
             <div className="absolute inset-0 overflow-hidden">
                 {[...Array(150)].map((_, i) => (
@@ -129,7 +129,7 @@ const Profile = () => {
             </div>
 
             {/* Navigation */}
-            <div className="absolute top-6 left-6 right-6 z-50 flex items-center justify-between">
+            <div className="absolute top-24 left-6 right-16 md:right-40 z-50 flex items-center justify-between">
                 <button
                     onClick={() => navigate('/')}
                     className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 text-white font-display"
@@ -260,7 +260,7 @@ const Profile = () => {
                             <button
                                 key={tab}
                                 onClick={() => setActiveTab(tab)}
-                                className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${activeTab === tab
+                                className={`flex-1 px-3 py-2 md:px-6 md:py-3 rounded-lg text-sm md:text-base font-semibold transition-all duration-300 ${activeTab === tab
                                     ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white shadow-lg'
                                     : 'text-gray-400 hover:bg-white/5'
                                     }`}
