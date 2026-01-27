@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Star, Trophy, Code, TrendingUp, DollarSign, Users, Settings, Share2, Award, Github, Calendar, Linkedin } from 'lucide-react';
+import { ChevronLeft, Star, Trophy, Code, TrendingUp, DollarSign, Users, Settings, Share2, Award, Github, Calendar, Linkedin, Loader2, LogOut } from 'lucide-react';
+import { userAPI, clubAPI, eventAPI, achievementAPI, syncUserWithBackend, User as APIUser, Club as APIClub, Event as APIEvent, Achievement as APIAchievement } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 interface Club {
     id: string;
@@ -18,7 +20,7 @@ interface MicroEvent {
     club: string;
     date: string;
     time: string;
-    status: 'upcoming' | 'ongoing' | 'completed';
+    status: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
     participants: number;
 }
 
@@ -33,72 +35,188 @@ interface Achievement {
 
 const Profile = () => {
     const navigate = useNavigate();
+    const { user: authUser, signInWithGoogle, signOut, loading: authLoading } = useAuth();
     const [activeTab, setActiveTab] = useState<'overview' | 'events' | 'achievements'>('overview');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    
+    // State for API data
+    const [user, setUser] = useState<any>(null);
+    const [clubs, setClubs] = useState<Club[]>([]);
+    const [microEvents, setMicroEvents] = useState<MicroEvent[]>([]);
+    const [achievements, setAchievements] = useState<Achievement[]>([]);
 
-    // User data
-    const user = {
-        username: 'EXPLORER_2077',
-        githubUsername: 'explorer2077',
-        linkedinUsername: 'explorer2077',
-        rank: 'Elite Contributor',
-        level: 24,
-        experience: 6750,
-        nextLevelExp: 10000,
-        joinDate: 'Jan 2025',
-        eventsAttended: 12,
-        contributions: 47,
-        totalPoints: 340,
+    // Handle login
+    const handleLogin = async () => {
+        try {
+            await signInWithGoogle();
+        } catch (err) {
+            console.error('Login failed:', err);
+        }
     };
 
-    const clubs: Club[] = [
-        {
-            id: 'coding',
-            name: 'Coding Club',
-            icon: <Code size={20} />,
-            color: 'text-cyan-400',
-            gradient: 'from-cyan-500/20 to-blue-500/20',
-            members: 156,
-            joined: 'Jan 10, 2025'
-        },
-        {
-            id: 'trading',
-            name: 'Trading Club',
-            icon: <TrendingUp size={20} />,
-            color: 'text-green-400',
-            gradient: 'from-green-500/20 to-emerald-500/20',
-            members: 89,
-            joined: 'Jan 12, 2025'
-        },
-        {
-            id: 'finance',
-            name: 'Finance Club',
-            icon: <DollarSign size={20} />,
-            color: 'text-yellow-400',
-            gradient: 'from-yellow-500/20 to-orange-500/20',
-            members: 124,
-            joined: 'Jan 15, 2025'
+    // Fetch data from MongoDB
+    useEffect(() => {
+        const fetchProfileData = async () => {
+            if (!authUser) {
+                setLoading(false);
+                return;
+            }
+
+            try {
+                setLoading(true);
+                setError(null);
+
+                // Sync and get current user data from backend
+                const userResponse = await syncUserWithBackend({
+                    firebaseUid: authUser.uid,
+                    email: authUser.email || '',
+                    displayName: authUser.displayName || '',
+                    photoURL: authUser.photoURL || '',
+                    provider: 'google'
+                });
+                
+                const currentUser = userResponse.data;
+                
+                if (currentUser) {
+                    // Set user data
+                    setUser({
+                        username: currentUser.username,
+                        githubUsername: currentUser.social?.github || 'github',
+                        linkedinUsername: currentUser.social?.linkedin || 'linkedin',
+                        rank: currentUser.stats.rank,
+                        level: Math.floor(currentUser.stats.points / 100) + 1,
+                        experience: currentUser.stats.points * 10,
+                        nextLevelExp: (Math.floor(currentUser.stats.points / 100) + 2) * 1000,
+                        joinDate: new Date(currentUser.joinedDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+                        eventsAttended: currentUser.stats.projects,
+                        contributions: currentUser.stats.contributions,
+                        totalPoints: currentUser.stats.points,
+                    });
+
+                    // Fetch user's clubs
+                    const clubsResponse = await clubAPI.getAll();
+                    const userClubs = clubsResponse.data
+                        .filter((club: APIClub) => 
+                            club.members.some((member: any) => 
+                                typeof member.user === 'string' 
+                                    ? member.user === currentUser._id 
+                                    : member.user._id === currentUser._id
+                            )
+                        )
+                        .map((club: APIClub) => {
+                            const memberInfo = club.members.find((m: any) => 
+                                typeof m.user === 'string' 
+                                    ? m.user === currentUser._id 
+                                    : m.user._id === currentUser._id
+                            );
+                            
+                            const iconMap: any = {
+                                'development': <Code size={20} />,
+                                'design': <DollarSign size={20} />,
+                                'data': <TrendingUp size={20} />,
+                                'business': <DollarSign size={20} />,
+                            };
+
+                            return {
+                                id: club._id,
+                                name: club.name,
+                                icon: iconMap[club.category] || <Code size={20} />,
+                                color: `text-${club.color}`,
+                                gradient: club.gradient || 'from-cyan-500/20 to-blue-500/20',
+                                members: club.memberCount || club.members.length,
+                                joined: new Date(memberInfo?.joinedDate || club.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                            };
+                        });
+                    setClubs(userClubs);
+
+                    // Fetch all events
+                    const eventsResponse = await eventAPI.getAll();
+                    const formattedEvents = eventsResponse.data.map((event: APIEvent) => ({
+                        id: event._id,
+                        title: event.title,
+                        club: typeof event.club === 'string' ? 'Club' : event.club?.name || 'Club',
+                        date: new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                        time: event.time,
+                        status: event.status,
+                        participants: event.participantCount || (Array.isArray(event.participants) ? event.participants.length : 0)
+                    }));
+                    setMicroEvents(formattedEvents);
+
+                    // Fetch all achievements
+                    const achievementsResponse = await achievementAPI.getAll();
+                    const formattedAchievements = achievementsResponse.data.map((achievement: APIAchievement) => ({
+                        id: achievement._id,
+                        title: achievement.title,
+                        description: achievement.description,
+                        icon: achievement.icon,
+                        unlocked: Math.random() > 0.5, // You can check UserAchievements collection
+                        date: achievement.createdAt ? new Date(achievement.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : undefined
+                    }));
+                    setAchievements(formattedAchievements);
+                }
+
+            } catch (err: any) {
+                console.error('Error fetching profile data:', err);
+                setError(err.message || 'Failed to load profile data');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (!authLoading) {
+            fetchProfileData();
         }
-    ];
+    }, [authUser, authLoading]);
 
-    const microEvents: MicroEvent[] = [
-        { id: '1', title: 'DSA Workshop: Dynamic Programming', club: 'Coding', date: 'Jan 22', time: '4:00 PM', status: 'upcoming', participants: 45 },
-        { id: '2', title: 'Trading Simulation Challenge', club: 'Trading', date: 'Jan 21', time: '6:00 PM', status: 'upcoming', participants: 32 },
-        { id: '3', title: 'Financial Modeling Masterclass', club: 'Finance', date: 'Jan 20', time: '5:30 PM', status: 'ongoing', participants: 28 },
-        { id: '4', title: 'Web3 Development Session', club: 'Coding', date: 'Jan 19', time: '3:00 PM', status: 'completed', participants: 52 },
-        { id: '5', title: 'Options Trading Basics', club: 'Trading', date: 'Jan 18', time: '7:00 PM', status: 'completed', participants: 38 },
-        { id: '6', title: 'Portfolio Analysis Workshop', club: 'Finance', date: 'Jan 17', time: '4:30 PM', status: 'completed', participants: 41 },
-    ];
+    const experiencePercent = user ? (user.experience / user.nextLevelExp) * 100 : 0;
 
-    const achievements: Achievement[] = [
-        { id: '1', title: 'First Steps', description: 'Attend your first event', icon: '👣', unlocked: true, date: 'Jan 10' },
-        { id: '2', title: 'Code Master', description: 'Complete 10 coding challenges', icon: '💻', unlocked: true, date: 'Jan 14' },
-        { id: '3', title: 'Trading Prodigy', description: 'Win a trading simulation', icon: '📈', unlocked: true, date: 'Jan 16' },
-        { id: '4', title: 'Triple Threat', description: 'Join all 3 clubs', icon: '🎯', unlocked: true, date: 'Jan 15' },
-        { id: '5', title: 'Community Leader', description: 'Host 5 events', icon: '👑', unlocked: false },
-        { id: '6', title: 'Contribution King', description: 'Make 100 contributions', icon: '⭐', unlocked: false },
-    ];
+    if (!authLoading && !authUser) {
+        return (
+            <div className="relative w-screen h-screen overflow-hidden bg-[#050510] flex items-center justify-center">
+                {/* Animated Starfield Background */}
+                <div className="absolute inset-0 overflow-hidden">
+                    {[...Array(150)].map((_, i) => (
+                        <div
+                            key={i}
+                            className="absolute rounded-full bg-white animate-pulse"
+                            style={{
+                                width: Math.random() * 2 + 0.5 + 'px',
+                                height: Math.random() * 2 + 0.5 + 'px',
+                                top: Math.random() * 100 + '%',
+                                left: Math.random() * 100 + '%',
+                                animationDelay: Math.random() * 3 + 's',
+                                animationDuration: Math.random() * 2 + 2 + 's',
+                                opacity: Math.random() * 0.7 + 0.3
+                            }}
+                        />
+                    ))}
+                </div>
 
-    const experiencePercent = (user.experience / user.nextLevelExp) * 100;
+                <div className="relative z-10 p-8 bg-white/5 backdrop-blur-md border border-white/20 rounded-2xl max-w-md w-full text-center">
+                    <h2 className="text-3xl font-bold text-white mb-4 font-display">Identity Verification</h2>
+                    <p className="text-gray-400 mb-8">Please authenticate your credentials to access your explorer profile.</p>
+                    
+                    <button
+                        onClick={handleLogin}
+                        className="flex items-center justify-center gap-3 w-full px-6 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl hover:scale-[1.02] transition-transform duration-300 font-bold text-white group"
+                    >
+                        <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center group-hover:rotate-12 transition-transform">
+                            <span className="text-blue-500 text-xs font-bold">G</span>
+                        </div>
+                        Connect with Google
+                    </button>
+                    
+                    <button
+                        onClick={() => navigate('/')}
+                        className="mt-6 text-gray-500 hover:text-white transition-colors text-sm"
+                    >
+                        Return to Solar System
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="relative w-full min-h-screen h-auto bg-[#050510] overflow-x-hidden overflow-y-auto">
@@ -145,10 +263,43 @@ const Profile = () => {
                     <button className="p-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300">
                         <Settings size={18} className="text-white" />
                     </button>
+                    <button 
+                        onClick={() => signOut()}
+                        className="p-2 bg-red-500/10 backdrop-blur-md border border-red-500/20 rounded-lg hover:bg-red-500/20 transition-all duration-300"
+                        title="Sign Out"
+                    >
+                        <LogOut size={18} className="text-red-400" />
+                    </button>
                 </div>
             </div>
 
+            {/* Loading State */}
+            {loading && (
+                <div className="relative z-10 w-full h-full flex items-center justify-center">
+                    <div className="text-center">
+                        <Loader2 size={48} className="text-cyan-400 animate-spin mx-auto mb-4" />
+                        <p className="text-white text-lg font-display">Loading profile data...</p>
+                    </div>
+                </div>
+            )}
+
+            {/* Error State */}
+            {error && !loading && (
+                <div className="relative z-10 w-full h-full flex items-center justify-center">
+                    <div className="text-center bg-red-500/10 border border-red-500/30 rounded-xl p-8 max-w-md">
+                        <p className="text-red-400 text-lg mb-4">⚠️ {error}</p>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="px-6 py-2 bg-red-500/20 border border-red-400/30 rounded-lg hover:bg-red-500/30 transition-all text-white"
+                        >
+                            Retry
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/* Main Content */}
+            {!loading && !error && user && (
             <div className="relative z-10 w-full h-full flex items-start justify-center p-8 pt-24 pb-12 overflow-y-auto custom-scrollbar">
                 <div className="w-full max-w-7xl space-y-6">
                     {/* Profile Header Card */}
@@ -395,6 +546,7 @@ const Profile = () => {
                     )}
                 </div>
             </div>
+            )}
 
             {/* Custom Styles */}
             <style>{`

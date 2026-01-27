@@ -1,0 +1,18 @@
+MongoDB Connected: ac-et0wezw-shard-00-00.hu0fqea.mongodb.net
+Attempting to find events WITHOUT populate...
+Raw events found: 1
+Attempting to find events WITH populate...
+Events found: 1
+Serializing first event...
+FULL ERROR DETAILS:
+TypeError: Cannot read properties of undefined (reading 'length')
+    at model.<anonymous> (file:///C:/Users/altve/Programming%20Stuff/solar-system-explorer-main/backend/src/models/Club.js:56:23)
+    at VirtualType.applyGetters (C:\Users\altve\Programming Stuff\solar-system-explorer-main\backend\node_modules\mongoose\lib\virtualType.js:152:16)
+    at applyVirtuals (C:\Users\altve\Programming Stuff\solar-system-explorer-main\backend\node_modules\mongoose\lib\document.js:4215:26)
+    at Document.$toObject (C:\Users\altve\Programming Stuff\solar-system-explorer-main\backend\node_modules\mongoose\lib\document.js:3943:5)
+    at Document.toJSON (C:\Users\altve\Programming Stuff\solar-system-explorer-main\backend\node_modules\mongoose\lib\document.js:4426:15)
+    at clone (C:\Users\altve\Programming Stuff\solar-system-explorer-main\backend\node_modules\mongoose\lib\helpers\clone.js:67:17)
+    at cloneObject (C:\Users\altve\Programming Stuff\solar-system-explorer-main\backend\node_modules\mongoose\lib\helpers\clone.js:159:17)
+    at clone (C:\Users\altve\Programming Stuff\solar-system-explorer-main\backend\node_modules\mongoose\lib\helpers\clone.js:80:16)
+    at Document.$toObject (C:\Users\altve\Programming Stuff\solar-system-explorer-main\backend\node_modules\mongoose\lib\document.js:3921:11)
+    at Document.toJSON (C:\Users\altve\Programming Stuff\solar-system-explorer-main\backend\node_modules\mongoose\lib\document.js:4426:15)

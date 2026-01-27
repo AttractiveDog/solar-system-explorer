@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Search, Calendar, Activity, Zap, AlertTriangle, Info, CheckCircle2, User, Clock } from 'lucide-react';
+import { ChevronLeft, Search, Calendar, Activity, Zap, AlertTriangle, Info, CheckCircle2, User, Clock, Loader2 } from 'lucide-react';
+import { eventAPI, Event as APIEvent } from '../services/api';
 
 interface Event {
     id: string;
@@ -12,109 +13,6 @@ interface Event {
     location?: string;
     priority: 'low' | 'medium' | 'high' | 'critical';
 }
-
-const mockEvents: Event[] = [
-    {
-        id: '1',
-        timestamp: new Date('2026-01-19T09:30:00'),
-        type: 'major',
-        category: 'discovery',
-        title: 'New Exoplanet Discovered',
-        description: 'TERRA mission has identified a potentially habitable exoplanet in the Kepler-442 system. Initial scans show presence of liquid water.',
-        location: 'Sector 7-Alpha',
-        priority: 'critical'
-    },
-    {
-        id: '2',
-        timestamp: new Date('2026-01-19T08:45:00'),
-        type: 'micro',
-        category: 'system',
-        title: 'System Calibration Complete',
-        description: 'All sensors recalibrated successfully. Accuracy improved by 12%.',
-        location: 'COMET Station',
-        priority: 'low'
-    },
-    {
-        id: '3',
-        timestamp: new Date('2026-01-19T07:15:00'),
-        type: 'major',
-        category: 'mission',
-        title: 'EMBER Mission Launch',
-        description: 'Mission to study volcanic activity on Io commenced. Expected duration: 72 hours.',
-        location: 'Jupiter Orbit',
-        priority: 'high'
-    },
-    {
-        id: '4',
-        timestamp: new Date('2026-01-19T06:30:00'),
-        type: 'micro',
-        category: 'achievement',
-        title: 'Crew Training Milestone',
-        description: 'All AZURE crew members completed deep-sea survival training module.',
-        location: 'Training Facility',
-        priority: 'medium'
-    },
-    {
-        id: '5',
-        timestamp: new Date('2026-01-19T05:00:00'),
-        type: 'major',
-        category: 'alert',
-        title: 'Solar Flare Warning',
-        description: 'Class X solar flare detected. All external missions should take protective measures.',
-        location: 'Solar Observatory',
-        priority: 'critical'
-    },
-    {
-        id: '6',
-        timestamp: new Date('2026-01-19T04:20:00'),
-        type: 'micro',
-        category: 'system',
-        title: 'Data Upload Complete',
-        description: 'Mission logs from VOID-7 successfully uploaded to central database.',
-        location: 'Data Center',
-        priority: 'low'
-    },
-    {
-        id: '7',
-        timestamp: new Date('2026-01-19T03:45:00'),
-        type: 'major',
-        category: 'discovery',
-        title: 'Anomaly Detected',
-        description: 'PHANTOM-X detected unusual energy signature near the Horsehead Nebula. Investigation pending.',
-        location: 'Sector 12-Gamma',
-        priority: 'high'
-    },
-    {
-        id: '8',
-        timestamp: new Date('2026-01-19T02:10:00'),
-        type: 'micro',
-        category: 'mission',
-        title: 'Supply Delivery Completed',
-        description: 'Essential supplies delivered to all active stations. Next delivery in 48 hours.',
-        location: 'Supply Hub',
-        priority: 'medium'
-    },
-    {
-        id: '9',
-        timestamp: new Date('2026-01-19T01:30:00'),
-        type: 'major',
-        category: 'achievement',
-        title: 'Mission Milestone Reached',
-        description: '1000th successful planetary scan completed by TERRA team. Celebration ceremony scheduled.',
-        location: 'TERRA Base',
-        priority: 'medium'
-    },
-    {
-        id: '10',
-        timestamp: new Date('2026-01-19T00:15:00'),
-        type: 'micro',
-        category: 'system',
-        title: 'Routine Maintenance',
-        description: 'Scheduled maintenance on life support systems completed without issues.',
-        location: 'All Stations',
-        priority: 'low'
-    }
-];
 
 const categoryIcons = {
     discovery: Activity,
@@ -143,10 +41,69 @@ const EventLogs = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<string>('all');
     const [selectedType, setSelectedType] = useState<string>('all');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [allEvents, setAllEvents] = useState<Event[]>([]);
     const navigate = useNavigate();
 
+    // Fetch events from MongoDB
+    useEffect(() => {
+        const fetchEvents = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+
+                const response = await eventAPI.getAll();
+                const formattedEvents = response.data.map((event: APIEvent) => {
+                    // Map event data to Event Logs format
+                    const eventDate = new Date(event.date);
+                    const timeString = event.time;
+                    
+                    // Create timestamp by combining date and time
+                    const [hours, minutes] = timeString.split(':').map(Number);
+                    const timestamp = new Date(eventDate);
+                    timestamp.setHours(hours || 0, minutes || 0);
+
+                    // Determine event type based on participant count or other criteria
+                    const participantCount = event.participantCount || (Array.isArray(event.participants) ? event.participants.length : 0);
+                    const type: 'major' | 'micro' = participantCount > 30 ? 'major' : 'micro';
+
+                    // Map status to category and priority
+                    const statusCategoryMap: Record<string, { category: Event['category'], priority: Event['priority'] }> = {
+                        'upcoming': { category: 'mission', priority: 'medium' },
+                        'ongoing': { category: 'alert', priority: 'high' },
+                        'completed': { category: 'achievement', priority: 'low' },
+                        'cancelled': { category: 'system', priority: 'low' }
+                    };
+
+                    const mapping = statusCategoryMap[event.status] || { category: 'system', priority: 'medium' };
+
+                    return {
+                        id: event._id,
+                        timestamp,
+                        type,
+                        category: mapping.category,
+                        title: event.title,
+                        description: event.description,
+                        location: event.location === 'online' ? 'Virtual Space' : event.venue || 'TBD',
+                        priority: mapping.priority
+                    };
+                });
+
+                setAllEvents(formattedEvents);
+            } catch (err: any) {
+                console.error('Error fetching events:', err);
+                setError(err.message || 'Failed to load events');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchEvents();
+    }, []);
+
     const filteredEvents = useMemo(() => {
-        return mockEvents.filter(event => {
+        return allEvents.filter(event => {
             const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 event.location?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -156,7 +113,7 @@ const EventLogs = () => {
 
             return matchesSearch && matchesCategory && matchesType;
         });
-    }, [searchQuery, selectedCategory, selectedType]);
+    }, [searchQuery, selectedCategory, selectedType, allEvents]);
 
     const formatTimestamp = (date: Date) => {
         const now = new Date();
@@ -276,11 +233,37 @@ const EventLogs = () => {
                         {/* Results Count */}
                         <div className="mt-3 flex items-center gap-2 text-sm text-gray-400">
                             <Calendar size={16} />
-                            <span>Showing {filteredEvents.length} of {mockEvents.length} events</span>
+                            <span>Showing {filteredEvents.length} of {allEvents.length} events</span>
                         </div>
                     </div>
 
-                    {/* Timeline */}
+                {/* Loading State */}
+                {loading && (
+                    <div className="flex-1 flex items-center justify-center">
+                        <div className="text-center">
+                            <Loader2 size={48} className="text-cyan-400 animate-spin mx-auto mb-4" />
+                            <p className="text-white text-lg font-display">Loading events...</p>
+                        </div>
+                    </div>
+                )}
+
+                {/* Error State */}
+                {error && !loading && (
+                    <div className="flex-1 flex items-center justify-center">
+                        <div className="text-center bg-red-500/10 border border-red-500/30 rounded-xl p-8 max-w-md">
+                            <p className="text-red-400 text-lg mb-4">⚠️ {error}</p>
+                            <button
+                                onClick={() => window.location.reload()}
+                                className="px-6 py-2 bg-red-500/20 border border-red-400/30 rounded-lg hover:bg-red-500/30 transition-all text-white"
+                            >
+                                Retry
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Timeline */}
+                {!loading && !error && (
                     <div className="flex-1 bg-white/5 backdrop-blur-md border border-white/20 rounded-lg overflow-hidden">
                         <div className="h-full overflow-y-auto custom-scrollbar p-6">
                             {filteredEvents.length === 0 ? (
@@ -372,6 +355,7 @@ const EventLogs = () => {
                             )}
                         </div>
                     </div>
+                )}
                 </div>
             </div>
 

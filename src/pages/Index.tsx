@@ -2,12 +2,9 @@ import { useState, useEffect } from 'react';
 import { SolarSystem2D } from '@/components/SolarSystem2D/SolarSystem2D';
 import { HUD } from '@/components/UI/HUD';
 import { Preloader } from '@/components/Preloader';
+import AuthHeader from '@/components/AuthHeader';
 import { X, Mail, Linkedin, Github, Zap } from 'lucide-react';
 import { PaperShaderBackground } from '@/components/UI/PaperShaderBackground';
-
-// ... other imports
-
-
 
 declare global {
   interface Window {
@@ -55,6 +52,9 @@ const Index = () => {
   return (
     <div className="relative w-full bg-background">
       {loading && <Preloader onComplete={handlePreloaderComplete} />}
+
+      {/* Auth Header */}
+      <AuthHeader />
 
       {/* Fixed Solar System Background - Blurs on Scroll */}
       <div

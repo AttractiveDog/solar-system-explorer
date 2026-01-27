@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, User } from 'lucide-react';
+import { ChevronLeft, User, Loader2 } from 'lucide-react';
 import { Planet3D } from '../components/Planet3D/Planet3D';
+import { clubAPI, Club as APIClub } from '../services/api';
+import AuthHeader from '../components/AuthHeader';
 
 interface Club {
     id: string;
@@ -16,72 +18,83 @@ interface Club {
     specialization: string[];
 }
 
-const clubs: Club[] = [
-    {
-        id: 'terra',
-        name: 'TERRA',
-        planetColor: 'from-blue-400 to-blue-600',
-        color: 'hsl(200, 80%, 55%)',
-        glowColor: 'hsl(200, 90%, 60%)',
-        texture: '/planet-terra.png',
-        mission: 'To explore Earth-like exoplanets.',
-        homeBase: 'Terra',
-        description: 'The club utilizes advanced probes and manned missions to gather data on potential habitable worlds.',
-        specialization: ['Atmospheric analysis', 'Geological surveys', 'Life detection']
-    },
-    {
-        id: 'ember',
-        name: 'EMBER',
-        planetColor: 'from-orange-500 to-red-600',
-        color: 'hsl(15, 85%, 45%)',
-        glowColor: 'hsl(20, 100%, 55%)',
-        texture: '/planet-ember.jpg',
-        mission: 'To study volcanic and high-temperature worlds.',
-        homeBase: 'Ember',
-        description: 'Specialized in extreme environments and thermal energy research.',
-        specialization: ['Volcanic activity', 'Heat resistance tech', 'Mineral extraction']
-    },
-    {
-        id: 'azure',
-        name: 'AZURE',
-        planetColor: 'from-blue-500 to-indigo-600',
-        color: 'hsl(220, 80%, 50%)',
-        glowColor: 'hsl(210, 100%, 60%)',
-        texture: '/planet-azure.jpg',
-        mission: 'To navigate oceanic planets and moons.',
-        homeBase: 'Azure',
-        description: 'Experts in underwater exploration and marine xenobiology.',
-        specialization: ['Deep sea exploration', 'Aquatic life forms', 'Hydro technology']
-    },
-    {
-        id: 'phantom-x',
-        name: 'PHANTOM-X',
-        planetColor: 'from-amber-400 to-orange-500',
-        color: 'hsl(35, 50%, 55%)',
-        glowColor: 'hsl(30, 80%, 60%)',
-        texture: '/planet-phantom.jpg',
-        mission: 'To investigate mysterious cosmic phenomena.',
-        homeBase: 'Phantom Station',
-        description: 'Pioneers in navigating unknown territories and studying phantom signals.',
-        specialization: ['Phantom tracking', 'Dark energy', 'Signal analysis']
-    },
-    {
-        id: 'void-7',
-        name: 'VOID-7',
-        planetColor: 'from-yellow-400 to-amber-500',
-        color: 'hsl(45, 40%, 50%)',
-        glowColor: 'hsl(45, 70%, 55%)',
-        texture: '/planet-void.jpg',
-        mission: 'To explore the darkest reaches of space.',
-        homeBase: 'Void Station',
-        description: 'Elite specialists operating in the most dangerous and uncharted regions.',
-        specialization: ['Deep space operations', 'Void navigation', 'Dark matter research']
-    }
-];
-
 const Dashboard = () => {
-    const [selectedClub, setSelectedClub] = useState<Club>(clubs[0]);
+    const [selectedClub, setSelectedClub] = useState<Club | null>(null);
+    const [clubs, setClubs] = useState<Club[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
+
+    // Fetch clubs from MongoDB
+    useEffect(() => {
+        const fetchClubs = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+
+                const response = await clubAPI.getAll();
+
+                // Map MongoDB clubs to Dashboard Club format
+                const formattedClubs: Club[] = response.data.map((club: APIClub, index: number) => {
+                    // Define color schemes for each club category
+                    const colorSchemes: Record<string, { planetColor: string, color: string, glowColor: string }> = {
+                        'development': {
+                            planetColor: 'from-blue-400 to-blue-600',
+                            color: 'hsl(210, 100%, 65%)',
+                            glowColor: 'hsl(210, 100%, 70%)'
+                        },
+                        'design': {
+                            planetColor: 'from-pink-400 to-pink-600',
+                            color: 'hsl(320, 100%, 70%)',
+                            glowColor: 'hsl(320, 100%, 80%)'
+                        },
+                        'data': {
+                            planetColor: 'from-cyan-400 to-teal-500',
+                            color: 'hsl(165, 100%, 42%)',
+                            glowColor: 'hsl(165, 100%, 50%)'
+                        },
+                        'business': {
+                            planetColor: 'from-red-600 to-orange-600',
+                            color: 'hsl(0, 80%, 50%)',
+                            glowColor: 'hsl(0, 100%, 60%)'
+                        },
+                        'other': {
+                            planetColor: 'from-purple-900 to-indigo-950',
+                            color: 'hsl(240, 40%, 12%)',
+                            glowColor: 'hsl(260, 50%, 30%)'
+                        }
+                    };
+
+                    const scheme = colorSchemes[club.category] || colorSchemes['other'];
+
+                    return {
+                        id: club._id,
+                        name: club.name,
+                        planetColor: scheme.planetColor,
+                        color: scheme.color,
+                        glowColor: scheme.glowColor,
+                        texture: `/planet-${club.category}.png`,
+                        mission: club.description,
+                        homeBase: club.name + ' Station',
+                        description: club.description,
+                        specialization: [club.category.charAt(0).toUpperCase() + club.category.slice(1), `${club.memberCount || club.members.length} Members`, club.createdAt ? 'Established ' + new Date(club.createdAt).getFullYear() : 'Active']
+                    };
+                });
+
+                setClubs(formattedClubs);
+                if (formattedClubs.length > 0) {
+                    setSelectedClub(formattedClubs[0]);
+                }
+            } catch (err: any) {
+                console.error('Error fetching clubs:', err);
+                setError(err.message || 'Failed to load clubs');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchClubs();
+    }, []);
 
     return (
         <div className="relative w-full min-h-screen h-auto bg-[#050510] font-sans overflow-x-hidden overflow-y-auto">
@@ -103,6 +116,9 @@ const Dashboard = () => {
                     />
                 ))}
             </div>
+
+            {/* Auth Header */}
+            <AuthHeader />
 
             {/* Back Button */}
             <button
@@ -133,152 +149,179 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            {/* Main Content Container */}
-            <div className="relative z-10 w-full min-h-screen flex items-center justify-center p-4 md:p-8 pt-20">
-                <div className="w-full max-w-7xl h-auto grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-6">
-                    {/* Left Panel - Club Selection */}
-                    <div className="flex flex-col h-auto lg:h-[800px]">
-                        <div className="mb-4">
-                            <h1 className="text-xl md:text-2xl font-display font-bold text-white tracking-wider">
-                                CLUB SELECTION
-                            </h1>
-                        </div>
+            {/* Loading State */}
+            {loading && (
+                <div className="relative z-10 w-full h-full flex items-center justify-center">
+                    <div className="text-center">
+                        <Loader2 size={48} className="text-cyan-400 animate-spin mx-auto mb-4" />
+                        <p className="text-white text-lg font-display">Loading clubs...</p>
+                    </div>
+                </div>
+            )}
 
-                        {/* Mobile View: Horizontal List */}
-                        <div className="lg:hidden w-full overflow-x-auto pb-4 mb-2 custom-scrollbar">
-                            <div className="flex items-center gap-3">
-                                {clubs.map((club) => (
-                                    <button
-                                        key={club.id}
-                                        onClick={() => setSelectedClub(club)}
-                                        className={`
+            {/* Error State */}
+            {error && !loading && (
+                <div className="relative z-10 w-full h-full flex items-center justify-center">
+                    <div className="text-center bg-red-500/10 border border-red-500/30 rounded-xl p-8 max-w-md">
+                        <p className="text-red-400 text-lg mb-4">⚠️ {error}</p>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="px-6 py-2 bg-red-500/20 border border-red-400/30 rounded-lg hover:bg-red-500/30 transition-all text-white"
+                        >
+                            Retry
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Main Content Container */}
+            {!loading && !error && selectedClub && (
+                <div className="relative z-10 w-full min-h-screen flex items-center justify-center p-4 md:p-8 pt-20">
+                    <div className="w-full max-w-7xl h-auto grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-6">
+                        {/* Left Panel - Club Selection */}
+                        <div className="flex flex-col h-auto lg:h-[800px]">
+                            <div className="mb-4">
+                                <h1 className="text-xl md:text-2xl font-display font-bold text-white tracking-wider">
+                                    CLUB SELECTION
+                                </h1>
+                            </div>
+
+                            {/* Mobile View: Horizontal List */}
+                            <div className="lg:hidden w-full overflow-x-auto pb-4 mb-2 custom-scrollbar">
+                                <div className="flex items-center gap-3">
+                                    {clubs.map((club) => (
+                                        <button
+                                            key={club.id}
+                                            onClick={() => setSelectedClub(club)}
+                                            className={`
                                             flex items-center gap-3 px-4 py-3 rounded-xl border transition-all duration-300 min-w-max
                                             ${selectedClub.id === club.id
-                                                ? 'bg-white/10 border-cyan-400/50 shadow-[0_0_15px_rgba(6,182,212,0.3)]'
-                                                : 'bg-white/5 border-white/10 hover:bg-white/10'
-                                            }
+                                                    ? 'bg-white/10 border-cyan-400/50 shadow-[0_0_15px_rgba(6,182,212,0.3)]'
+                                                    : 'bg-white/5 border-white/10 hover:bg-white/10'
+                                                }
                                         `}
-                                    >
-                                        <div className={`w-6 h-6 rounded-full bg-gradient-to-br ${club.planetColor} shadow-md ring-1 ring-black/50`} />
-                                        <span className={`font-display font-bold tracking-wider text-sm ${selectedClub.id === club.id ? 'text-white' : 'text-gray-400'
-                                            }`}>
-                                            {club.name}
-                                        </span>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Desktop View: Scrollable Club List */}
-                        <div className="hidden lg:block flex-1 bg-white/5 backdrop-blur-md border border-white/20 rounded-lg overflow-hidden">
-                            <div className="overflow-y-auto h-full custom-scrollbar p-2">
-                                {clubs.map((club) => (
-                                    <button
-                                        key={club.id}
-                                        onClick={() => setSelectedClub(club)}
-                                        className={`w-full mb-2 p-3 md:p-4 rounded-xl flex items-center gap-4 transition-all duration-300 border ${selectedClub.id === club.id
-                                            ? 'bg-white/10 border-cyan-400/50 shadow-[0_0_15px_rgba(6,182,212,0.3)]'
-                                            : 'bg-transparent border-transparent hover:bg-white/5'
-                                            } group`}
-                                    >
-                                        {/* Planet Icon */}
-                                        <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br ${club.planetColor} shadow-lg flex-shrink-0 group-hover:scale-110 transition-transform duration-300 ring-2 ring-black/50`} />
-
-                                        {/* Club Name */}
-                                        <div className="flex flex-col items-start flex-1">
-                                            <span className={`font-display font-bold tracking-wider text-sm md:text-base ${selectedClub.id === club.id ? 'text-white' : 'text-gray-400 group-hover:text-gray-200'
+                                        >
+                                            <div className={`w-6 h-6 rounded-full bg-gradient-to-br ${club.planetColor} shadow-md ring-1 ring-black/50`} />
+                                            <span className={`font-display font-bold tracking-wider text-sm ${selectedClub.id === club.id ? 'text-white' : 'text-gray-400'
                                                 }`}>
                                                 {club.name}
                                             </span>
-                                            {selectedClub.id === club.id && (
-                                                <span className="text-[10px] text-cyan-400 tracking-widest animate-pulse hidden md:inline-block">
-                                                    ● ACTIVE SELECTION
-                                                </span>
-                                            )}
-                                        </div>
-
-                                        {/* Arrow indicator for active */}
-                                        {selectedClub.id === club.id && (
-                                            <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_cyan]" />
-                                        )}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Bottom Status Bar - Hidden on mobile/tablet to reduce clutter */}
-                        <div className="hidden lg:block mt-4 bg-white/5 backdrop-blur-md border border-white/20 rounded-lg p-3">
-                            <div className="flex items-center justify-between">
-                                <div className="flex gap-3 items-center">
-                                    {clubs.slice(0, 5).map((club, idx) => (
-                                        <div
-                                            key={idx}
-                                            className={`w-6 h-6 rounded-full bg-gradient-to-br ${club.planetColor} shadow-md cursor-pointer hover:scale-110 transition-transform`}
-                                            onClick={() => setSelectedClub(club)}
-                                        />
+                                        </button>
                                     ))}
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                                    <span className="text-xs text-gray-400 font-display">Orbiting • Active</span>
+                            </div>
+
+                            {/* Desktop View: Scrollable Club List */}
+                            <div className="hidden lg:block flex-1 bg-white/5 backdrop-blur-md border border-white/20 rounded-lg overflow-hidden">
+                                <div className="overflow-y-auto h-full custom-scrollbar p-2">
+                                    {clubs.map((club) => (
+                                        <button
+                                            key={club.id}
+                                            onClick={() => setSelectedClub(club)}
+                                            className={`w-full mb-2 p-3 md:p-4 rounded-xl flex items-center gap-4 transition-all duration-300 border ${selectedClub.id === club.id
+                                                ? 'bg-white/10 border-cyan-400/50 shadow-[0_0_15px_rgba(6,182,212,0.3)]'
+                                                : 'bg-transparent border-transparent hover:bg-white/5'
+                                                } group`}
+                                        >
+                                            {/* Planet Icon */}
+                                            <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br ${club.planetColor} shadow-lg flex-shrink-0 group-hover:scale-110 transition-transform duration-300 ring-2 ring-black/50`} />
+
+                                            {/* Club Name */}
+                                            <div className="flex flex-col items-start flex-1">
+                                                <span className={`font-display font-bold tracking-wider text-sm md:text-base ${selectedClub.id === club.id ? 'text-white' : 'text-gray-400 group-hover:text-gray-200'
+                                                    }`}>
+                                                    {club.name}
+                                                </span>
+                                                {selectedClub.id === club.id && (
+                                                    <span className="text-[10px] text-cyan-400 tracking-widest animate-pulse hidden md:inline-block">
+                                                        ● ACTIVE SELECTION
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            {/* Arrow indicator for active */}
+                                            {selectedClub.id === club.id && (
+                                                <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_cyan]" />
+                                            )}
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
-                        </div>
-                    </div>
 
-                    {/* Right Panel - Planet Display & Info */}
-                    <div className="flex flex-col h-auto lg:h-[800px] gap-4 mb-8 lg:mb-0">
-                        {/* 3D Planet Display */}
-                        <div className="aspect-square lg:flex-1 bg-white/5 backdrop-blur-md border border-white/20 rounded-lg flex items-center justify-center relative overflow-hidden min-h-[300px]">
-                            {/* 3D Textured Planet */}
-                            <div className="relative flex items-center justify-center">
-                                <Planet3D
-                                    size={320}
-                                    color={selectedClub.color}
-                                    glowColor={selectedClub.glowColor}
-                                    texture={selectedClub.texture}
-                                    rotationSpeed={0.2}
-                                    discovered={true}
-                                    showGlow={false}
-                                />
-
-                                {/* Orbiting Ring */}
-                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                    <div className="w-96 h-96 border-2 border-white/20 rounded-full animate-spin-reverse" style={{ animationDuration: '20s' }}>
-                                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-orange-400 rounded-full shadow-lg shadow-orange-400/50" />
+                            {/* Bottom Status Bar - Hidden on mobile/tablet to reduce clutter */}
+                            <div className="hidden lg:block mt-4 bg-white/5 backdrop-blur-md border border-white/20 rounded-lg p-3">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex gap-3 items-center">
+                                        {clubs.slice(0, 5).map((club, idx) => (
+                                            <div
+                                                key={idx}
+                                                className={`w-6 h-6 rounded-full bg-gradient-to-br ${club.planetColor} shadow-md cursor-pointer hover:scale-110 transition-transform`}
+                                                onClick={() => setSelectedClub(club)}
+                                            />
+                                        ))}
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                                        <span className="text-xs text-gray-400 font-display">Orbiting • Active</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Club Information */}
-                        <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-lg p-6">
-                            <div className="border-l-4 border-cyan-400 pl-4">
-                                <h2 className="text-lg font-display font-bold text-white mb-3 tracking-wider">
-                                    ABOUT: {selectedClub.name.toUpperCase()}
-                                </h2>
+                        {/* Right Panel - Planet Display & Info */}
+                        <div className="flex flex-col h-auto lg:h-[800px] gap-4 mb-8 lg:mb-0">
+                            {/* 3D Planet Display */}
+                            <div className="aspect-square lg:flex-1 bg-white/5 backdrop-blur-md border border-white/20 rounded-lg flex items-center justify-center relative overflow-hidden min-h-[300px]">
+                                {/* 3D Textured Planet */}
+                                <div className="relative flex items-center justify-center">
+                                    <Planet3D
+                                        size={320}
+                                        color={selectedClub.color}
+                                        glowColor={selectedClub.glowColor}
+                                        texture={selectedClub.texture}
+                                        rotationSpeed={0.2}
+                                        discovered={true}
+                                        showGlow={false}
+                                    />
 
-                                <div className="space-y-2 text-sm text-gray-300">
-                                    <p>
-                                        <span className="font-semibold text-white">Mission:</span> {selectedClub.mission}
-                                    </p>
-                                    <p>
-                                        <span className="font-semibold text-white">Home Base:</span> {selectedClub.homeBase}
-                                    </p>
-                                    <p className="pt-2">
-                                        {selectedClub.description}
-                                    </p>
-                                    <div className="pt-2">
-                                        <span className="font-semibold text-white">Specialization:</span>
-                                        <div className="flex flex-wrap gap-2 mt-1">
-                                            {selectedClub.specialization.map((spec, idx) => (
-                                                <span
-                                                    key={idx}
-                                                    className="px-3 py-1 bg-cyan-500/20 border border-cyan-400/30 rounded-full text-xs text-cyan-300"
-                                                >
-                                                    {spec}
-                                                </span>
-                                            ))}
+                                    {/* Orbiting Ring */}
+                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                        <div className="w-96 h-96 border-2 border-white/20 rounded-full animate-spin-reverse" style={{ animationDuration: '20s' }}>
+                                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-orange-400 rounded-full shadow-lg shadow-orange-400/50" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Club Information */}
+                            <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-lg p-6">
+                                <div className="border-l-4 border-cyan-400 pl-4">
+                                    <h2 className="text-lg font-display font-bold text-white mb-3 tracking-wider">
+                                        ABOUT: {selectedClub.name.toUpperCase()}
+                                    </h2>
+
+                                    <div className="space-y-2 text-sm text-gray-300">
+                                        <p>
+                                            <span className="font-semibold text-white">Mission:</span> {selectedClub.mission}
+                                        </p>
+                                        <p>
+                                            <span className="font-semibold text-white">Home Base:</span> {selectedClub.homeBase}
+                                        </p>
+                                        <p className="pt-2">
+                                            {selectedClub.description}
+                                        </p>
+                                        <div className="pt-2">
+                                            <span className="font-semibold text-white">Specialization:</span>
+                                            <div className="flex flex-wrap gap-2 mt-1">
+                                                {selectedClub.specialization.map((spec, idx) => (
+                                                    <span
+                                                        key={idx}
+                                                        className="px-3 py-1 bg-cyan-500/20 border border-cyan-400/30 rounded-full text-xs text-cyan-300"
+                                                    >
+                                                        {spec}
+                                                    </span>
+                                                ))}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -286,7 +329,7 @@ const Dashboard = () => {
                         </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* Custom Scrollbar Styles */}
             <style>{`
