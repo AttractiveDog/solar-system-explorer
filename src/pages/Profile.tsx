@@ -39,7 +39,7 @@ const Profile = () => {
     const [activeTab, setActiveTab] = useState<'overview' | 'events' | 'achievements'>('overview');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    
+
     // State for API data
     const [user, setUser] = useState<any>(null);
     const [clubs, setClubs] = useState<Club[]>([]);
@@ -75,9 +75,9 @@ const Profile = () => {
                     photoURL: authUser.photoURL || '',
                     provider: 'google'
                 });
-                
+
                 const currentUser = userResponse.data;
-                
+
                 if (currentUser) {
                     // Set user data
                     setUser({
@@ -97,20 +97,20 @@ const Profile = () => {
                     // Fetch user's clubs
                     const clubsResponse = await clubAPI.getAll();
                     const userClubs = clubsResponse.data
-                        .filter((club: APIClub) => 
-                            club.members.some((member: any) => 
-                                typeof member.user === 'string' 
-                                    ? member.user === currentUser._id 
+                        .filter((club: APIClub) =>
+                            club.members.some((member: any) =>
+                                typeof member.user === 'string'
+                                    ? member.user === currentUser._id
                                     : member.user._id === currentUser._id
                             )
                         )
                         .map((club: APIClub) => {
-                            const memberInfo = club.members.find((m: any) => 
-                                typeof m.user === 'string' 
-                                    ? m.user === currentUser._id 
+                            const memberInfo = club.members.find((m: any) =>
+                                typeof m.user === 'string'
+                                    ? m.user === currentUser._id
                                     : m.user._id === currentUser._id
                             );
-                            
+
                             const iconMap: any = {
                                 'development': <Code size={20} />,
                                 'design': <DollarSign size={20} />,
@@ -193,20 +193,53 @@ const Profile = () => {
                     ))}
                 </div>
 
-                <div className="relative z-10 p-8 bg-white/5 backdrop-blur-md border border-white/20 rounded-2xl max-w-md w-full text-center">
+                {/* Coming Soon Banner */}
+                <div className="absolute top-20 md:top-32 left-1/2 -translate-x-1/2 z-20 text-center">
+                    <div className="relative inline-block">
+                        {/* Glow effect */}
+                        <div className="absolute inset-0 blur-2xl opacity-60" style={{
+                            background: 'radial-gradient(ellipse, hsl(30, 100%, 60%), hsl(20, 100%, 50%), transparent)'
+                        }} />
+
+                        {/* Main text */}
+                        <h1
+                            className="relative text-5xl md:text-7xl font-display font-bold tracking-widest mb-3"
+                            style={{
+                                background: 'linear-gradient(to right, hsl(45, 70%, 75%), hsl(30, 90%, 65%), hsl(20, 100%, 55%), hsl(30, 90%, 65%), hsl(45, 70%, 75%))',
+                                backgroundSize: '200% auto',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                                backgroundClip: 'text',
+                                filter: 'drop-shadow(0 0 15px rgba(255, 150, 50, 0.6)) drop-shadow(0 0 30px rgba(255, 100, 0, 0.4))',
+                                animation: 'shimmer 3s linear infinite'
+                            }}
+                        >
+                            COMING SOON
+                        </h1>
+
+                        {/* Stratathon text */}
+                        <p className="text-cyan-300/80 text-xs md:text-sm tracking-wider italic" style={{
+                            textShadow: '0 0 10px rgba(34, 211, 238, 0.4)'
+                        }}>
+                            On the Eve of Stratathon
+                        </p>
+                    </div>
+                </div>
+
+                <div className="relative z-10 p-8 bg-white/5 backdrop-blur-md border border-white/20 rounded-2xl max-w-md w-full text-center mt-32 md:mt-40">
                     <h2 className="text-3xl font-bold text-white mb-4 font-display">Identity Verification</h2>
                     <p className="text-gray-400 mb-8">Please authenticate your credentials to access your explorer profile.</p>
-                    
+
                     <button
-                        onClick={handleLogin}
-                        className="flex items-center justify-center gap-3 w-full px-6 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl hover:scale-[1.02] transition-transform duration-300 font-bold text-white group"
+                        disabled
+                        className="flex items-center justify-center gap-3 w-full px-6 py-4 bg-gradient-to-r from-cyan-500/40 to-blue-500/40 rounded-xl font-bold text-white/50 opacity-60 cursor-not-allowed"
                     >
-                        <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center group-hover:rotate-12 transition-transform">
-                            <span className="text-blue-500 text-xs font-bold">G</span>
+                        <div className="w-6 h-6 bg-white/50 rounded-full flex items-center justify-center">
+                            <span className="text-blue-500/70 text-xs font-bold">G</span>
                         </div>
                         Connect with Google
                     </button>
-                    
+
                     <button
                         onClick={() => navigate('/')}
                         className="mt-6 text-gray-500 hover:text-white transition-colors text-sm"
@@ -214,6 +247,14 @@ const Profile = () => {
                         Return to Solar System
                     </button>
                 </div>
+
+                {/* Shimmer animation for the text */}
+                <style>{`
+                    @keyframes shimmer {
+                        0% { background-position: 0% center; }
+                        100% { background-position: 200% center; }
+                    }
+                `}</style>
             </div>
         );
     }
@@ -263,7 +304,7 @@ const Profile = () => {
                     <button className="p-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300">
                         <Settings size={18} className="text-white" />
                     </button>
-                    <button 
+                    <button
                         onClick={() => signOut()}
                         className="p-2 bg-red-500/10 backdrop-blur-md border border-red-500/20 rounded-lg hover:bg-red-500/20 transition-all duration-300"
                         title="Sign Out"
@@ -300,252 +341,252 @@ const Profile = () => {
 
             {/* Main Content */}
             {!loading && !error && user && (
-            <div className="relative z-10 w-full h-full flex items-start justify-center p-8 pt-24 pb-12 overflow-y-auto custom-scrollbar">
-                <div className="w-full max-w-7xl space-y-6">
-                    {/* Profile Header Card */}
-                    <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-2xl p-8 relative overflow-hidden">
-                        {/* Animated Border Glow */}
-                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-pink-500/20 animate-gradient-shift opacity-50" />
+                <div className="relative z-10 w-full h-full flex items-start justify-center p-8 pt-24 pb-12 overflow-y-auto custom-scrollbar">
+                    <div className="w-full max-w-7xl space-y-6">
+                        {/* Profile Header Card */}
+                        <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-2xl p-8 relative overflow-hidden">
+                            {/* Animated Border Glow */}
+                            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-pink-500/20 animate-gradient-shift opacity-50" />
 
-                        <div className="relative flex flex-col md:flex-row items-center gap-6">
-                            {/* Avatar */}
-                            <div className="relative">
-                                <div className="absolute inset-0 bg-gradient-to-br from-cyan-400 via-purple-500 to-pink-500 rounded-full blur-xl opacity-70 animate-pulse" />
-                                <div className="relative w-32 h-32 rounded-full bg-gradient-to-br from-cyan-400 via-purple-500 to-pink-500 p-1">
-                                    <div className="w-full h-full rounded-full bg-[#0a0a1f] flex items-center justify-center text-6xl">
-                                        👨‍🚀
+                            <div className="relative flex flex-col md:flex-row items-center gap-6">
+                                {/* Avatar */}
+                                <div className="relative">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-cyan-400 via-purple-500 to-pink-500 rounded-full blur-xl opacity-70 animate-pulse" />
+                                    <div className="relative w-32 h-32 rounded-full bg-gradient-to-br from-cyan-400 via-purple-500 to-pink-500 p-1">
+                                        <div className="w-full h-full rounded-full bg-[#0a0a1f] flex items-center justify-center text-6xl">
+                                            👨‍🚀
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="absolute -bottom-2 -right-2 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full px-3 py-1 border-2 border-[#050510]">
-                                    <span className="text-xs font-bold text-black">LVL {user.level}</span>
-                                </div>
-                            </div>
-
-                            {/* User Info */}
-                            <div className="flex-1 text-center md:text-left">
-                                <h1 className="text-4xl font-bold text-white mb-2 tracking-wider font-display">
-                                    {user.username}
-                                </h1>
-                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-3">
-                                    <div className="flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-400/30 rounded-full">
-                                        <Award size={16} className="text-purple-400" />
-                                        <span className="text-sm text-purple-300 font-semibold">{user.rank}</span>
+                                    <div className="absolute -bottom-2 -right-2 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full px-3 py-1 border-2 border-[#050510]">
+                                        <span className="text-xs font-bold text-black">LVL {user.level}</span>
                                     </div>
                                 </div>
 
-                                {/* Social Links */}
-                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-3">
-                                    {/* GitHub Link */}
-                                    <a
-                                        href={`https://github.com/${user.githubUsername}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300"
-                                    >
-                                        <Github size={16} className="text-white" />
-                                        <span className="text-sm text-white font-medium">@{user.githubUsername}</span>
-                                    </a>
-
-                                    {/* LinkedIn Link */}
-                                    <a
-                                        href={`https://linkedin.com/in/${user.linkedinUsername}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600/20 to-blue-500/20 border border-blue-400/30 rounded-lg hover:bg-blue-500/30 transition-all duration-300"
-                                    >
-                                        <Linkedin size={16} className="text-blue-400" />
-                                        <span className="text-sm text-blue-300 font-medium">LinkedIn</span>
-                                    </a>
-                                </div>
-
-                                {/* Experience Bar */}
-                                <div className="space-y-2">
-                                    <div className="flex items-center justify-between text-sm">
-                                        <span className="text-gray-400">Experience Points</span>
-                                        <span className="text-cyan-400 font-semibold">{user.experience} / {user.nextLevelExp} XP</span>
+                                {/* User Info */}
+                                <div className="flex-1 text-center md:text-left">
+                                    <h1 className="text-4xl font-bold text-white mb-2 tracking-wider font-display">
+                                        {user.username}
+                                    </h1>
+                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-3">
+                                        <div className="flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-400/30 rounded-full">
+                                            <Award size={16} className="text-purple-400" />
+                                            <span className="text-sm text-purple-300 font-semibold">{user.rank}</span>
+                                        </div>
                                     </div>
-                                    <div className="h-3 bg-white/10 rounded-full overflow-hidden border border-white/20">
-                                        <div
-                                            className="h-full bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-full transition-all duration-1000 animate-shimmer"
-                                            style={{ width: `${experiencePercent}%` }}
-                                        />
+
+                                    {/* Social Links */}
+                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-3">
+                                        {/* GitHub Link */}
+                                        <a
+                                            href={`https://github.com/${user.githubUsername}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300"
+                                        >
+                                            <Github size={16} className="text-white" />
+                                            <span className="text-sm text-white font-medium">@{user.githubUsername}</span>
+                                        </a>
+
+                                        {/* LinkedIn Link */}
+                                        <a
+                                            href={`https://linkedin.com/in/${user.linkedinUsername}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600/20 to-blue-500/20 border border-blue-400/30 rounded-lg hover:bg-blue-500/30 transition-all duration-300"
+                                        >
+                                            <Linkedin size={16} className="text-blue-400" />
+                                            <span className="text-sm text-blue-300 font-medium">LinkedIn</span>
+                                        </a>
+                                    </div>
+
+                                    {/* Experience Bar */}
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between text-sm">
+                                            <span className="text-gray-400">Experience Points</span>
+                                            <span className="text-cyan-400 font-semibold">{user.experience} / {user.nextLevelExp} XP</span>
+                                        </div>
+                                        <div className="h-3 bg-white/10 rounded-full overflow-hidden border border-white/20">
+                                            <div
+                                                className="h-full bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-full transition-all duration-1000 animate-shimmer"
+                                                style={{ width: `${experiencePercent}%` }}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* Quick Stats */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="text-center bg-white/5 rounded-lg p-4 border border-white/10">
-                                    <div className="text-3xl font-bold text-cyan-400">{user.eventsAttended}</div>
-                                    <div className="text-xs text-gray-400 mt-1">Events</div>
-                                </div>
-                                <div className="text-center bg-white/5 rounded-lg p-4 border border-white/10">
-                                    <div className="text-3xl font-bold text-purple-400">{user.contributions}</div>
-                                    <div className="text-xs text-gray-400 mt-1">Contributions</div>
+                                {/* Quick Stats */}
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="text-center bg-white/5 rounded-lg p-4 border border-white/10">
+                                        <div className="text-3xl font-bold text-cyan-400">{user.eventsAttended}</div>
+                                        <div className="text-xs text-gray-400 mt-1">Events</div>
+                                    </div>
+                                    <div className="text-center bg-white/5 rounded-lg p-4 border border-white/10">
+                                        <div className="text-3xl font-bold text-purple-400">{user.contributions}</div>
+                                        <div className="text-xs text-gray-400 mt-1">Contributions</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    {/* Stats Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        {[
-                            { icon: <Calendar className="text-orange-400" />, label: 'Events Attended', value: user.eventsAttended, color: 'from-orange-500/20 to-red-500/20' },
-                            { icon: <Star className="text-cyan-400" />, label: 'Total Points', value: user.totalPoints, color: 'from-cyan-500/20 to-blue-500/20' },
-                            { icon: <Trophy className="text-yellow-400" />, label: 'Achievements', value: achievements.filter(a => a.unlocked).length + '/' + achievements.length, color: 'from-yellow-500/20 to-amber-500/20' },
-                            { icon: <Users className="text-pink-400" />, label: 'Club Memberships', value: clubs.length, color: 'from-pink-500/20 to-purple-500/20' }
-                        ].map((stat, idx) => (
-                            <div key={idx} className={`bg-gradient-to-br ${stat.color} backdrop-blur-md border border-white/20 rounded-xl p-6 hover:scale-105 transition-transform duration-300`}>
-                                <div className="flex items-center gap-3 mb-2">
-                                    {stat.icon}
-                                    <span className="text-gray-400 text-sm">{stat.label}</span>
+                        {/* Stats Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            {[
+                                { icon: <Calendar className="text-orange-400" />, label: 'Events Attended', value: user.eventsAttended, color: 'from-orange-500/20 to-red-500/20' },
+                                { icon: <Star className="text-cyan-400" />, label: 'Total Points', value: user.totalPoints, color: 'from-cyan-500/20 to-blue-500/20' },
+                                { icon: <Trophy className="text-yellow-400" />, label: 'Achievements', value: achievements.filter(a => a.unlocked).length + '/' + achievements.length, color: 'from-yellow-500/20 to-amber-500/20' },
+                                { icon: <Users className="text-pink-400" />, label: 'Club Memberships', value: clubs.length, color: 'from-pink-500/20 to-purple-500/20' }
+                            ].map((stat, idx) => (
+                                <div key={idx} className={`bg-gradient-to-br ${stat.color} backdrop-blur-md border border-white/20 rounded-xl p-6 hover:scale-105 transition-transform duration-300`}>
+                                    <div className="flex items-center gap-3 mb-2">
+                                        {stat.icon}
+                                        <span className="text-gray-400 text-sm">{stat.label}</span>
+                                    </div>
+                                    <div className="text-3xl font-bold text-white">{stat.value}</div>
                                 </div>
-                                <div className="text-3xl font-bold text-white">{stat.value}</div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
 
-                    {/* Tabs */}
-                    <div className="flex gap-2 bg-white/5 backdrop-blur-md border border-white/20 rounded-xl p-2">
-                        {(['overview', 'events', 'achievements'] as const).map((tab) => (
-                            <button
-                                key={tab}
-                                onClick={() => setActiveTab(tab)}
-                                className={`flex-1 px-3 py-2 md:px-6 md:py-3 rounded-lg text-sm md:text-base font-semibold transition-all duration-300 ${activeTab === tab
-                                    ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white shadow-lg'
-                                    : 'text-gray-400 hover:bg-white/5'
-                                    }`}
-                            >
-                                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                            </button>
-                        ))}
-                    </div>
+                        {/* Tabs */}
+                        <div className="flex gap-2 bg-white/5 backdrop-blur-md border border-white/20 rounded-xl p-2">
+                            {(['overview', 'events', 'achievements'] as const).map((tab) => (
+                                <button
+                                    key={tab}
+                                    onClick={() => setActiveTab(tab)}
+                                    className={`flex-1 px-3 py-2 md:px-6 md:py-3 rounded-lg text-sm md:text-base font-semibold transition-all duration-300 ${activeTab === tab
+                                        ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white shadow-lg'
+                                        : 'text-gray-400 hover:bg-white/5'
+                                        }`}
+                                >
+                                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                                </button>
+                            ))}
+                        </div>
 
-                    {/* Tab Content */}
-                    {activeTab === 'overview' && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Clubs */}
-                            <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-xl p-6">
-                                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                                    <Users size={20} className="text-cyan-400" />
-                                    My Clubs
-                                </h3>
-                                <div className="space-y-3">
-                                    {clubs.map((club) => (
-                                        <div key={club.id} className={`p-4 bg-gradient-to-br ${club.gradient} border border-white/10 rounded-lg hover:scale-105 transition-all duration-300`}>
-                                            <div className="flex items-center justify-between mb-2">
-                                                <div className="flex items-center gap-3">
-                                                    <div className={club.color}>{club.icon}</div>
-                                                    <span className="text-white font-semibold">{club.name}</span>
+                        {/* Tab Content */}
+                        {activeTab === 'overview' && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Clubs */}
+                                <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-xl p-6">
+                                    <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                                        <Users size={20} className="text-cyan-400" />
+                                        My Clubs
+                                    </h3>
+                                    <div className="space-y-3">
+                                        {clubs.map((club) => (
+                                            <div key={club.id} className={`p-4 bg-gradient-to-br ${club.gradient} border border-white/10 rounded-lg hover:scale-105 transition-all duration-300`}>
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={club.color}>{club.icon}</div>
+                                                        <span className="text-white font-semibold">{club.name}</span>
+                                                    </div>
+                                                    <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                                                 </div>
-                                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                                                <div className="flex items-center gap-4 text-xs text-gray-400">
+                                                    <span>{club.members} members</span>
+                                                    <span>•</span>
+                                                    <span>Joined {club.joined}</span>
+                                                </div>
                                             </div>
-                                            <div className="flex items-center gap-4 text-xs text-gray-400">
-                                                <span>{club.members} members</span>
-                                                <span>•</span>
-                                                <span>Joined {club.joined}</span>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Recent Events */}
+                                <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-xl p-6">
+                                    <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                                        <Calendar size={20} className="text-purple-400" />
+                                        Recent Events
+                                    </h3>
+                                    <div className="space-y-3">
+                                        {microEvents.slice(0, 3).map((event) => (
+                                            <div key={event.id} className="p-3 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-all">
+                                                <div className="flex items-start justify-between mb-2">
+                                                    <h4 className="text-white font-medium text-sm">{event.title}</h4>
+                                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${event.status === 'upcoming' ? 'bg-blue-500/20 text-blue-400 border border-blue-400/30' :
+                                                        event.status === 'ongoing' ? 'bg-green-500/20 text-green-400 border border-green-400/30' :
+                                                            'bg-gray-500/20 text-gray-400 border border-gray-400/30'
+                                                        }`}>
+                                                        {event.status.toUpperCase()}
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center gap-3 text-xs text-gray-400">
+                                                    <span>{event.club}</span>
+                                                    <span>•</span>
+                                                    <span>{event.date} at {event.time}</span>
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
+                        )}
 
-                            {/* Recent Events */}
+                        {activeTab === 'events' && (
                             <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-xl p-6">
-                                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                                    <Calendar size={20} className="text-purple-400" />
-                                    Recent Events
+                                <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                                    <Calendar size={20} className="text-orange-400" />
+                                    Micro Events
                                 </h3>
                                 <div className="space-y-3">
-                                    {microEvents.slice(0, 3).map((event) => (
-                                        <div key={event.id} className="p-3 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-all">
+                                    {microEvents.map((event) => (
+                                        <div key={event.id} className="p-4 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-all">
                                             <div className="flex items-start justify-between mb-2">
-                                                <h4 className="text-white font-medium text-sm">{event.title}</h4>
-                                                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${event.status === 'upcoming' ? 'bg-blue-500/20 text-blue-400 border border-blue-400/30' :
+                                                <div className="flex-1">
+                                                    <h4 className="text-white font-semibold mb-1">{event.title}</h4>
+                                                    <div className="flex items-center gap-3 text-sm text-gray-400 mb-2">
+                                                        <span className="flex items-center gap-1">
+                                                            <span className={`w-2 h-2 rounded-full ${event.club === 'Coding' ? 'bg-cyan-400' :
+                                                                event.club === 'Trading' ? 'bg-green-400' : 'bg-yellow-400'
+                                                                }`} />
+                                                            {event.club}
+                                                        </span>
+                                                        <span>•</span>
+                                                        <span>{event.date} at {event.time}</span>
+                                                        <span>•</span>
+                                                        <span>{event.participants} participants</span>
+                                                    </div>
+                                                </div>
+                                                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${event.status === 'upcoming' ? 'bg-blue-500/20 text-blue-400 border border-blue-400/30' :
                                                     event.status === 'ongoing' ? 'bg-green-500/20 text-green-400 border border-green-400/30' :
                                                         'bg-gray-500/20 text-gray-400 border border-gray-400/30'
                                                     }`}>
                                                     {event.status.toUpperCase()}
                                                 </span>
                                             </div>
-                                            <div className="flex items-center gap-3 text-xs text-gray-400">
-                                                <span>{event.club}</span>
-                                                <span>•</span>
-                                                <span>{event.date} at {event.time}</span>
-                                            </div>
                                         </div>
                                     ))}
                                 </div>
                             </div>
-                        </div>
-                    )}
+                        )}
 
-                    {activeTab === 'events' && (
-                        <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-xl p-6">
-                            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                                <Calendar size={20} className="text-orange-400" />
-                                Micro Events
-                            </h3>
-                            <div className="space-y-3">
-                                {microEvents.map((event) => (
-                                    <div key={event.id} className="p-4 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-all">
-                                        <div className="flex items-start justify-between mb-2">
-                                            <div className="flex-1">
-                                                <h4 className="text-white font-semibold mb-1">{event.title}</h4>
-                                                <div className="flex items-center gap-3 text-sm text-gray-400 mb-2">
-                                                    <span className="flex items-center gap-1">
-                                                        <span className={`w-2 h-2 rounded-full ${event.club === 'Coding' ? 'bg-cyan-400' :
-                                                            event.club === 'Trading' ? 'bg-green-400' : 'bg-yellow-400'
-                                                            }`} />
-                                                        {event.club}
-                                                    </span>
-                                                    <span>•</span>
-                                                    <span>{event.date} at {event.time}</span>
-                                                    <span>•</span>
-                                                    <span>{event.participants} participants</span>
-                                                </div>
-                                            </div>
-                                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${event.status === 'upcoming' ? 'bg-blue-500/20 text-blue-400 border border-blue-400/30' :
-                                                event.status === 'ongoing' ? 'bg-green-500/20 text-green-400 border border-green-400/30' :
-                                                    'bg-gray-500/20 text-gray-400 border border-gray-400/30'
-                                                }`}>
-                                                {event.status.toUpperCase()}
-                                            </span>
+                        {activeTab === 'achievements' && (
+                            <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-xl p-6">
+                                <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                                    <Trophy size={20} className="text-yellow-400" />
+                                    Achievements
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {achievements.map((achievement) => (
+                                        <div
+                                            key={achievement.id}
+                                            className={`p-4 rounded-lg border transition-all duration-300 ${achievement.unlocked
+                                                ? 'bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border-yellow-400/30 hover:scale-105'
+                                                : 'bg-white/5 border-white/10 opacity-50'
+                                                }`}
+                                        >
+                                            <div className="text-4xl mb-2">{achievement.icon}</div>
+                                            <h4 className="text-white font-semibold mb-1">{achievement.title}</h4>
+                                            <p className="text-gray-400 text-sm mb-2">{achievement.description}</p>
+                                            {achievement.unlocked && achievement.date && (
+                                                <div className="text-xs text-yellow-400">Unlocked: {achievement.date}</div>
+                                            )}
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
                             </div>
-                        </div>
-                    )}
-
-                    {activeTab === 'achievements' && (
-                        <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-xl p-6">
-                            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                                <Trophy size={20} className="text-yellow-400" />
-                                Achievements
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {achievements.map((achievement) => (
-                                    <div
-                                        key={achievement.id}
-                                        className={`p-4 rounded-lg border transition-all duration-300 ${achievement.unlocked
-                                            ? 'bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border-yellow-400/30 hover:scale-105'
-                                            : 'bg-white/5 border-white/10 opacity-50'
-                                            }`}
-                                    >
-                                        <div className="text-4xl mb-2">{achievement.icon}</div>
-                                        <h4 className="text-white font-semibold mb-1">{achievement.title}</h4>
-                                        <p className="text-gray-400 text-sm mb-2">{achievement.description}</p>
-                                        {achievement.unlocked && achievement.date && (
-                                            <div className="text-xs text-yellow-400">Unlocked: {achievement.date}</div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
-            </div>
             )}
 
             {/* Custom Styles */}
