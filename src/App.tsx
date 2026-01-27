@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import EventLogs from "./pages/EventLogs";
+import EventDetail from "./pages/EventDetail";
 import Team from "./pages/Team";
 import Leaderboard from "./pages/Leaderboard";
 import Stratathon from "./pages/Stratathon";
@@ -41,6 +42,7 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/events" element={<EventLogs />} />
+            <Route path="/events/:eventId" element={<EventDetail />} />
             <Route path="/team" element={<Team />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/stratathon" element={<Stratathon />} />

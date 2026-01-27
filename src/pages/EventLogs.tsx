@@ -58,7 +58,7 @@ const EventLogs = () => {
                     // Map event data to Event Logs format
                     const eventDate = new Date(event.date);
                     const timeString = event.time;
-                    
+
                     // Create timestamp by combining date and time
                     const [hours, minutes] = timeString.split(':').map(Number);
                     const timestamp = new Date(eventDate);
@@ -237,125 +237,128 @@ const EventLogs = () => {
                         </div>
                     </div>
 
-                {/* Loading State */}
-                {loading && (
-                    <div className="flex-1 flex items-center justify-center">
-                        <div className="text-center">
-                            <Loader2 size={48} className="text-cyan-400 animate-spin mx-auto mb-4" />
-                            <p className="text-white text-lg font-display">Loading events...</p>
+                    {/* Loading State */}
+                    {loading && (
+                        <div className="flex-1 flex items-center justify-center">
+                            <div className="text-center">
+                                <Loader2 size={48} className="text-cyan-400 animate-spin mx-auto mb-4" />
+                                <p className="text-white text-lg font-display">Loading events...</p>
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
 
-                {/* Error State */}
-                {error && !loading && (
-                    <div className="flex-1 flex items-center justify-center">
-                        <div className="text-center bg-red-500/10 border border-red-500/30 rounded-xl p-8 max-w-md">
-                            <p className="text-red-400 text-lg mb-4">⚠️ {error}</p>
-                            <button
-                                onClick={() => window.location.reload()}
-                                className="px-6 py-2 bg-red-500/20 border border-red-400/30 rounded-lg hover:bg-red-500/30 transition-all text-white"
-                            >
-                                Retry
-                            </button>
+                    {/* Error State */}
+                    {error && !loading && (
+                        <div className="flex-1 flex items-center justify-center">
+                            <div className="text-center bg-red-500/10 border border-red-500/30 rounded-xl p-8 max-w-md">
+                                <p className="text-red-400 text-lg mb-4">⚠️ {error}</p>
+                                <button
+                                    onClick={() => window.location.reload()}
+                                    className="px-6 py-2 bg-red-500/20 border border-red-400/30 rounded-lg hover:bg-red-500/30 transition-all text-white"
+                                >
+                                    Retry
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
 
-                {/* Timeline */}
-                {!loading && !error && (
-                    <div className="flex-1 bg-white/5 backdrop-blur-md border border-white/20 rounded-lg overflow-hidden">
-                        <div className="h-full overflow-y-auto custom-scrollbar p-6">
-                            {filteredEvents.length === 0 ? (
-                                <div className="h-full flex flex-col items-center justify-center text-center">
-                                    <Activity size={48} className="text-gray-600 mb-4" />
-                                    <p className="text-gray-400 text-lg">No events found</p>
-                                    <p className="text-gray-500 text-sm mt-2">Try adjusting your search filters</p>
-                                </div>
-                            ) : (
-                                <div className="relative">
-                                    {/* Timeline Line */}
-                                    <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-cyan-500/50 via-purple-500/50 to-transparent" />
+                    {/* Timeline */}
+                    {!loading && !error && (
+                        <div className="flex-1 bg-white/5 backdrop-blur-md border border-white/20 rounded-lg overflow-hidden">
+                            <div className="h-full overflow-y-auto custom-scrollbar p-6">
+                                {filteredEvents.length === 0 ? (
+                                    <div className="h-full flex flex-col items-center justify-center text-center">
+                                        <Activity size={48} className="text-gray-600 mb-4" />
+                                        <p className="text-gray-400 text-lg">No events found</p>
+                                        <p className="text-gray-500 text-sm mt-2">Try adjusting your search filters</p>
+                                    </div>
+                                ) : (
+                                    <div className="relative">
+                                        {/* Timeline Line */}
+                                        <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-cyan-500/50 via-purple-500/50 to-transparent" />
 
-                                    {/* Events */}
-                                    <div className="space-y-6">
-                                        {filteredEvents.map((event, index) => {
-                                            const CategoryIcon = categoryIcons[event.category];
-                                            return (
-                                                <div key={event.id} className="relative pl-12 md:pl-20">
-                                                    {/* Timeline Node */}
-                                                    <div className={`absolute left-2 md:left-4 top-6 w-6 h-6 md:w-8 md:h-8 rounded-full border-2 md:border-4 border-[#050510] ${event.type === 'major'
-                                                        ? 'bg-gradient-to-br from-cyan-400 to-purple-500 shadow-lg shadow-cyan-400/50'
-                                                        : 'bg-white/20 shadow-md'
-                                                        } flex items-center justify-center z-10`}>
-                                                        {event.type === 'major' && (
-                                                            <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                                                        )}
-                                                    </div>
-
-                                                    {/* Event Card */}
-                                                    <div className={`bg-white/5 backdrop-blur-sm border rounded-lg p-5 hover:bg-white/10 transition-all duration-300 hover:scale-[1.02] ${event.type === 'major'
-                                                        ? 'border-cyan-400/30 shadow-lg shadow-cyan-400/10'
-                                                        : 'border-white/10'
-                                                        }`}>
-                                                        {/* Event Header */}
-                                                        <div className="flex items-start justify-between gap-4 mb-3">
-                                                            <div className="flex-1">
-                                                                <div className="flex items-center gap-2 mb-2">
-                                                                    <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${categoryColors[event.category]}`}>
-                                                                        <CategoryIcon size={12} className="inline mr-1" />
-                                                                        {event.category.toUpperCase()}
-                                                                    </span>
-                                                                    {event.type === 'major' && (
-                                                                        <span className="px-3 py-1 rounded-full text-xs font-semibold border border-cyan-400/30 bg-cyan-500/20 text-cyan-300">
-                                                                            MAJOR EVENT
-                                                                        </span>
-                                                                    )}
-                                                                    <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${priorityColors[event.priority]}`}>
-                                                                        {event.priority.toUpperCase()}
-                                                                    </span>
-                                                                </div>
-                                                                <h3 className="text-xl font-display font-bold text-white mb-1">
-                                                                    {event.title}
-                                                                </h3>
-                                                            </div>
-                                                            <div className="text-right flex-shrink-0">
-                                                                <div className="text-xs text-gray-500 flex items-center gap-1">
-                                                                    <Clock size={12} />
-                                                                    {formatTimestamp(event.timestamp)}
-                                                                </div>
-                                                                <div className="text-xs text-gray-400 mt-1">
-                                                                    {event.timestamp.toLocaleTimeString('en-US', {
-                                                                        hour: '2-digit',
-                                                                        minute: '2-digit',
-                                                                        hour12: false
-                                                                    })}
-                                                                </div>
-                                                            </div>
+                                        {/* Events */}
+                                        <div className="space-y-6">
+                                            {filteredEvents.map((event, index) => {
+                                                const CategoryIcon = categoryIcons[event.category];
+                                                return (
+                                                    <div key={event.id} className="relative pl-12 md:pl-20">
+                                                        {/* Timeline Node */}
+                                                        <div className={`absolute left-2 md:left-4 top-6 w-6 h-6 md:w-8 md:h-8 rounded-full border-2 md:border-4 border-[#050510] ${event.type === 'major'
+                                                            ? 'bg-gradient-to-br from-cyan-400 to-purple-500 shadow-lg shadow-cyan-400/50'
+                                                            : 'bg-white/20 shadow-md'
+                                                            } flex items-center justify-center z-10`}>
+                                                            {event.type === 'major' && (
+                                                                <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                                                            )}
                                                         </div>
 
-                                                        {/* Event Description */}
-                                                        <p className="text-gray-300 text-sm mb-3 leading-relaxed">
-                                                            {event.description}
-                                                        </p>
-
-                                                        {/* Event Footer */}
-                                                        {event.location && (
-                                                            <div className="flex items-center gap-2 text-xs text-gray-500">
-                                                                <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                                                                <span>Location: {event.location}</span>
+                                                        {/* Event Card */}
+                                                        <button
+                                                            onClick={() => navigate(`/events/${event.id}`)}
+                                                            className={`w-full text-left bg-white/5 backdrop-blur-sm border rounded-lg p-5 hover:bg-white/10 transition-all duration-300 hover:scale-[1.02] cursor-pointer ${event.type === 'major'
+                                                                ? 'border-cyan-400/30 shadow-lg shadow-cyan-400/10'
+                                                                : 'border-white/10'
+                                                                }`}
+                                                        >
+                                                            {/* Event Header */}
+                                                            <div className="flex items-start justify-between gap-4 mb-3">
+                                                                <div className="flex-1">
+                                                                    <div className="flex items-center gap-2 mb-2">
+                                                                        <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${categoryColors[event.category]}`}>
+                                                                            <CategoryIcon size={12} className="inline mr-1" />
+                                                                            {event.category.toUpperCase()}
+                                                                        </span>
+                                                                        {event.type === 'major' && (
+                                                                            <span className="px-3 py-1 rounded-full text-xs font-semibold border border-cyan-400/30 bg-cyan-500/20 text-cyan-300">
+                                                                                MAJOR EVENT
+                                                                            </span>
+                                                                        )}
+                                                                        <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${priorityColors[event.priority]}`}>
+                                                                            {event.priority.toUpperCase()}
+                                                                        </span>
+                                                                    </div>
+                                                                    <h3 className="text-xl font-display font-bold text-white mb-1">
+                                                                        {event.title}
+                                                                    </h3>
+                                                                </div>
+                                                                <div className="text-right flex-shrink-0">
+                                                                    <div className="text-xs text-gray-500 flex items-center gap-1">
+                                                                        <Clock size={12} />
+                                                                        {formatTimestamp(event.timestamp)}
+                                                                    </div>
+                                                                    <div className="text-xs text-gray-400 mt-1">
+                                                                        {event.timestamp.toLocaleTimeString('en-US', {
+                                                                            hour: '2-digit',
+                                                                            minute: '2-digit',
+                                                                            hour12: false
+                                                                        })}
+                                                                    </div>
+                                                                </div>
                                                             </div>
-                                                        )}
+
+                                                            {/* Event Description */}
+                                                            <p className="text-gray-300 text-sm mb-3 leading-relaxed">
+                                                                {event.description}
+                                                            </p>
+
+                                                            {/* Event Footer */}
+                                                            {event.location && (
+                                                                <div className="flex items-center gap-2 text-xs text-gray-500">
+                                                                    <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                                                                    <span>Location: {event.location}</span>
+                                                                </div>
+                                                            )}
+                                                        </button>
                                                     </div>
-                                                </div>
-                                            );
-                                        })}
+                                                );
+                                            })}
+                                        </div>
                                     </div>
-                                </div>
-                            )}
+                                )}
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
                 </div>
             </div>
 

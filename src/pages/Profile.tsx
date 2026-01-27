@@ -203,7 +203,7 @@ const Profile = () => {
 
                         {/* Main text */}
                         <h1
-                            className="relative text-5xl md:text-7xl font-display font-bold tracking-widest mb-3"
+                            className="relative text-5xl md:text-7xl font-display font-bold tracking-widest"
                             style={{
                                 background: 'linear-gradient(to right, hsl(45, 70%, 75%), hsl(30, 90%, 65%), hsl(20, 100%, 55%), hsl(30, 90%, 65%), hsl(45, 70%, 75%))',
                                 backgroundSize: '200% auto',
@@ -214,15 +214,8 @@ const Profile = () => {
                                 animation: 'shimmer 3s linear infinite'
                             }}
                         >
-                            COMING SOON
+                            ONLY FOR MEMBERS
                         </h1>
-
-                        {/* Stratathon text */}
-                        <p className="text-cyan-300/80 text-xs md:text-sm tracking-wider italic" style={{
-                            textShadow: '0 0 10px rgba(34, 211, 238, 0.4)'
-                        }}>
-                            On the Eve of Stratathon
-                        </p>
                     </div>
                 </div>
 

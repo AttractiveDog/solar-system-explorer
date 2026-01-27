@@ -8,7 +8,7 @@ export const getEvents = async (req, res) => {
   try {
     const { status, club } = req.query;
     const filter = {};
-    
+
     if (status) filter.status = status;
     if (club) filter.club = club;
 
@@ -17,7 +17,7 @@ export const getEvents = async (req, res) => {
       .populate('participants', 'username avatar')
       .populate('createdBy', 'username')
       .sort({ date: 1 });
-    
+
     res.status(200).json({
       success: true,
       count: events.length,
@@ -39,9 +39,9 @@ export const getEvent = async (req, res) => {
   try {
     const event = await Event.findById(req.params.id)
       .populate('club')
-      .populate('participants', 'username avatar stats')
+      .populate('participants', 'username displayName avatar photoURL stats')
       .populate('createdBy', 'username avatar');
-    
+
     if (!event) {
       return res.status(404).json({
         success: false,
@@ -68,7 +68,7 @@ export const getEvent = async (req, res) => {
 export const createEvent = async (req, res) => {
   try {
     const event = await Event.create(req.body);
-    
+
     res.status(201).json({
       success: true,
       data: event,
