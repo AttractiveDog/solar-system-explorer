@@ -123,14 +123,14 @@ const Dashboard = () => {
             {/* Back Button */}
             <button
                 onClick={() => navigate('/')}
-                className="absolute top-6 left-6 z-50 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 text-white font-display"
+                className="absolute top-4 left-4 z-50 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 text-white font-display"
             >
                 <ChevronLeft size={20} />
                 <span className="text-sm font-medium">BACK</span>
             </button>
 
             {/* Top Right Section - Profile \u0026 Mission Timer */}
-            <div className="absolute top-6 right-6 z-50 flex items-center gap-4">
+            <div className="absolute top-4 right-4 z-50 flex items-center gap-4">
                 {/* Profile Button */}
                 <button
                     onClick={() => navigate('/profile')}
@@ -176,7 +176,7 @@ const Dashboard = () => {
 
             {/* Main Content Container */}
             {!loading && !error && selectedClub && (
-            <div className="relative z-10 w-full h-full flex flex-col items-center justify-start p-8 pt-24">
+            <div className="relative z-10 w-full h-full flex flex-col items-center justify-start p-8 pt-8">
                 <div className="w-full max-w-7xl flex-1 grid grid-cols-2 gap-6">
                     {/* Left Panel - Club Selection */}
                     <div className="flex flex-col h-full">

@@ -81,7 +81,7 @@ const Leaderboard = () => {
             </button>
 
             {/* Main Content */}
-            <div className="relative z-10 w-full h-full flex flex-col items-center justify-start p-8 pt-24 custom-scrollbar overflow-y-auto">
+            <div className="relative z-10 w-full h-full flex flex-col items-center justify-start p-8 pt-8 custom-scrollbar overflow-y-auto">
                 <div className="w-full max-w-4xl space-y-8">
                     {/* Header */}
                     <div className="text-center space-y-2">

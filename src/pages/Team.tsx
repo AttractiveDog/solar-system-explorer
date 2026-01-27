@@ -472,7 +472,7 @@ const Team = () => {
             </div>
 
             {/* Main Scrollable Content */}
-            <div className="relative z-10 w-full h-full pt-24 pb-8 overflow-y-auto custom-scrollbar">
+            <div className="relative z-10 w-full h-full pt-8 pb-8 overflow-y-auto custom-scrollbar">
                 <div className="w-full max-w-7xl mx-auto px-8 space-y-10">
 
                     {/* Founders */}

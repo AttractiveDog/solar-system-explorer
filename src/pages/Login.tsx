@@ -35,7 +35,7 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-start justify-center pt-32 bg-gradient-to-br from-space-dark via-purple-900/20 to-space-dark relative overflow-hidden">
+    <div className="min-h-screen flex items-start justify-center pt-12 bg-gradient-to-br from-space-dark via-purple-900/20 to-space-dark relative overflow-hidden">
       {/* Animated background stars */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="stars"></div>

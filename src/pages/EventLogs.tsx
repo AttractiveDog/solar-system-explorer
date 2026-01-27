@@ -177,7 +177,7 @@ const EventLogs = () => {
             </div>
 
             {/* Main Content */}
-            <div className="relative z-10 w-full h-full pt-24 pb-8 px-8">
+            <div className="relative z-10 w-full h-full pt-8 pb-8 px-8">
                 <div className="max-w-7xl mx-auto h-full flex flex-col">
                     {/* Page Header */}
                     <div className="mb-6">

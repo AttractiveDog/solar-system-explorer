@@ -28,6 +28,7 @@ export const Planet3D = ({
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const planetMeshRef = useRef<THREE.Mesh | null>(null);
   const atmosphereMeshRef = useRef<THREE.Mesh | null>(null);
+  const innerAtmoRef = useRef<THREE.Mesh | null>(null);
   const animationFrameRef = useRef<number>(0);
 
   useEffect(() => {
@@ -144,7 +145,7 @@ export const Planet3D = ({
         `,
         uniforms: {
           glowColor: { value: new THREE.Color(glowColor) },
-          intensity: { value: isHovered ? 2.5 : 1.2 }, // Strong boost
+          intensity: { value: 1.2 }, // Base intensity
         },
         blending: THREE.AdditiveBlending,
         side: THREE.FrontSide,
@@ -152,6 +153,7 @@ export const Planet3D = ({
         depthWrite: false,
       });
       const innerAtmosphere = new THREE.Mesh(innerAtmoGeometry, innerAtmoMaterial);
+      innerAtmoRef.current = innerAtmosphere;
       scene.add(innerAtmosphere);
 
       // Outer atmosphere (dramatic glow halo) - More subtle
@@ -176,7 +178,7 @@ export const Planet3D = ({
         `,
         uniforms: {
           glowColor: { value: new THREE.Color(glowColor) },
-          intensity: { value: isHovered ? 4.0 : 1.8 }, // Massive boost
+          intensity: { value: 1.8 }, // Base intensity
         },
         blending: THREE.AdditiveBlending,
         side: THREE.BackSide,
@@ -250,7 +252,27 @@ export const Planet3D = ({
 
       renderer.dispose();
     };
-  }, [size, color, glowColor, texture, rotationSpeed, showGlow, isHovered]);
+  }, [size, color, glowColor, texture, rotationSpeed, showGlow]);
+
+  // Separate effect for hover state to avoid scene recreation
+  useEffect(() => {
+    if (!showGlow) return;
+
+    // Smoothly update atmosphere intensity on hover without recreating scene
+    if (innerAtmoRef.current) {
+      const material = innerAtmoRef.current.material as THREE.ShaderMaterial;
+      if (material.uniforms && material.uniforms.intensity) {
+        material.uniforms.intensity.value = isHovered ? 2.5 : 1.2;
+      }
+    }
+
+    if (atmosphereMeshRef.current) {
+      const material = atmosphereMeshRef.current.material as THREE.ShaderMaterial;
+      if (material.uniforms && material.uniforms.intensity) {
+        material.uniforms.intensity.value = isHovered ? 4.0 : 1.8;
+      }
+    }
+  }, [isHovered, showGlow]);
 
   return (
     <div
