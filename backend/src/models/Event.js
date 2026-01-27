@@ -46,6 +46,10 @@ const eventSchema = new mongoose.Schema({
     type: Number,
     default: null, // null means unlimited
   },
+  images: [{
+    type: String,
+    // URLs or paths to the images
+  }],
   tags: [String],
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,

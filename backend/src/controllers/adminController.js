@@ -486,6 +486,25 @@ export const updateEventAdmin = async (req, res) => {
       }
     }
 
+    // Process images if uploaded
+    if (req.files && req.files.length > 0) {
+      const newImages = req.files.map(file => {
+          let basePath = 'uploads';
+          // Use the title from the body if present (update with title change)
+          // Ideally we would want to use the existing title if not updated, but multer
+          // destination logic only sees req.body. So if title is not in body, it goes to root.
+          // However, admin.js sends all form data including title.
+          if (req.body.title) {
+              const safeTitle = req.body.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+              basePath = `uploads/${safeTitle}`;
+          }
+          return `/${basePath}/${file.filename}`;
+      });
+      await Event.findByIdAndUpdate(req.params.id, { 
+        $push: { images: { $each: newImages } } 
+      });
+    }
+
     const event = await Event.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -641,7 +660,19 @@ export const createEventAdmin = async (req, res) => {
       maxParticipants: maxParticipants || null,
       participants: participantIds,
       createdBy: createdBy || clubDoc.createdBy,
-      status: 'upcoming'
+      status: 'upcoming',
+      images: req.files ? req.files.map(file => {
+        // Construct path relative to public/uploads
+        // If file.destination is 'uploads/some_event', we want '/uploads/some_event/filename'
+        // We can just rely on the fact that we serve 'uploads' directory at '/uploads'
+        
+        let basePath = 'uploads';
+        if (req.body.title) {
+            const safeTitle = req.body.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            basePath = `uploads/${safeTitle}`;
+        }
+        return `/${basePath}/${file.filename}`;
+      }) : []
     });
 
     // Add event to users' events array

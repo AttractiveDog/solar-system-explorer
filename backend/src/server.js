@@ -68,6 +68,7 @@ const API_VERSION = process.env.API_VERSION || 'v1';
 
 // Serve static files for admin panel
 app.use('/admin', express.static(path.join(__dirname, 'public/admin')));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Routes
 app.use(`/api/${API_VERSION}/users`, userRoutes);

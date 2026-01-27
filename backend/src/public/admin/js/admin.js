@@ -770,6 +770,12 @@ async function editEvent(id) {
                         ${usersOptions}
                     </select>
                 </div>
+
+                <div class="form-group">
+                    <label for="editEventImages">Event Images (Max 5)</label>
+                    <input type="file" id="editEventImages" name="images" multiple accept="image/*" onchange="previewImages(this, 'editImagePreviewContainer')">
+                     <div id="editImagePreviewContainer" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;"></div>
+                </div>
                 
                 <div class="form-group" id="meetingLinkGroup" style="${event.location === 'offline' ? 'display:none;' : 'display:block;'}">
                     <label for="editEventMeetingLink">Meeting Link</label>
@@ -829,16 +835,36 @@ async function editEvent(id) {
                 meetingLink: document.getElementById('editEventMeetingLink').value,
                 venue: document.getElementById('editEventVenue').value,
                 maxParticipants: document.getElementById('editEventMaxParticipants').value ? parseInt(document.getElementById('editEventMaxParticipants').value) : null,
-                participants: Array.from(document.getElementById('editEventParticipants').selectedOptions).map(opt => opt.value)
+            participants: Array.from(document.getElementById('editEventParticipants').selectedOptions).map(opt => opt.value)
             };
+
+            const formDataToSend = new FormData();
+            for (const key in formData) {
+                if (formData[key] !== null && formData[key] !== undefined) {
+                    if (Array.isArray(formData[key])) {
+                        formData[key].forEach(val => formDataToSend.append(key, val));
+                    } else {
+                        formDataToSend.append(key, formData[key]);
+                    }
+                }
+            }
+
+            const imageInput = document.getElementById('editEventImages');
+            if (imageInput.files.length > 5) {
+                alert('You can only upload a maximum of 5 images.');
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+                return;
+            }
+
+            for (let i = 0; i < imageInput.files.length; i++) {
+                formDataToSend.append('images', imageInput.files[i]);
+            }
 
             try {
                 const updateResponse = await fetch(`${API_BASE_URL}/admin/events/${id}`, {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
+                    body: formDataToSend
                 });
                 
                 const updateData = await updateResponse.json();
@@ -1074,6 +1100,12 @@ async function showAddEventModal() {
                     ${usersOptions}
                 </select>
             </div>
+
+            <div class="form-group">
+                <label for="eventImages">Event Images (Max 5)</label>
+                <input type="file" id="eventImages" name="images" multiple accept="image/*" onchange="previewImages(this)">
+                <div id="imagePreviewContainer" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;"></div>
+            </div>
             
             <div class="form-group" id="meetingLinkGroup">
                 <label for="eventMeetingLink">Meeting Link</label>
@@ -1129,17 +1161,37 @@ async function showAddEventModal() {
             meetingLink: document.getElementById('eventMeetingLink').value,
             venue: document.getElementById('eventVenue').value,
             maxParticipants: document.getElementById('eventMaxParticipants').value ? parseInt(document.getElementById('eventMaxParticipants').value) : null,
-            maxParticipants: document.getElementById('eventMaxParticipants').value ? parseInt(document.getElementById('eventMaxParticipants').value) : null,
             participants: Array.from(document.getElementById('eventParticipants').selectedOptions).map(opt => opt.value)
         };
+
+        const formDataToSend = new FormData();
+        for (const key in formData) {
+            if (formData[key] !== null && formData[key] !== undefined) {
+                if (Array.isArray(formData[key])) {
+                    formData[key].forEach(val => formDataToSend.append(key, val));
+                } else {
+                    formDataToSend.append(key, formData[key]);
+                }
+            }
+        }
+
+        const imageInput = document.getElementById('eventImages');
+        if (imageInput.files.length > 5) {
+            alert('You can only upload a maximum of 5 images.');
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+            return;
+        }
+
+        for (let i = 0; i < imageInput.files.length; i++) {
+            formDataToSend.append('images', imageInput.files[i]);
+        }
 
         try {
             const response = await fetch(`${API_BASE_URL}/admin/events`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
+                // Content-Type header should be omitted for FormData, the browser sets it automatically with boundary
+                body: formDataToSend
             });
             
             const data = await response.json();
@@ -1237,4 +1289,31 @@ function formatDate(dateString) {
 
 function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function previewImages(input, containerId = 'imagePreviewContainer') {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    
+    if (input.files && input.files.length > 0) {
+        if (input.files.length > 5) {
+            alert('Maximum 5 images allowed');
+             input.value = ''; // Clear selection
+            return;
+        }
+
+        Array.from(input.files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.style.width = '100px';
+                img.style.height = '100px';
+                img.style.objectFit = 'cover';
+                img.style.borderRadius = '4px';
+                container.appendChild(img);
+            }
+            reader.readAsDataURL(file);
+        });
+    }
 }
