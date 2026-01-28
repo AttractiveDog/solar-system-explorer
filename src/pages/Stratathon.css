@@ -433,7 +433,7 @@
 /* Sections */
 section {
     position: relative;
-    padding: 100px 60px;
+    padding: 0px 0px;
     z-index: 1;
 }
 

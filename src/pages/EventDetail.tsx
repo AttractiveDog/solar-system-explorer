@@ -179,35 +179,17 @@ const EventDetail = () => {
             </div>
 
             {/* Navigation Header - Fixed */}
-            <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 md:px-8 py-4 bg-[#050510]/80 backdrop-blur-md border-b border-white/10">
-                <button
-                    onClick={() => navigate('/events')}
-                    className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 hover:border-cyan-400/50 transition-all duration-300 text-white font-display text-sm"
-                >
-                    <ChevronLeft size={18} />
-                    <span className="font-medium">BACK TO EVENTS</span>
-                </button>
-
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={() => navigate('/profile')}
-                        className="p-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 hover:border-cyan-400/50 transition-all duration-300 group"
-                        title="View Profile"
-                    >
-                        <User size={18} className="text-white group-hover:text-cyan-400 transition-colors" />
-                    </button>
-
-                    <div className="text-right hidden md:block">
-                        <div className="text-xs text-gray-400 font-display tracking-wider">CURRENT TIME</div>
-                        <div className="text-base font-display text-cyan-400 font-bold tracking-wider">
-                            {new Date().toLocaleTimeString('en-US', { hour12: false })}
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {/* Back Button */}
+            <button
+                onClick={() => navigate('/events')}
+                className="absolute top-24 left-6 z-50 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 text-white font-display"
+            >
+                <ChevronLeft size={20} />
+                <span className="text-sm font-medium">BACK TO EVENTS</span>
+            </button>
 
             {/* Scrollable Content Container */}
-            <div className="relative h-full pt-20 overflow-y-auto overflow-x-hidden scroll-smooth custom-scrollbar">
+            <div className="relative h-full pt-8 overflow-y-auto overflow-x-hidden scroll-smooth custom-scrollbar">
                 {/* Main Content Wrapper - Scaled */}
                 <div className="w-full min-h-full flex items-start justify-center py-6 px-4 md:px-8">
                     <div className="w-full max-w-7xl" style={{ transform: 'scale(0.85)', transformOrigin: 'top center' }}>

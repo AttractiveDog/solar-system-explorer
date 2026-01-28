@@ -148,33 +148,14 @@ const EventLogs = () => {
                 ))}
             </div>
 
-            {/* Navigation Header */}
-            <div className="absolute top-16 left-0 right-0 z-50 flex items-center justify-between p-6">
-                <button
-                    onClick={() => navigate('/')}
-                    className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 text-white font-display"
-                >
-                    <ChevronLeft size={20} />
-                    <span className="text-sm font-medium">BACK</span>
-                </button>
-
-                <div className="flex items-center gap-4 mr-14 md:mr-32">
-                    <button
-                        onClick={() => navigate('/profile')}
-                        className="p-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 group"
-                        title="View Profile"
-                    >
-                        <User size={20} className="text-white group-hover:text-cyan-400 transition-colors" />
-                    </button>
-
-                    <div className="text-right">
-                        <div className="text-xs text-gray-400 font-display tracking-wider">CURRENT TIME</div>
-                        <div className="text-xl font-display text-cyan-400 font-bold tracking-wider">
-                            {new Date().toLocaleTimeString('en-US', { hour12: false })}
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {/* Back Button */}
+            <button
+                onClick={() => navigate('/')}
+                className="absolute top-24 left-6 z-50 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 text-white font-display"
+            >
+                <ChevronLeft size={20} />
+                <span className="text-sm font-medium">BACK</span>
+            </button>
 
             {/* Main Content */}
             <div className="relative z-10 w-full h-full pt-8 pb-8 px-8">

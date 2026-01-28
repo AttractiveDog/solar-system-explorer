@@ -255,32 +255,14 @@ const Profile = () => {
                 <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
             </div>
 
-            {/* Navigation */}
-            <div className="absolute top-8 left-6 right-16 md:right-40 z-50 flex items-center justify-between">
-                <button
-                    onClick={() => navigate('/')}
-                    className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 text-white font-display"
-                >
-                    <ChevronLeft size={20} />
-                    <span className="text-sm font-medium">BACK</span>
-                </button>
-
-                <div className="flex gap-3">
-                    <button className="p-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300">
-                        <Share2 size={18} className="text-white" />
-                    </button>
-                    <button className="p-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300">
-                        <Settings size={18} className="text-white" />
-                    </button>
-                    <button
-                        onClick={() => signOut()}
-                        className="p-2 bg-red-500/10 backdrop-blur-md border border-red-500/20 rounded-lg hover:bg-red-500/20 transition-all duration-300"
-                        title="Sign Out"
-                    >
-                        <LogOut size={18} className="text-red-400" />
-                    </button>
-                </div>
-            </div>
+            {/* Back Button */}
+            <button
+                onClick={() => navigate('/')}
+                className="absolute top-24 left-6 z-50 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 text-white font-display"
+            >
+                <ChevronLeft size={20} />
+                <span className="text-sm font-medium">BACK</span>
+            </button>
 
             {/* Loading State */}
             {loading && (

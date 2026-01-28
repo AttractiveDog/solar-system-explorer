@@ -2,8 +2,9 @@ import { Toaster } from "@/components/UI/toaster";
 import { Toaster as Sonner } from "@/components/UI/sonner";
 import { TooltipProvider } from "@/components/UI/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import AuthHeader from "@/components/AuthHeader";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -17,6 +18,17 @@ import NotFound from "./pages/NotFound";
 import { CometLogo } from "@/components/UI/CometLogo";
 
 const queryClient = new QueryClient();
+
+const NavbarWrapper = () => {
+  const location = useLocation();
+  const hideNavbarPaths = ["/", "/stratathon"];
+
+  if (hideNavbarPaths.includes(location.pathname)) {
+    return null;
+  }
+
+  return <AuthHeader />;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -35,6 +47,7 @@ const App = () => (
         </div>
 
         <BrowserRouter>
+          <NavbarWrapper />
           <CometLogo />
           <Routes>
             <Route path="/" element={<Index />} />
