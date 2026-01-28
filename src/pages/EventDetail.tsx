@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Calendar, Clock, MapPin, Users, User, Loader2, AlertCircle, ExternalLink, Tag } from 'lucide-react';
-import { eventAPI, Event as APIEvent, User as APIUser } from '../services/api';
+import { eventAPI } from '../services/api';
+import type { Event as APIEvent, User as APIUser } from '../services/api';
 
 const EventDetail = () => {
     const { eventId } = useParams<{ eventId: string }>();
@@ -12,12 +13,25 @@ const EventDetail = () => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     // Placeholder images for carousel - will be replaced with actual event images
-    const eventImages = [
+    const placeholderImages = [
         'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&h=500&fit=crop',  // Tech event 1
         'https://images.unsplash.com/photo-1591115765373-5207764f72e7?w=800&h=500&fit=crop',  // Tech event 2
         'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&h=500&fit=crop',  // Tech event 3
         'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&h=500&fit=crop',  // Tech event 4
     ];
+    
+    const getImageUrl = (url: string) => {
+        if (!url) return '';
+        if (url.startsWith('http')) return url;
+        // Fallback to localhost:5000 if env is missing, ensuring we point to backend
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+        const BASE_URL = API_URL.replace('/api/v1', '');
+        return `${BASE_URL}${url}`;
+    };
+
+    const eventImages = event?.images && event.images.length > 0 
+        ? event.images.map(getImageUrl) 
+        : placeholderImages;
 
     useEffect(() => {
         const fetchEventDetails = async () => {
@@ -67,13 +81,11 @@ const EventDetail = () => {
     };
 
     const getParticipants = () => {
-        if (!event) return [];
+        if (!event || !event.participants) return [];
 
-        if (Array.isArray(event.participants) && event.participants.length > 0) {
-            // Check if participants are populated User objects or just IDs
-            if (typeof event.participants[0] === 'object') {
-                return event.participants as APIUser[];
-            }
+        if (Array.isArray(event.participants)) {
+            // Filter only valid User objects
+            return event.participants.filter(p => typeof p === 'object' && p !== null && '_id' in p) as APIUser[];
         }
         return [];
     };
@@ -360,18 +372,24 @@ const EventDetail = () => {
                                             key={participant._id}
                                             className="bg-white/5 border border-white/10 rounded-lg p-3 hover:bg-white/10 transition-all duration-300 hover:scale-105 group"
                                         >
-                                            <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-2 overflow-hidden">
                                                 {/* Avatar */}
-                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-purple-500 flex items-center justify-center flex-shrink-0 group-hover:shadow-lg group-hover:shadow-cyan-400/50 transition-all">
+                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-purple-500 flex items-center justify-center flex-shrink-0 group-hover:shadow-lg group-hover:shadow-cyan-400/50 transition-all overflow-hidden">
                                                     {participant.photoURL || participant.avatar ? (
                                                         <img
-                                                            src={participant.photoURL || participant.avatar}
+                                                            src={getImageUrl(participant.photoURL || participant.avatar || '')}
                                                             alt={participant.displayName || participant.username}
                                                             className="w-full h-full rounded-full object-cover"
+                                                            onError={(e) => {
+                                                                e.currentTarget.style.display = 'none';
+                                                                e.currentTarget.parentElement?.classList.add('fallback-icon-visible');
+                                                            }}
                                                         />
                                                     ) : (
                                                         <User size={20} className="text-white" />
                                                     )}
+                                                    {/* Fallback Icon (hidden by default, shown if image fails/hidden) */}
+                                                    <User size={20} className="text-white absolute fallback-icon hidden" />
                                                 </div>
 
                                                 {/* User Info */}
@@ -426,6 +444,10 @@ const EventDetail = () => {
                 
                 .scroll-smooth {
                     scroll-behavior: smooth;
+                }
+                
+                .fallback-icon-visible .fallback-icon {
+                    display: block !important;
                 }
             `}</style>
         </div>
