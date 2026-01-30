@@ -19,18 +19,18 @@ const EventDetail = () => {
         'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&h=500&fit=crop',  // Tech event 3
         'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&h=500&fit=crop',  // Tech event 4
     ];
-    
+
     const getImageUrl = (url: string) => {
         if (!url) return '';
         if (url.startsWith('http')) return url;
         // Fallback to localhost:5000 if env is missing, ensuring we point to backend
-        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+        const API_URL = import.meta.env.VITE_API_URL || '/api/v1';
         const BASE_URL = API_URL.replace('/api/v1', '');
         return `${BASE_URL}${url}`;
     };
 
-    const eventImages = event?.images && event.images.length > 0 
-        ? event.images.map(getImageUrl) 
+    const eventImages = event?.images && event.images.length > 0
+        ? event.images.map(getImageUrl)
         : placeholderImages;
 
     useEffect(() => {
@@ -192,16 +192,10 @@ const EventDetail = () => {
 
             {/* Navigation Header - Fixed */}
             {/* Back Button */}
-            <button
-                onClick={() => navigate('/events')}
-                className="absolute top-24 left-6 z-50 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 text-white font-display"
-            >
-                <ChevronLeft size={20} />
-                <span className="text-sm font-medium">BACK TO EVENTS</span>
-            </button>
+
 
             {/* Scrollable Content Container */}
-            <div className="relative h-full pt-8 overflow-y-auto overflow-x-hidden scroll-smooth custom-scrollbar">
+            <div className="relative h-full pt-32 overflow-y-auto overflow-x-hidden scroll-smooth custom-scrollbar">
                 {/* Main Content Wrapper - Scaled */}
                 <div className="w-full min-h-full flex items-start justify-center py-6 px-4 md:px-8">
                     <div className="w-full max-w-7xl" style={{ transform: 'scale(0.85)', transformOrigin: 'top center' }}>

@@ -46,7 +46,9 @@ app.use('/api', limiter);
 
 // CORS configuration
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  origin: process.env.NODE_ENV === 'production' 
+    ? (process.env.CORS_ORIGIN || 'http://localhost:5173') 
+    : true,
   credentials: true,
 };
 app.use(cors(corsOptions));

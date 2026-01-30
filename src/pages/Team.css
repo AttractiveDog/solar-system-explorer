@@ -1,0 +1,111 @@
+/* Custom scrollbar to match Dashboard */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(139, 92, 246, 0.2);
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(139, 92, 246, 0.4);
+}
+
+/* Stars matching Dashboard/Global */
+.stars {
+    background-image:
+        radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.8), rgba(0, 0, 0, 0)),
+        radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.8), rgba(0, 0, 0, 0)),
+        radial-gradient(2px 2px at 50px 160px, rgba(255, 255, 255, 0.8), rgba(0, 0, 0, 0)),
+        radial-gradient(2px 2px at 90px 40px, rgba(255, 255, 255, 0.8), rgba(0, 0, 0, 0));
+    background-repeat: repeat;
+    background-size: 200px 200px;
+}
+
+/* Cosmic Tab - Dashboard Themed */
+.cosmic-tab {
+    position: relative;
+    padding: 0.75rem 1.5rem;
+    color: #94a3b8;
+    /* Slate-400 */
+    transition: all 0.3s ease;
+    border-radius: 0.5rem;
+    /* Rounded normal, not pill */
+    font-family: 'Rajdhani', sans-serif;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    text-transform: uppercase;
+    border: 1px solid transparent;
+}
+
+.cosmic-tab:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.cosmic-tab.active {
+    background: rgba(6, 182, 212, 0.1);
+    /* accent-cyan / 10 */
+    color: #22d3ee;
+    /* cyan-400 */
+    border-color: rgba(6, 182, 212, 0.3);
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.1);
+}
+
+/* Sub Nav Item - Dashboard Themed */
+.sub-nav-item {
+    position: relative;
+    color: #94a3b8;
+    transition: all 0.2s ease;
+    font-family: 'Rajdhani', sans-serif;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+}
+
+.sub-nav-item:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.sub-nav-item.active {
+    color: #fff;
+    background: rgba(139, 92, 246, 0.2);
+    /* accent-purple / 20 */
+    border-left: 2px solid #8b5cf6;
+}
+
+/* Glass Panel - standardized to match Dashboard */
+.glass-panel {
+    background: rgba(11, 16, 27, 0.6);
+    /* card-dark / 60 */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(30, 41, 59, 1);
+    /* card-border */
+}
+
+/* Animation Utilities */
+.animate-fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

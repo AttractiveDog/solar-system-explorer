@@ -321,6 +321,7 @@ interface PlanetProps {
   isOrbiting?: boolean;
   orbitDirection?: 'left' | 'right' | null;
   delay?: number; // Custom start delay
+  mobileState?: 'active' | 'enter-right' | 'enter-left' | 'exit-right' | 'exit-left';
 }
 
 const Planet = ({
@@ -340,9 +341,10 @@ const Planet = ({
   isOrbiting = false,
   orbitDirection = null,
   delay = 0, // Default delay
+  mobileState = 'active',
 }: PlanetProps) => {
   // Use fixed size for all planets in mobile, original size in desktop
-  const displaySize = isMobile ? 180 : size;
+  const displaySize = isMobile ? 130 : size;
   const [isHovered, setIsHovered] = useState(false);
   const [isClicked, setIsClicked] = useState(false); // Track click state for glow
 
@@ -449,16 +451,21 @@ const Planet = ({
       <div
         className="absolute"
         style={isMobile ? {
-          // Mobile: center the planet with orbit animation
+          // Mobile: center the planet with animation based on mobileState
           position: 'relative',
           zIndex: 10,
-          transform: isOrbiting
-            ? orbitDirection === 'left'
-              ? 'translate(-100px, -150px) scale(0.5) rotate(-30deg)' // Orbit up and to the left
-              : 'translate(100px, -150px) scale(0.5) rotate(30deg)'   // Orbit up and to the right
-            : 'translate(0, 0) scale(1) rotate(0deg)',
-          opacity: isOrbiting ? 0 : 1,
-          transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+          transform: 'translate(0, 0)', // Default position
+
+          // Apply animation based on state
+          animation: mobileState === 'enter-right'
+            ? 'mobileSlideInRight 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards'
+            : mobileState === 'enter-left'
+              ? 'mobileSlideInLeft 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards'
+              : mobileState === 'exit-right'
+                ? 'mobileSlideOutRight 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards'
+                : mobileState === 'exit-left'
+                  ? 'mobileSlideOutLeft 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards'
+                  : 'none',
         } : {
           // Desktop: orbital motion
           left: '0',
@@ -528,6 +535,7 @@ export const SolarSystem2D = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [currentPlanetIndex, setCurrentPlanetIndex] = useState(0);
+  const [outgoingPlanetIndex, setOutgoingPlanetIndex] = useState<number | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [isOrbiting, setIsOrbiting] = useState(false);
   const [orbitDirection, setOrbitDirection] = useState<'left' | 'right' | null>(null);
@@ -563,23 +571,34 @@ export const SolarSystem2D = () => {
   };
 
   const nextPlanet = () => {
+    if (isOrbiting) return;
+    const nextIndex = (currentPlanetIndex + 1) % planets.length;
+
+    setOutgoingPlanetIndex(currentPlanetIndex);
+    setCurrentPlanetIndex(nextIndex);
     setIsOrbiting(true);
-    setOrbitDirection('left'); // Swipe left = orbit to left
+    setOrbitDirection('left'); // Moving to left (shows next)
     setTimeout(() => {
-      setCurrentPlanetIndex((prev) => (prev + 1) % planets.length);
       setIsOrbiting(false);
       setOrbitDirection(null);
-    }, 600); // Duration of orbit animation
+      setOutgoingPlanetIndex(null);
+    }, 1500); // Duration of orbit animation
   };
 
   const prevPlanet = () => {
+    if (isOrbiting) return;
+    const prevIndex = (currentPlanetIndex - 1 + planets.length) % planets.length;
+
+    setOutgoingPlanetIndex(currentPlanetIndex);
+    setCurrentPlanetIndex(prevIndex);
     setIsOrbiting(true);
-    setOrbitDirection('right'); // Swipe right = orbit to right
+    setOrbitDirection('right'); // Moving to right (shows prev)
+
     setTimeout(() => {
-      setCurrentPlanetIndex((prev) => (prev - 1 + planets.length) % planets.length);
       setIsOrbiting(false);
       setOrbitDirection(null);
-    }, 600); // Duration of orbit animation
+      setOutgoingPlanetIndex(null);
+    }, 1500); // Duration of orbit animation
   };
 
   // Minimum swipe distance (in px)
@@ -619,13 +638,13 @@ export const SolarSystem2D = () => {
 
       {/* Background Watermark */}
       <div
-        className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden"
+        className={`absolute inset-0 flex ${isMobile ? 'items-start pt-32' : 'items-center'} justify-center pointer-events-none select-none overflow-hidden`}
         style={{ zIndex: 0 }}
       >
         <span style={{
           fontFamily: 'Okaluera, sans-serif',
           fontSize: '25vw',
-          color: 'rgba(255, 255, 255, 0.05)', // Reduced opacity for less clutter
+          color: '#FFFFFF',
         }}>
           COMET
         </span>
@@ -696,15 +715,33 @@ export const SolarSystem2D = () => {
       >
         <div className="pointer-events-auto">
           {isMobile ? (
-            // Mobile: Show only current planet
-            <Planet
-              key={planets[currentPlanetIndex].name}
-              {...planets[currentPlanetIndex]}
-              index={currentPlanetIndex}
-              isMobile={isMobile}
-              isOrbiting={isOrbiting}
-              orbitDirection={orbitDirection}
-            />
+            // Mobile: Show current and outgoing planets
+            <>
+              {/* Outgoing Planet (Animating out) */}
+              {outgoingPlanetIndex !== null && (
+                <div key={`outgoing-${outgoingPlanetIndex}`} className="absolute inset-0 flex items-center justify-center">
+                  <Planet
+                    {...planets[outgoingPlanetIndex]}
+                    index={outgoingPlanetIndex}
+                    isMobile={isMobile}
+                    mobileState={orbitDirection === 'left' ? 'exit-left' : 'exit-right'}
+                  />
+                </div>
+              )}
+
+              {/* Current Planet (Animating in or Static) */}
+              <div key={`current-${currentPlanetIndex}`} className="absolute inset-0 flex items-center justify-center">
+                <Planet
+                  {...planets[currentPlanetIndex]}
+                  index={currentPlanetIndex}
+                  isMobile={isMobile}
+                  mobileState={isOrbiting
+                    ? (orbitDirection === 'left' ? 'enter-right' : 'enter-left')
+                    : 'active'
+                  }
+                />
+              </div>
+            </>
           ) : (
             // Desktop: Show all planets
             planets.map((planet, index) => (
@@ -959,6 +996,27 @@ export const SolarSystem2D = () => {
           50% {
             opacity: 1;
           }
+        }
+        
+        /* Mobile Slide Animations with Depth */
+        @keyframes mobileSlideInRight {
+          from { transform: translateX(120%) scale(0.8); opacity: 0; filter: blur(4px); }
+          to { transform: translateX(0) scale(1); opacity: 1; filter: blur(0); }
+        }
+        
+        @keyframes mobileSlideInLeft {
+          from { transform: translateX(-80vw) scale(0.3); opacity: 1; filter: blur(12px) brightness(0.4); }
+          to { transform: translateX(0) scale(1); opacity: 1; filter: blur(0) brightness(1); }
+        }
+        
+        @keyframes mobileSlideOutLeft {
+          from { transform: translateX(0) scale(1); opacity: 1; filter: blur(0) brightness(1); }
+          to { transform: translateX(-80vw) scale(0.3); opacity: 1; filter: blur(12px) brightness(0.4); }
+        }
+        
+        @keyframes mobileSlideOutRight {
+          from { transform: translateX(0) scale(1); opacity: 1; filter: blur(0); }
+          to { transform: translateX(120%) scale(0.8); opacity: 0; filter: blur(4px); }
         }
       `}</style>
     </div>

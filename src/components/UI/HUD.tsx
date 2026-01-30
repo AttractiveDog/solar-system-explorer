@@ -1,12 +1,17 @@
 import { useState, useEffect } from 'react';
+import { SESSION_START_TIME } from '@/utils/sessionTime';
 
 export const HUD = () => {
   const [time, setTime] = useState(0);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTime((prev) => prev + 1);
-    }, 1000);
+    const updateTime = () => {
+      const seconds = Math.floor((Date.now() - SESSION_START_TIME) / 1000);
+      setTime(seconds);
+    };
+
+    const interval = setInterval(updateTime, 1000);
+    updateTime(); // Initial update
     return () => clearInterval(interval);
   }, []);
 
@@ -43,15 +48,15 @@ export const HUD = () => {
             <div className="flex flex-wrap gap-4">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-[hsl(210,60%,50%)] shadow-[0_0_10px_hsl(210,60%,50%)]" />
-                <span className="text-sm text-foreground/80">Terra</span>
+                <span className="text-sm text-foreground/80">C\odex</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-[hsl(15,80%,45%)] shadow-[0_0_10px_hsl(15,80%,45%)]" />
-                <span className="text-sm text-foreground/80">Ember</span>
+                <span className="text-sm text-foreground/80">C\ube</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-[hsl(165,80%,42%)] shadow-[0_0_10px_hsl(165,80%,42%)]" />
-                <span className="text-sm text-foreground/80">Azure</span>
+                <span className="text-sm text-foreground/80">F\inamics</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-[hsl(270,50%,30%)] shadow-[0_0_10px_hsl(270,50%,30%)] opacity-60" />

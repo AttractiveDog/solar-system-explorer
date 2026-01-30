@@ -173,7 +173,7 @@ const Profile = () => {
 
     if (!authLoading && !authUser) {
         return (
-            <div className="relative w-screen h-screen overflow-hidden bg-[#050510] flex items-start justify-center pt-8">
+            <div className="relative w-screen h-screen overflow-hidden bg-[#050510] flex items-start justify-center pt-32">
                 {/* Animated Starfield Background */}
                 <div className="absolute inset-0 overflow-hidden">
                     {[...Array(150)].map((_, i) => (
@@ -255,14 +255,7 @@ const Profile = () => {
                 <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
             </div>
 
-            {/* Back Button */}
-            <button
-                onClick={() => navigate('/')}
-                className="absolute top-24 left-6 z-50 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 text-white font-display"
-            >
-                <ChevronLeft size={20} />
-                <span className="text-sm font-medium">BACK</span>
-            </button>
+
 
             {/* Loading State */}
             {loading && (
@@ -291,7 +284,7 @@ const Profile = () => {
 
             {/* Main Content */}
             {!loading && !error && user && (
-                <div className="relative z-10 w-full h-full flex items-start justify-center p-8 pt-8 pb-12 overflow-y-auto custom-scrollbar">
+                <div className="relative z-10 w-full h-full flex items-start justify-center p-8 pt-32 pb-12 overflow-y-auto custom-scrollbar">
                     <div className="w-full max-w-7xl space-y-6">
                         {/* Profile Header Card */}
                         <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-2xl p-8 relative overflow-hidden">

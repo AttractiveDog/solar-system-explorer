@@ -12,20 +12,7 @@ interface Student {
     avatar: string;
 }
 
-const studentsData: Student[] = [
-    { id: '1', rank: 1, name: 'Alex Johnson', rollNo: 'CSE2025001', points: 2500, club: 'TERRA', avatar: '👨‍🚀' },
-    { id: '2', rank: 2, name: 'Sarah Williams', rollNo: 'CSE2025042', points: 2350, club: 'EMBER', avatar: '👩‍🚀' },
-    { id: '3', rank: 3, name: 'Michael Chen', rollNo: 'ECE2025015', points: 2200, club: 'AZURE', avatar: '🧑‍🚀' },
-    { id: '4', rank: 4, name: 'Emily Davis', rollNo: 'ME2025033', points: 2100, club: 'PHANTOM-X', avatar: '👩‍🚀' },
-    { id: '5', rank: 5, name: 'David Wilson', rollNo: 'CSE2025089', points: 2050, club: 'VOID-7', avatar: '👨‍🚀' },
-    { id: '6', rank: 6, name: 'Jessica Brown', rollNo: 'ECE2025022', points: 1950, club: 'TERRA', avatar: '👩‍🚀' },
-    { id: '7', rank: 7, name: 'James Miller', rollNo: 'ME2025005', points: 1900, club: 'EMBER', avatar: '🧑‍🚀' },
-    { id: '8', rank: 8, name: 'Robert Taylor', rollNo: 'CSE2025067', points: 1850, club: 'AZURE', avatar: '👨‍🚀' },
-    { id: '9', rank: 9, name: 'Linda Anderson', rollNo: 'ECE2025091', points: 1800, club: 'PHANTOM-X', avatar: '👩‍🚀' },
-    { id: '10', rank: 10, name: 'William Thomas', rollNo: 'ME2025011', points: 1750, club: 'VOID-7', avatar: '🧑‍🚀' },
-    { id: '11', rank: 11, name: 'Barbara Martinez', rollNo: 'CSE2025055', points: 1600, club: 'TERRA', avatar: '👩‍🚀' },
-    { id: '12', rank: 12, name: 'Joseph White', rollNo: 'ECE2025030', points: 1550, club: 'EMBER', avatar: '👨‍🚀' },
-];
+const studentsData: Student[] = [];
 
 const Leaderboard = () => {
     const navigate = useNavigate();
@@ -71,17 +58,10 @@ const Leaderboard = () => {
                 <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-cyan-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
             </div>
 
-            {/* Back Button */}
-            <button
-                onClick={() => navigate('/')}
-                className="absolute top-24 left-6 z-50 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 text-white font-display"
-            >
-                <ChevronLeft size={20} />
-                <span className="text-sm font-medium">BACK</span>
-            </button>
+
 
             {/* Main Content */}
-            <div className="relative z-10 w-full h-full flex flex-col items-center justify-start p-8 pt-8 custom-scrollbar overflow-y-auto">
+            <div className="relative z-10 w-full h-full flex flex-col items-center justify-start px-4 md:px-8 pb-8 pt-40 custom-scrollbar overflow-y-auto">
                 <div className="w-full max-w-4xl space-y-8">
                     {/* Header */}
                     <div className="text-center space-y-2">
@@ -91,6 +71,8 @@ const Leaderboard = () => {
                         <p className="text-gray-400 tracking-widest text-sm uppercase">Top Explorers of the System</p>
                     </div>
 
+                    {/* Search Bar */}
+                    {/* Search Bar - Only show if there is data */}
                     {/* Search Bar */}
                     <div className="relative max-w-md mx-auto w-full group">
                         <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg blur opacity-30 group-hover:opacity-60 transition duration-200"></div>
@@ -157,8 +139,35 @@ const Leaderboard = () => {
                                     </div>
                                 ))
                             ) : (
-                                <div className="p-12 text-center text-gray-400">
-                                    No explorers found with that Roll Number.
+                                <div className="p-16 flex flex-col items-center text-center relative overflow-hidden group">
+
+                                    {/* Background Glows */}
+                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-yellow-500/05 rounded-full blur-[80px] pointer-events-none"></div>
+
+                                    {/* Animated Icon */}
+                                    <div className="relative mb-6">
+                                        <div className="absolute inset-0 bg-yellow-500/10 blur-xl rounded-full animate-pulse"></div>
+                                        <div className="w-20 h-20 bg-[#0a0a1f]/80 border border-yellow-500/20 rounded-2xl flex items-center justify-center relative z-10 rotate-3 group-hover:rotate-6 transition-transform duration-500">
+                                            <Trophy className="w-10 h-10 text-yellow-400/90 drop-shadow-[0_0_10px_rgba(250,204,21,0.4)]" />
+                                        </div>
+                                    </div>
+
+                                    {/* Text Content */}
+                                    <h2 className="text-2xl font-display font-bold text-white mb-2 tracking-wide">
+                                        Mission in Progress
+                                    </h2>
+                                    <p className="text-gray-400 text-base leading-relaxed max-w-sm mb-6">
+                                        Leaderboard rankings will be synchronized and displayed here upon event completion.
+                                    </p>
+
+                                    {/* Status Badge */}
+                                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-yellow-500/5 border border-yellow-500/10 text-yellow-400 text-xs font-semibold tracking-wider">
+                                        <span className="relative flex h-1.5 w-1.5">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+                                            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-yellow-500"></span>
+                                        </span>
+                                        SYSTEM STANDBY
+                                    </div>
                                 </div>
                             )}
                         </div>

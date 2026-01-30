@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Search, Calendar, Activity, Zap, AlertTriangle, Info, CheckCircle2, User, Clock, Loader2 } from 'lucide-react';
+import { format, isToday, isYesterday, startOfDay } from 'date-fns';
 import { eventAPI, Event as APIEvent } from '../services/api';
 
 interface Event {
@@ -115,6 +116,28 @@ const EventLogs = () => {
         });
     }, [searchQuery, selectedCategory, selectedType, allEvents]);
 
+    const groupedEvents = useMemo(() => {
+        const groups: { [key: string]: Event[] } = {};
+
+        filteredEvents.forEach(event => {
+            const dateKey = startOfDay(event.timestamp).toISOString();
+            if (!groups[dateKey]) {
+                groups[dateKey] = [];
+            }
+            groups[dateKey].push(event);
+        });
+
+        // Ensure events within groups are sorted by time (descending)
+        Object.keys(groups).forEach(key => {
+            groups[key].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+        });
+
+        // Sort groups by date (descending)
+        return Object.entries(groups).sort((a, b) => {
+            return new Date(b[0]).getTime() - new Date(a[0]).getTime();
+        });
+    }, [filteredEvents]);
+
     const formatTimestamp = (date: Date) => {
         const now = new Date();
         const diff = now.getTime() - date.getTime();
@@ -148,17 +171,8 @@ const EventLogs = () => {
                 ))}
             </div>
 
-            {/* Back Button */}
-            <button
-                onClick={() => navigate('/')}
-                className="absolute top-24 left-6 z-50 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 text-white font-display"
-            >
-                <ChevronLeft size={20} />
-                <span className="text-sm font-medium">BACK</span>
-            </button>
-
             {/* Main Content */}
-            <div className="relative z-10 w-full h-full pt-8 pb-8 px-8">
+            <div className="relative z-10 w-full h-full pt-24 md:pt-32 pb-8 px-4 md:px-8">
                 <div className="max-w-7xl mx-auto h-full flex flex-col">
                     {/* Page Header */}
                     <div className="mb-6">
@@ -255,82 +269,95 @@ const EventLogs = () => {
                                     </div>
                                 ) : (
                                     <div className="relative">
-                                        {/* Timeline Line */}
-                                        <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-cyan-500/50 via-purple-500/50 to-transparent" />
+                                        <div className="space-y-8 pb-10">
+                                            {groupedEvents.map(([dateKey, events]) => {
+                                                const date = new Date(dateKey);
+                                                let dateLabel = format(date, 'MMMM d, yyyy');
+                                                if (isToday(date)) dateLabel = 'Today';
+                                                else if (isYesterday(date)) dateLabel = 'Yesterday';
 
-                                        {/* Events */}
-                                        <div className="space-y-6">
-                                            {filteredEvents.map((event, index) => {
-                                                const CategoryIcon = categoryIcons[event.category];
                                                 return (
-                                                    <div key={event.id} className="relative pl-12 md:pl-20">
-                                                        {/* Timeline Node */}
-                                                        <div className={`absolute left-2 md:left-4 top-6 w-6 h-6 md:w-8 md:h-8 rounded-full border-2 md:border-4 border-[#050510] ${event.type === 'major'
-                                                            ? 'bg-gradient-to-br from-cyan-400 to-purple-500 shadow-lg shadow-cyan-400/50'
-                                                            : 'bg-white/20 shadow-md'
-                                                            } flex items-center justify-center z-10`}>
-                                                            {event.type === 'major' && (
-                                                                <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                                                            )}
+                                                    <div key={dateKey} className="relative">
+                                                        {/* Sticky Date Header */}
+                                                        <div className="sticky top-0 z-30 -mx-6 px-6 py-4 bg-[#050510]/95 backdrop-blur-md border-b border-white/5 mb-4 flex items-center gap-4 shadow-lg shadow-black/20">
+                                                            <div className="flex items-center gap-3">
+                                                                <span className="text-white font-bold text-lg tracking-wide font-display">
+                                                                    {dateLabel}
+                                                                </span>
+                                                                <span className="text-sm text-gray-500 font-mono bg-white/5 px-2 py-0.5 rounded-full">
+                                                                    {events.length}
+                                                                </span>
+                                                            </div>
+                                                            <div className="h-px bg-gradient-to-r from-white/10 to-transparent flex-1" />
+                                                            <div className="text-xs text-gray-600 font-mono uppercase tracking-wider">
+                                                                {format(date, 'EEEE')}
+                                                            </div>
                                                         </div>
 
-                                                        {/* Event Card */}
-                                                        <button
-                                                            onClick={() => navigate(`/events/${event.id}`)}
-                                                            className={`w-full text-left bg-white/5 backdrop-blur-sm border rounded-lg p-5 hover:bg-white/10 transition-all duration-300 hover:scale-[1.02] cursor-pointer ${event.type === 'major'
-                                                                ? 'border-cyan-400/30 shadow-lg shadow-cyan-400/10'
-                                                                : 'border-white/10'
-                                                                }`}
-                                                        >
-                                                            {/* Event Header */}
-                                                            <div className="flex items-start justify-between gap-4 mb-3">
-                                                                <div className="flex-1">
-                                                                    <div className="flex items-center gap-2 mb-2">
-                                                                        <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${categoryColors[event.category]}`}>
-                                                                            <CategoryIcon size={12} className="inline mr-1" />
-                                                                            {event.category.toUpperCase()}
-                                                                        </span>
-                                                                        {event.type === 'major' && (
-                                                                            <span className="px-3 py-1 rounded-full text-xs font-semibold border border-cyan-400/30 bg-cyan-500/20 text-cyan-300">
-                                                                                MAJOR EVENT
+                                                        {/* Google Photos-style Grid */}
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-2">
+                                                            {events.map((event, index) => {
+                                                                const CategoryIcon = categoryIcons[event.category];
+                                                                return (
+                                                                    <button
+                                                                        key={event.id}
+                                                                        onClick={() => navigate(`/events/${event.id}`)}
+                                                                        className={`group relative flex flex-col h-full bg-white/5 backdrop-blur-sm border rounded-xl overflow-hidden hover:bg-white/10 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-cyan-500/10 text-left animate-in fade-in zoom-in-95 duration-500 fill-mode-both ${event.type === 'major'
+                                                                            ? 'border-cyan-400/30'
+                                                                            : 'border-white/10'
+                                                                            }`}
+                                                                        style={{ animationDelay: `${index * 50}ms` }}
+                                                                    >
+                                                                        {/* Top Section: Icon & Time */}
+                                                                        <div className={`p-4 pb-2 flex justify-between items-start relative overflow-hidden`}>
+                                                                            {/* Background Glow for Category */}
+                                                                            <div className={`absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl opacity-20 ${categoryColors[event.category].split(' ')[1]}`} />
+
+                                                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center border ${categoryColors[event.category]}`}>
+                                                                                <CategoryIcon size={18} />
+                                                                            </div>
+
+                                                                            {event.type === 'major' && (
+                                                                                <div className="absolute top-0 right-0 p-1">
+                                                                                    <div className="w-2 h-2 bg-cyan-400 rounded-full shadow-[0_0_8px_rgba(34,211,238,0.8)] animate-pulse" />
+                                                                                </div>
+                                                                            )}
+
+                                                                            <span className="text-xs font-mono text-gray-400 bg-black/20 px-2 py-1 rounded backdrop-blur-sm z-10">
+                                                                                {event.timestamp.toLocaleTimeString('en-US', {
+                                                                                    hour: '2-digit',
+                                                                                    minute: '2-digit',
+                                                                                    hour12: false
+                                                                                })}
                                                                             </span>
-                                                                        )}
-                                                                        <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${priorityColors[event.priority]}`}>
-                                                                            {event.priority.toUpperCase()}
-                                                                        </span>
-                                                                    </div>
-                                                                    <h3 className="text-xl font-display font-bold text-white mb-1">
-                                                                        {event.title}
-                                                                    </h3>
-                                                                </div>
-                                                                <div className="text-right flex-shrink-0">
-                                                                    <div className="text-xs text-gray-500 flex items-center gap-1">
-                                                                        <Clock size={12} />
-                                                                        {formatTimestamp(event.timestamp)}
-                                                                    </div>
-                                                                    <div className="text-xs text-gray-400 mt-1">
-                                                                        {event.timestamp.toLocaleTimeString('en-US', {
-                                                                            hour: '2-digit',
-                                                                            minute: '2-digit',
-                                                                            hour12: false
-                                                                        })}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
+                                                                        </div>
 
-                                                            {/* Event Description */}
-                                                            <p className="text-gray-300 text-sm mb-3 leading-relaxed">
-                                                                {event.description}
-                                                            </p>
+                                                                        {/* Content Section */}
+                                                                        <div className="p-4 pt-2 flex-1 flex flex-col">
+                                                                            <h3 className="text-lg font-display font-bold text-white mb-2 leading-tight group-hover:text-cyan-300 transition-colors line-clamp-2">
+                                                                                {event.title}
+                                                                            </h3>
 
-                                                            {/* Event Footer */}
-                                                            {event.location && (
-                                                                <div className="flex items-center gap-2 text-xs text-gray-500">
-                                                                    <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                                                                    <span>Location: {event.location}</span>
-                                                                </div>
-                                                            )}
-                                                        </button>
+                                                                            <p className="text-gray-400 text-xs mb-4 line-clamp-3 leading-relaxed flex-1">
+                                                                                {event.description}
+                                                                            </p>
+
+                                                                            {/* Footer Tags */}
+                                                                            <div className="flex flex-wrap gap-2 mt-auto">
+                                                                                <span className={`px-2 py-0.5 rounded text-[10px] uppercase tracking-wider font-semibold border ${priorityColors[event.priority]}`}>
+                                                                                    {event.priority}
+                                                                                </span>
+                                                                                {event.location && (
+                                                                                    <span className="px-2 py-0.5 rounded text-[10px] bg-white/5 text-gray-400 border border-white/5 truncate max-w-[120px]">
+                                                                                        📍 {event.location}
+                                                                                    </span>
+                                                                                )}
+                                                                            </div>
+                                                                        </div>
+                                                                    </button>
+                                                                );
+                                                            })}
+                                                        </div>
                                                     </div>
                                                 );
                                             })}

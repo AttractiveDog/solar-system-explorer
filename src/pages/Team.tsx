@@ -1,6 +1,19 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Crown, Lightbulb, GraduationCap, Code, Palette, Megaphone, Star, Sparkles, Mail, Linkedin, Github, ChevronRight } from 'lucide-react';
+import {
+    Star,
+    GraduationCap,
+    Users,
+    Folder,
+    Terminal,
+    Palette,
+    UserCog,
+    Grid,
+    List,
+    Filter,
+    Info,
+    ChevronRight
+} from 'lucide-react';
+import './Team.css';
 
 interface TeamMember {
     id: string;
@@ -12,559 +25,450 @@ interface TeamMember {
     linkedin?: string;
     github?: string;
     email?: string;
-}
-
-interface TeamSection {
-    id: string;
-    title: string;
-    icon: JSX.Element;
-    gradient: string;
-    color: string;
-    members: TeamMember[];
-    description: string;
+    status?: 'online' | 'away' | 'offline';
 }
 
 const Team = () => {
-    const navigate = useNavigate();
-    const [hoveredMember, setHoveredMember] = useState<string | null>(null);
+    const [activeMainTab, setActiveMainTab] = useState<'founders' | 'convenors' | 'team' | 'members'>('founders');
+    const [activeSubTab, setActiveSubTab] = useState<'core-team' | 'graphics' | 'management'>('core-team');
+    const [activeMemberYear, setActiveMemberYear] = useState<'1st' | '2nd' | '3rd' | '4th'>('1st');
 
-    const teamSections: TeamSection[] = [
+    // Data
+    const founders: TeamMember[] = [
         {
-            id: 'founders',
-            title: 'Founders',
-            icon: <Crown size={24} />,
-            gradient: 'from-yellow-500/20 via-orange-500/20 to-red-500/20',
-            color: 'text-yellow-400',
-            description: 'Visionary leaders who brought COMET to life',
-            members: [
-                {
-                    id: 'f1',
-                    name: 'Alex Stellar',
-                    role: 'Co-Founder & CEO',
-                    image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400',
-                    branch: 'Computer Science',
-                    year: 'Final Year',
-                    linkedin: 'alexstellar',
-                    github: 'alexstellar',
-                    email: 'alex@comet.space'
-                },
-                {
-                    id: 'f2',
-                    name: 'Nova Chen',
-                    role: 'Co-Founder & CTO',
-                    image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400',
-                    branch: 'Computer Science',
-                    year: 'Final Year',
-                    linkedin: 'novachen',
-                    github: 'novachen',
-                    email: 'nova@comet.space'
-                },
-                {
-                    id: 'f3',
-                    name: 'Orion Blake',
-                    role: 'Co-Founder & COO',
-                    image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=400',
-                    branch: 'Business Admin',
-                    year: 'Final Year',
-                    linkedin: 'orionblake',
-                    github: 'orionblake',
-                    email: 'orion@comet.space'
-                }
-            ]
+            id: 'f1',
+            name: 'Alex Stellar',
+            role: 'Co-Founder & CEO',
+            image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400',
+            branch: 'Computer Science',
+            year: 'Final Year'
         },
         {
-            id: 'mentors',
-            title: 'Mentors',
-            icon: <Lightbulb size={24} />,
-            gradient: 'from-purple-500/20 via-pink-500/20 to-rose-500/20',
-            color: 'text-purple-400',
-            description: 'Guiding lights illuminating our path to success',
-            members: [
-                {
-                    id: 'm1',
-                    name: 'Dr. Cassiopeia Ray',
-                    role: 'Senior Mentor',
-                    image: 'https://images.unsplash.com/photo-1573496799652-408c2ac9fe98?auto=format&fit=crop&q=80&w=400',
-                    branch: 'AI & ML',
-                    year: 'Faculty',
-                    linkedin: 'cassiopeiaray'
-                },
-                {
-                    id: 'm2',
-                    name: 'Prof. Atlas Storm',
-                    role: 'Business Mentor',
-                    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400',
-                    branch: 'Entrepreneurship',
-                    year: 'Faculty',
-                    linkedin: 'atlasstorm'
-                }
-            ]
+            id: 'f2',
+            name: 'Nova Chen',
+            role: 'Co-Founder & CTO',
+            image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400',
+            branch: 'Computer Science',
+            year: 'Final Year'
         },
         {
-            id: 'college-support',
-            title: 'College Support Team',
-            icon: <GraduationCap size={24} />,
-            gradient: 'from-blue-500/20 via-cyan-500/20 to-teal-500/20',
-            color: 'text-blue-400',
-            description: 'Academic backbone supporting our cosmic community',
-            members: [
-                {
-                    id: 'cs1',
-                    name: 'Dr. Vega Anderson',
-                    role: 'Dean',
-                    image: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=400',
-                    branch: 'Administration',
-                    year: 'Dean',
-                    email: 'vega@college.edu'
-                }
-            ]
-        },
-        {
-            id: 'core-team',
-            title: 'Core Team',
-            icon: <Code size={24} />,
-            gradient: 'from-green-500/20 via-emerald-500/20 to-teal-500/20',
-            color: 'text-green-400',
-            description: 'Building the digital universe, one line of code at a time',
-            members: [
-                {
-                    id: 't1',
-                    name: 'Rigel Thompson',
-                    role: 'Lead Developer',
-                    image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400',
-                    branch: 'Computer Science',
-                    year: 'Third Year',
-                    github: 'rigelthompson',
-                    linkedin: 'rigelthompson'
-                },
-                {
-                    id: 't2',
-                    name: 'Lyra Chang',
-                    role: 'Frontend Engineer',
-                    image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400',
-                    branch: 'Computer Science',
-                    year: 'Second Year',
-                    github: 'lyrachang',
-                    linkedin: 'lyrachang'
-                },
-                {
-                    id: 't3',
-                    name: 'Altair Patel',
-                    role: 'Backend Engineer',
-                    image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=400',
-                    branch: 'Computer Science',
-                    year: 'Third Year',
-                    github: 'altairpatel',
-                    linkedin: 'altairpatel'
-                }
-            ]
-        },
-        {
-            id: 'graphics-team',
-            title: 'Graphics Team',
-            icon: <Palette size={24} />,
-            gradient: 'from-pink-500/20 via-purple-500/20 to-indigo-500/20',
-            color: 'text-pink-400',
-            description: 'Painting the cosmos with creativity and imagination',
-            members: [
-                {
-                    id: 'g1',
-                    name: 'Nebula Davis',
-                    role: 'Creative Director',
-                    image: 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&q=80&w=400',
-                    branch: 'Design',
-                    year: 'Final Year',
-                    linkedin: 'nebuladavis'
-                },
-                {
-                    id: 'g2',
-                    name: 'Aurora Wilson',
-                    role: 'UI/UX Designer',
-                    image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=400',
-                    branch: 'Design',
-                    year: 'Third Year',
-                    linkedin: 'aurorawilson'
-                },
-                {
-                    id: 'g3',
-                    name: 'Cosmos Brown',
-                    role: '3D Artist',
-                    image: 'https://images.unsplash.com/photo-1522075469751-3a3694c60e9e?auto=format&fit=crop&q=80&w=400',
-                    branch: 'Animation',
-                    year: 'Third Year',
-                    linkedin: 'cosmosbrown'
-                },
-                {
-                    id: 'g4',
-                    name: 'Galaxy Taylor',
-                    role: 'Motion Designer',
-                    image: 'https://images.unsplash.com/photo-1563237023-b1e97052961a?auto=format&fit=crop&q=80&w=400',
-                    branch: 'Media Arts',
-                    year: 'Second Year',
-                    linkedin: 'galaxytaylor'
-                },
-                {
-                    id: 'g5',
-                    name: 'Stellar Garcia',
-                    role: 'Graphic Designer',
-                    image: 'https://images.unsplash.com/photo-1552058544-f2b08422138a?auto=format&fit=crop&q=80&w=400',
-                    branch: 'Design',
-                    year: 'Second Year',
-                    linkedin: 'stellargarcia'
-                }
-            ]
-        },
-        {
-            id: 'pr-team',
-            title: 'Management and Outreach Team',
-            icon: <Megaphone size={24} />,
-            gradient: 'from-orange-500/20 via-red-500/20 to-pink-500/20',
-            color: 'text-orange-400',
-            description: 'Amplifying our voice across the universe',
-            members: [
-                {
-                    id: 'pr1',
-                    name: 'Solstice White',
-                    role: 'PR Manager',
-                    image: 'https://images.unsplash.com/photo-1589156280159-27698a70f29e?auto=format&fit=crop&q=80&w=400',
-                    branch: 'Marketing',
-                    year: 'Final Year',
-                    linkedin: 'solsticewhite',
-                    email: 'solstice@comet.space'
-                },
-                {
-                    id: 'pr2',
-                    name: 'Eclipse Moore',
-                    role: 'Social Media Lead',
-                    image: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&q=80&w=400',
-                    branch: 'Communications',
-                    year: 'Third Year',
-                    linkedin: 'eclipsemoore'
-                },
-                {
-                    id: 'pr3',
-                    name: 'Zenith Adams',
-                    role: 'Content Writer',
-                    image: 'https://images.unsplash.com/photo-1595182903333-615dfcf8f2b3?auto=format&fit=crop&q=80&w=400',
-                    branch: 'Journalism',
-                    year: 'Second Year',
-                    linkedin: 'zenithadams'
-                },
-                {
-                    id: 'pr4',
-                    name: 'Horizon Clark',
-                    role: 'Community Manager',
-                    image: 'https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&q=80&w=400',
-                    branch: 'Marketing',
-                    year: 'Third Year',
-                    linkedin: 'horizonclark'
-                },
-                {
-                    id: 'pr5',
-                    name: 'Meteor Jones',
-                    role: 'Event Coordinator',
-                    image: 'https://images.unsplash.com/photo-1534751516642-a1af1ef26a56?auto=format&fit=crop&q=80&w=400',
-                    branch: 'Event Management',
-                    year: 'Second Year',
-                    linkedin: 'meteorjones'
-                }
-            ]
+            id: 'f3',
+            name: 'Orion Blake',
+            role: 'Co-Founder & COO',
+            image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=400',
+            branch: 'Business Admin',
+            year: 'Final Year'
         }
     ];
 
-    const scrollCarousel = (sectionId: string, direction: 'left' | 'right') => {
-        const container = document.getElementById(`carousel-${sectionId}`);
-        if (container) {
-            const isFounders = sectionId === 'founders';
-            const scrollAmount = isFounders ? 400 : 300;
-            container.scrollBy({
-                left: direction === 'left' ? -scrollAmount : scrollAmount,
-                behavior: 'smooth'
-            });
+    const convenors: TeamMember[] = [
+        {
+            id: 'm1',
+            name: 'Dr. Cassiopeia Ray',
+            role: 'H.O.D. Faculty',
+            image: 'https://images.unsplash.com/photo-1573496799652-408c2ac9fe98?auto=format&fit=crop&q=80&w=400',
+            branch: 'AI & ML',
+            year: 'Faculty'
+        },
+        {
+            id: 'm2',
+            name: 'Prof. Atlas Storm',
+            role: 'Entrepreneurship Faculty',
+            image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400',
+            branch: 'Entrepreneurship',
+            year: 'Faculty'
+        },
+        {
+            id: 'm3',
+            name: 'Dr. Vega Anderson',
+            role: 'Dean',
+            image: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=400',
+            branch: 'Administration',
+            year: 'Dean'
+        }
+    ];
+
+    const coreTeam: TeamMember[] = [
+        {
+            id: 't1',
+            name: 'Rigel Thompson',
+            role: 'Lead Developer',
+            image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400',
+            branch: 'Computer Science',
+            year: '3rd Yr',
+            status: 'online'
+        },
+        {
+            id: 't2',
+            name: 'Lyra Chang',
+            role: 'Frontend Engineer',
+            image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400',
+            branch: 'CS / Ent',
+            year: '2nd Yr',
+            status: 'online'
+        },
+        {
+            id: 't3',
+            name: 'Altair Patel',
+            role: 'Backend Engineer',
+            image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=400',
+            branch: 'CS / Tech',
+            year: '3rd Yr',
+            status: 'away'
+        }
+    ];
+
+    const graphicsTeam: TeamMember[] = [
+        {
+            id: 'g1',
+            name: 'Nebula Davis',
+            role: 'Creative Director',
+            image: 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&q=80&w=400',
+            branch: 'Design',
+            year: 'Final Year'
+        },
+        {
+            id: 'g2',
+            name: 'Cosmos Brown',
+            role: 'Animation Lead',
+            image: 'https://images.unsplash.com/photo-1522075469751-3a3694c60e9e?auto=format&fit=crop&q=80&w=400',
+            branch: 'Animation',
+            year: '3rd Year'
+        },
+        {
+            id: 'g3',
+            name: 'Aurora Wilson',
+            role: 'UI/UX Designer',
+            image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=400',
+            branch: 'Design',
+            year: '3rd Year'
+        },
+        {
+            id: 'g4',
+            name: 'Galaxy Taylor',
+            role: 'Motion Designer',
+            image: 'https://images.unsplash.com/photo-1563237023-b1e97052961a?auto=format&fit=crop&q=80&w=400',
+            branch: 'Media Arts',
+            year: '2nd Year'
+        }
+    ];
+
+    const managementTeam: TeamMember[] = [
+        {
+            id: 'pr1',
+            name: 'Solstice White',
+            role: 'Marketing',
+            image: 'https://images.unsplash.com/photo-1589156280159-27698a70f29e?auto=format&fit=crop&q=80&w=400',
+            branch: 'Marketing',
+            year: 'Final Year',
+            status: 'online'
+        },
+        {
+            id: 'pr2',
+            name: 'Eclipse Moore',
+            role: 'Communications',
+            image: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&q=80&w=400',
+            branch: 'Communications',
+            year: '3rd Year',
+            status: 'away'
+        }
+    ];
+
+    const firstYearMembers: TeamMember[] = [
+        { id: '1y1', name: 'Aria Frost', role: 'Trainee', image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=400', branch: 'CS', year: '1st Year' },
+        { id: '1y2', name: 'Leo Spark', role: 'Trainee', image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400', branch: 'IT', year: '1st Year' },
+        { id: '1y3', name: 'Mira Sky', role: 'Trainee', image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400', branch: 'ECE', year: '1st Year' },
+    ];
+    const secondYearMembers: TeamMember[] = [
+        { id: '2y1', name: 'Kai Orbit', role: 'Junior Dev', image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400', branch: 'CS', year: '2nd Year', status: 'online' },
+        { id: '2y2', name: 'Luna Vonn', role: 'Junior Designer', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400', branch: 'Design', year: '2nd Year' },
+        { id: '2y3', name: 'Jett Starr', role: 'Junior Dev', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400', branch: 'IT', year: '2nd Year', status: 'away' },
+        { id: '2y4', name: 'Nova Reed', role: 'Content Writer', image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400', branch: 'Marketing', year: '2nd Year' },
+    ];
+    const thirdYearMembers: TeamMember[] = [
+        { id: '3y1', name: 'Rex Comet', role: 'Senior Dev', image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400', branch: 'CS', year: '3rd Year', status: 'online' },
+        { id: '3y2', name: 'Tess Ray', role: 'Senior Designer', image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400', branch: 'Design', year: '3rd Year' },
+        { id: '3y3', name: 'Zane Bolt', role: 'Tech Lead', image: 'https://images.unsplash.com/photo-1504257432389-52343af06ae3?auto=format&fit=crop&q=80&w=400', branch: 'IT', year: '3rd Year' },
+    ];
+    const fourthYearMembers: TeamMember[] = [
+        { id: '4y1', name: 'Vera Flux', role: 'Mentor', image: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=400', branch: 'CS', year: '4th Year' },
+        { id: '4y2', name: 'Cade Void', role: 'Advisor', image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=400', branch: 'MBA', year: '4th Year', status: 'online' },
+    ];
+
+    const getMembersByYear = () => {
+        switch (activeMemberYear) {
+            case '1st': return firstYearMembers;
+            case '2nd': return secondYearMembers;
+            case '3rd': return thirdYearMembers;
+            case '4th': return fourthYearMembers;
+            default: return [];
         }
     };
 
-    const renderSection = (section: TeamSection | undefined, isFounders: boolean = false, className: string = '') => {
-        if (!section) return null;
+    return (
+        <div className="relative w-screen min-h-screen bg-background-light dark:bg-background-dark text-white font-sans flex flex-col selection:bg-accent-cyan selection:text-black">
+            {/* Background Effects */}
+            <div className="absolute inset-0 z-0 stars opacity-40 pointer-events-none"></div>
+            <div className="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-transparent to-accent-purple/10 pointer-events-none"></div>
 
-        const cardWidth = isFounders ? 'w-96' : 'w-72';
-        const imageSize = isFounders ? 'w-64 h-64' : 'w-40 h-40';
-        const nameSize = isFounders ? 'text-4xl' : 'text-xl';
-        const roleSize = isFounders ? 'text-sm' : 'text-xs';
+            <main className="relative z-10 flex-1 flex flex-col pt-32 pb-16 px-6 md:px-12 max-w-[1400px] mx-auto w-full">
 
-        return (
-            <div key={section.id} className={`space-y-4 ${className}`}>
-                {/* Compact Section Header */}
-                <div className={`inline-flex items-center gap-3 bg-gradient-to-r ${section.gradient} backdrop-blur-md border border-white/20 rounded-full px-6 py-3`}>
-                    <div className={`${section.color} flex-shrink-0`}>
-                        {section.icon}
+                {/* Header Section */}
+                <div className="flex flex-col md:flex-row items-center justify-center relative mb-16 md:mb-20">
+                    <div className="text-center z-10 max-w-3xl">
+                        <div className="flex items-center justify-center gap-2 mb-4">
+                            <span className="w-1.5 h-1.5 rounded-full bg-accent-cyan shadow-[0_0_10px_cyan]"></span>
+                            <span className="text-xs uppercase tracking-[0.2em] text-accent-cyan font-display font-bold">Directory</span>
+                        </div>
+                        <h1 className="text-5xl md:text-7xl font-display font-bold text-white uppercase tracking-tight drop-shadow-2xl mb-4">
+                            Meet The Team
+                        </h1>
+                        <p className="text-gray-400 font-sans text-lg md:text-xl leading-relaxed">
+                            The architects, engineers, and visionaries driving our exploration.
+                        </p>
                     </div>
-                    <h2 className="text-xl font-bold text-white tracking-widest royal-font whitespace-nowrap">
-                        {section.title.toUpperCase()}
-                    </h2>
-                    <div className="flex items-center gap-2 ml-2 pl-2 border-l border-white/30">
-                        <div className="text-lg font-bold text-white royal-font">{section.members.length}</div>
-                        <div className="text-xs text-gray-300 uppercase tracking-wider">Members</div>
+
+                    {/* View Controls */}
+                    <div className="md:absolute md:right-0 mt-8 md:mt-0 flex bg-card-dark/60 backdrop-blur-xl border border-white/10 rounded-lg p-1 z-20 shadow-xl">
+                        <button className="p-2.5 hover:bg-white/10 rounded-md text-gray-400 hover:text-white transition-all duration-300">
+                            <Grid className="w-5 h-5" />
+                        </button>
+                        <div className="w-px bg-white/10 mx-1 my-1.5"></div>
+                        <button className="p-2.5 hover:bg-white/10 rounded-md text-gray-400 hover:text-white transition-all duration-300">
+                            <List className="w-5 h-5" />
+                        </button>
+                        <div className="w-px bg-white/10 mx-1 my-1.5"></div>
+                        <button className="p-2.5 hover:bg-white/10 rounded-md text-gray-400 hover:text-white transition-all duration-300">
+                            <Filter className="w-5 h-5" />
+                        </button>
                     </div>
                 </div>
 
-                {/* Description */}
-                <p className="text-gray-300 text-sm max-w-2xl font-light leading-relaxed pl-2">
-                    {section.description}
-                </p>
+                {/* Main Navigation Tabs */}
+                <div className="flex justify-center mb-16 md:mb-24">
+                    <div className="flex flex-wrap justify-center gap-4 p-1.5 bg-white/5 backdrop-blur-md rounded-full border border-white/10">
+                        <button
+                            className={`px-6 py-2.5 rounded-full flex items-center gap-2 text-sm font-medium transition-all duration-300 ${activeMainTab === 'founders' ? 'bg-accent-cyan text-black shadow-[0_0_20px_rgba(6,182,212,0.3)]' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                            onClick={() => setActiveMainTab('founders')}
+                        >
+                            <Star className="w-4 h-4" />
+                            <span>Founders</span>
+                        </button>
+                        <button
+                            className={`px-6 py-2.5 rounded-full flex items-center gap-2 text-sm font-medium transition-all duration-300 ${activeMainTab === 'team' ? 'bg-accent-cyan text-black shadow-[0_0_20px_rgba(6,182,212,0.3)]' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                            onClick={() => setActiveMainTab('team')}
+                        >
+                            <Users className="w-4 h-4" />
+                            <span>Structure</span>
+                        </button>
+                        <button
+                            className={`px-6 py-2.5 rounded-full flex items-center gap-2 text-sm font-medium transition-all duration-300 ${activeMainTab === 'convenors' ? 'bg-accent-cyan text-black shadow-[0_0_20px_rgba(6,182,212,0.3)]' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                            onClick={() => setActiveMainTab('convenors')}
+                        >
+                            <GraduationCap className="w-4 h-4" />
+                            <span>Convenors</span>
+                        </button>
+                        <button
+                            className={`px-6 py-2.5 rounded-full flex items-center gap-2 text-sm font-medium transition-all duration-300 ${activeMainTab === 'members' ? 'bg-accent-cyan text-black shadow-[0_0_20px_rgba(6,182,212,0.3)]' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                            onClick={() => setActiveMainTab('members')}
+                        >
+                            <Folder className="w-4 h-4" />
+                            <span>Members</span>
+                        </button>
+                    </div>
+                </div>
 
-                {/* Carousel with Navigation */}
-                <div className="relative group">
-                    {/* Left Button */}
-                    <button
-                        onClick={() => scrollCarousel(section.id, 'left')}
-                        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-full hover:bg-white/20 transition-all duration-300 opacity-0 group-hover:opacity-100"
-                    >
-                        <ChevronLeft size={24} className="text-white" />
-                    </button>
+                <div className="flex flex-col lg:flex-row gap-8 xl:gap-12 min-h-[500px]">
+                    {/* Sidebar / Sub-Navigation - Only show for Structure */}
+                    {activeMainTab === 'team' && (
+                        <div className="w-full lg:w-72 flex-shrink-0 animate-fade-in-left">
+                            <div className="sticky top-32 glass-panel p-3 rounded-2xl border border-white/10">
+                                <div className="px-4 py-3 text-[10px] uppercase tracking-[0.2em] text-gray-500 font-display font-bold">Departments</div>
+                                <div className="space-y-1">
+                                    <button
+                                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all duration-300 ${activeSubTab === 'core-team' ? 'bg-accent-purple/20 text-accent-purple border border-accent-purple/30' : 'text-gray-400 hover:bg-white/5 hover:text-white border border-transparent'}`}
+                                        onClick={() => setActiveSubTab('core-team')}
+                                    >
+                                        <Terminal className="w-4 h-4" /> Core Team
+                                    </button>
+                                    <button
+                                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all duration-300 ${activeSubTab === 'graphics' ? 'bg-accent-purple/20 text-accent-purple border border-accent-purple/30' : 'text-gray-400 hover:bg-white/5 hover:text-white border border-transparent'}`}
+                                        onClick={() => setActiveSubTab('graphics')}
+                                    >
+                                        <Palette className="w-4 h-4" /> Graphics
+                                    </button>
+                                    <button
+                                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all duration-300 ${activeSubTab === 'management' ? 'bg-accent-purple/20 text-accent-purple border border-accent-purple/30' : 'text-gray-400 hover:bg-white/5 hover:text-white border border-transparent'}`}
+                                        onClick={() => setActiveSubTab('management')}
+                                    >
+                                        <UserCog className="w-4 h-4" /> Management
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
-                    {/* Scrollable Container */}
-                    <div
-                        id={`carousel-${section.id}`}
-                        className="overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 flex"
-                        style={{ scrollPaddingLeft: '8px' }}
-                    >
-                        <div className="flex gap-6 px-2 mx-auto md:mx-0">
-                            {section.members.map((member) => (
-                                <div
-                                    key={member.id}
-                                    className={`group/card relative flex-shrink-0 ${cardWidth} snap-start`}
-                                    onMouseEnter={() => setHoveredMember(member.id)}
-                                    onMouseLeave={() => setHoveredMember(null)}
-                                >
-                                    {/* Card Glow Effect */}
-                                    {hoveredMember === member.id && (
-                                        <div className={`absolute -inset-1 bg-gradient-to-r ${section.gradient} rounded-2xl blur-lg opacity-75 animate-pulse`} />
-                                    )}
-
-                                    {/* Square Member Card */}
-                                    <div className={`relative bg-white/5 backdrop-blur-md border border-white/20 rounded-2xl p-6 hover:scale-105 transition-all duration-300 aspect-square flex flex-col items-center justify-between ${hoveredMember === member.id ? 'border-white/40' : ''
-                                        }`}>
-                                        {/* Large Photo */}
-                                        <div className="flex justify-center mb-4">
+                    {/* Content Area */}
+                    <div className="flex-1 w-full">
+                        {/* TEAM > Core Team */}
+                        {activeMainTab === 'team' && activeSubTab === 'core-team' && (
+                            <section className="animate-fade-in grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                {coreTeam.map(member => (
+                                    <div key={member.id} className="group glass-panel p-1 rounded-2xl hover:bg-card-dark hover:-translate-y-1 transition-all duration-300 border border-white/5">
+                                        <div className="relative p-6 flex items-start gap-5">
                                             <div className="relative">
-                                                <div className={`absolute inset-0 bg-gradient-to-br ${section.gradient} rounded-3xl blur-xl opacity-60`} />
-                                                <div className={`relative ${imageSize} rounded-3xl bg-gradient-to-br ${section.gradient} p-1.5`}>
-                                                    {member.image.startsWith('http') ? (
-                                                        <img
-                                                            src={member.image}
-                                                            alt={member.name}
-                                                            className="w-full h-full rounded-3xl object-cover"
-                                                        />
-                                                    ) : (
-                                                        <div className="w-full h-full rounded-3xl bg-[#0a0a1f] flex items-center justify-center text-7xl">
-                                                            {member.image}
-                                                        </div>
-                                                    )}
+                                                <div className="w-16 h-16 rounded-xl overflow-hidden border border-white/10 group-hover:border-accent-cyan/50 transition-colors shadow-lg">
+                                                    <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
                                                 </div>
-                                                {hoveredMember === member.id && (
-                                                    <div className="absolute -top-2 -right-2">
-                                                        <Star size={24} className={`${section.color} animate-spin`} style={{ animationDuration: '3s' }} />
-                                                    </div>
-                                                )}
+                                                <div className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-[3px] border-black ${member.status !== 'offline' ? 'bg-accent-cyan' : 'bg-gray-500'}`}></div>
                                             </div>
-                                        </div>
-
-                                        {/* Minimal Details */}
-                                        <div className="text-center space-y-1 flex-1 flex flex-col justify-center">
-                                            <h4 className={`${nameSize} font-bold text-white royal-font tracking-wide`}>
-                                                {member.name}
-                                            </h4>
-                                            <p className={`${roleSize} text-gray-400 uppercase tracking-wider`}>
-                                                {member.branch}
-                                            </p>
-                                            <p className="text-xs text-gray-500 tracking-wide">
-                                                {member.year}
-                                            </p>
-                                        </div>
-
-                                        {/* Social Links */}
-                                        <div className="flex items-center justify-center gap-2 pt-4">
-                                            {member.linkedin && (
-                                                <a
-                                                    href={`https://linkedin.com/in/${member.linkedin}`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="p-2 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-400/30 rounded-lg transition-all duration-300"
-                                                >
-                                                    <Linkedin size={18} className="text-blue-400" />
-                                                </a>
-                                            )}
-                                            {member.github && (
-                                                <a
-                                                    href={`https://github.com/${member.github}`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="p-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-all duration-300"
-                                                >
-                                                    <Github size={18} className="text-white" />
-                                                </a>
-                                            )}
-                                            {member.email && (
-                                                <a
-                                                    href={`mailto:${member.email}`}
-                                                    className="p-2 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-400/30 rounded-lg transition-all duration-300"
-                                                >
-                                                    <Mail size={18} className="text-purple-400" />
-                                                </a>
-                                            )}
+                                            <div className="flex-1 min-w-0 pt-0.5">
+                                                <h3 className="font-display font-bold text-lg text-white truncate group-hover:text-accent-cyan transition-colors">{member.name}</h3>
+                                                <p className="text-xs text-gray-400 font-mono uppercase tracking-wider mb-3">{member.role}</p>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-white/5 text-gray-300 border border-white/10 group-hover:border-accent-cyan/20 transition-colors">
+                                                        {member.year}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <ChevronRight className="w-5 h-5 text-gray-600 group-hover:text-accent-cyan group-hover:translate-x-1 transition-all" />
                                         </div>
                                     </div>
+                                ))}
+                            </section>
+                        )}
+
+                        {/* TEAM > Graphics */}
+                        {activeMainTab === 'team' && activeSubTab === 'graphics' && (
+                            <section className="animate-fade-in grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                {graphicsTeam.map(member => (
+                                    <div key={member.id} className="group glass-panel p-1 rounded-2xl hover:bg-card-dark hover:-translate-y-1 transition-all duration-300 border border-white/5">
+                                        <div className="relative p-6 flex items-center gap-5">
+                                            <div className="w-16 h-16 rounded-full overflow-hidden border border-white/10 group-hover:border-accent-purple/50 transition-colors shadow-lg">
+                                                <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
+                                            </div>
+                                            <div className="flex-1">
+                                                <h3 className="font-display font-bold text-lg text-white group-hover:text-accent-purple transition-colors">{member.name}</h3>
+                                                <p className="text-xs text-gray-400 font-mono uppercase tracking-wider">{member.role}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </section>
+                        )}
+
+                        {/* TEAM > Management */}
+                        {activeMainTab === 'team' && activeSubTab === 'management' && (
+                            <section className="animate-fade-in grid grid-cols-1 md:grid-cols-2 gap-8">
+                                {managementTeam.map(member => (
+                                    <div key={member.id} className="group glass-panel p-8 rounded-2xl border-l-4 border-l-accent-purple hover:bg-card-dark hover:translate-x-1 transition-all duration-300 flex items-center gap-6">
+                                        <img className="w-24 h-24 rounded-xl object-cover border border-white/10 shadow-xl" src={member.image} alt={member.name} />
+                                        <div>
+                                            <h4 className="font-display font-bold text-2xl text-white mb-1">{member.name}</h4>
+                                            <p className="text-xs text-accent-purple uppercase tracking-widest font-mono mb-3">{member.role}</p>
+                                            <div className="flex gap-2 items-center">
+                                                <span className={`w-2 h-2 rounded-full ${member.status === 'online' ? 'bg-green-500 shadow-[0_0_8px_lime]' : 'bg-gray-500'}`}></span>
+                                                <span className="text-xs text-gray-400 font-mono">{member.status === 'online' ? 'Online' : 'Away'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </section>
+                        )}
+
+                        {/* FOUNDERS - Centered Grid */}
+                        {activeMainTab === 'founders' && (
+                            <section className="animate-fade-in max-w-6xl mx-auto">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 xl:gap-12">
+                                    {founders.map(member => (
+                                        <div key={member.id} className="group glass-panel relative p-10 rounded-3xl flex flex-col items-center text-center hover:bg-white/[0.02] border border-white/5 hover:border-accent-cyan/30 transition-all duration-500 hover:-translate-y-2 shadow-xl hover:shadow-2xl hover:shadow-accent-cyan/10">
+                                            <div className="absolute top-0 right-0 p-6 opacity-20 group-hover:opacity-100 transition-opacity duration-300">
+                                                <Star className="w-6 h-6 text-accent-cyan" />
+                                            </div>
+
+                                            <div className="relative mb-8">
+                                                <div className="absolute inset-0 bg-accent-cyan/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                                <div className="w-40 h-40 rounded-full p-1.5 bg-gradient-to-br from-accent-cyan to-blue-600 relative z-10 shadow-[0_0_30px_rgba(6,182,212,0.15)] group-hover:shadow-[0_0_50px_rgba(6,182,212,0.4)] transition-all duration-500">
+                                                    <img alt={member.name} className="w-full h-full rounded-full object-cover border-4 border-black/50" src={member.image} />
+                                                </div>
+                                            </div>
+
+                                            <h3 className="font-display font-bold text-3xl text-white mb-2 tracking-wide group-hover:text-accent-cyan transition-colors">{member.name}</h3>
+                                            <p className="text-accent-cyan/80 font-mono text-xs uppercase tracking-[0.2em] mb-8">{member.role}</p>
+
+                                            <div className="w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-8"></div>
+
+                                            <button className="px-8 py-2.5 rounded-lg bg-white/5 hover:bg-accent-cyan hover:text-black text-xs font-bold uppercase tracking-wider transition-all duration-300 border border-white/5 hover:border-accent-cyan shadow-lg">
+                                                View Profile
+                                            </button>
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
-                        </div>
-                    </div>
+                            </section>
+                        )}
 
-                    {/* Right Button */}
-                    <button
-                        onClick={() => scrollCarousel(section.id, 'right')}
-                        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-full hover:bg-white/20 transition-all duration-300 opacity-0 group-hover:opacity-100"
-                    >
-                        <ChevronRight size={24} className="text-white" />
-                    </button>
-                </div>
-            </div>
-        );
-    };
+                        {/* CONVENORS - Grid */}
+                        {activeMainTab === 'convenors' && (
+                            <section className="animate-fade-in max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                {convenors.map(member => (
+                                    <div key={member.id} className="flex flex-col sm:flex-row items-center sm:items-start gap-8 p-8 glass-panel rounded-3xl hover:bg-white/[0.02] border border-white/5 hover:border-white/10 transition-all duration-300 hover:-translate-y-1">
+                                        <div className="w-32 h-32 flex-shrink-0 rounded-2xl overflow-hidden shadow-2xl border border-white/10">
+                                            <img className="w-full h-full object-cover" src={member.image} alt={member.name} />
+                                        </div>
+                                        <div className="text-center sm:text-left">
+                                            <h3 className="font-display font-bold text-2xl text-white tracking-wide mb-1">{member.name}</h3>
+                                            <p className="text-xs text-accent-purple font-mono uppercase tracking-[0.15em] mb-4">{member.role}</p>
+                                            <p className="text-sm text-gray-400 italic leading-relaxed border-l-2 border-white/10 pl-4">"Innovation is the bridge between the present and the future of space exploration."</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </section>
+                        )}
 
-    return (
-        <div className="relative w-full min-h-screen h-auto bg-[#050510] font-sans overflow-x-hidden overflow-y-auto">
-            {/* Starfield Background */}
-            <div className="absolute inset-0 overflow-hidden">
-                {[...Array(100)].map((_, i) => (
-                    <div
-                        key={i}
-                        className="absolute rounded-full bg-white animate-pulse"
-                        style={{
-                            width: Math.random() * 2 + 0.5 + 'px',
-                            height: Math.random() * 2 + 0.5 + 'px',
-                            top: Math.random() * 100 + '%',
-                            left: Math.random() * 100 + '%',
-                            animationDelay: Math.random() * 3 + 's',
-                            animationDuration: Math.random() * 2 + 2 + 's',
-                            opacity: Math.random() * 0.7 + 0.3
-                        }}
-                    />
-                ))}
-            </div>
+                        {/* MEMBERS - Year Tabs & Grid */}
+                        {activeMainTab === 'members' && (
+                            <section className="animate-fade-in max-w-6xl mx-auto">
+                                {/* Year Tabs */}
+                                <div className="flex justify-center mb-10">
+                                    <div className="flex flex-wrap justify-center gap-2 p-1 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
+                                        {(['1st', '2nd', '3rd', '4th'] as const).map(year => (
+                                            <button
+                                                key={year}
+                                                className={`px-6 py-2 rounded-md text-sm font-bold uppercase tracking-wider transition-all duration-300 ${activeMemberYear === year ? 'bg-accent-cyan text-black shadow-lg shadow-cyan-500/20' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                                                onClick={() => setActiveMemberYear(year)}
+                                            >
+                                                {year} Year
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
 
-            {/* Back Button */}
-            <button
-                onClick={() => navigate('/')}
-                className="absolute top-24 left-6 z-50 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 text-white royal-font"
-            >
-                <ChevronLeft size={20} />
-                <span className="text-sm font-medium tracking-wider">BACK</span>
-            </button>
-
-            {/* Top Center Title */}
-            <div className="absolute top-6 left-1/2 transform -translate-x-1/2 z-50 flex items-center gap-3">
-                <Sparkles className="text-yellow-400 animate-pulse" size={24} />
-                <h1 className="text-3xl font-bold text-white tracking-widest royal-font">
-                    MEET THE TEAM
-                </h1>
-                <Sparkles className="text-cyan-400 animate-pulse" size={24} />
-            </div>
-
-            {/* Main Scrollable Content */}
-            <div className="relative z-10 w-full h-full pt-8 pb-8 overflow-y-auto custom-scrollbar">
-                <div className="w-full max-w-7xl mx-auto px-8 space-y-10">
-
-                    {/* Founders */}
-                    {renderSection(teamSections.find(s => s.id === 'founders'), true)}
-
-                    {/* Mentors and College Support Side-by-Side */}
-                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-                        <div className="xl:col-span-2">
-                            {renderSection(teamSections.find(s => s.id === 'mentors'))}
-                        </div>
-                        <div className="xl:col-span-1">
-                            {renderSection(teamSections.find(s => s.id === 'college-support'))}
-                        </div>
-                    </div>
-
-                    {/* Core Team */}
-                    {renderSection(teamSections.find(s => s.id === 'core-team'))}
-
-                    {/* Graphics Team */}
-                    {renderSection(teamSections.find(s => s.id === 'graphics-team'))}
-
-                    {/* Management */}
-                    {renderSection(teamSections.find(s => s.id === 'pr-team'))}
-
-                </div>
-
-                {/* Footer Sections */}
-                <div className="max-w-7xl mx-auto px-8 pb-20 space-y-8 mt-16">
-                    {/* Contact Us Section */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="p-6 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md hover:bg-white/10 transition-colors">
-                            <Mail className="text-cyan-400 mb-4" size={32} />
-                            <h3 className="text-xl font-bold text-white royal-font mb-2">EMAIL US</h3>
-                            <p className="text-gray-400 text-sm">hello@comet.space</p>
-                        </div>
-                        <div className="p-6 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md hover:bg-white/10 transition-colors">
-                            <Linkedin className="text-blue-400 mb-4" size={32} />
-                            <h3 className="text-xl font-bold text-white royal-font mb-2">LINKEDIN</h3>
-                            <p className="text-gray-400 text-sm">Connect with our professional network</p>
-                        </div>
-                        <div className="p-6 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md hover:bg-white/10 transition-colors">
-                            <Github className="text-purple-400 mb-4" size={32} />
-                            <h3 className="text-xl font-bold text-white royal-font mb-2">GITHUB</h3>
-                            <p className="text-gray-400 text-sm">Explore our open source projects</p>
-                        </div>
+                                {/* Members Grid */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                    {getMembersByYear().map(member => (
+                                        <div key={member.id} className="group glass-panel p-4 rounded-xl hover:bg-card-dark hover:-translate-y-1 transition-all duration-300 border border-white/5 flex flex-col items-center text-center">
+                                            <div className="relative mb-4">
+                                                <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-white/10 group-hover:border-accent-cyan/50 transition-colors shadow-lg">
+                                                    <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
+                                                </div>
+                                                {member.status && (
+                                                    <div className={`absolute bottom-1 right-1 w-3 h-3 rounded-full border-2 border-black ${member.status === 'online' ? 'bg-green-500' : 'bg-gray-500'}`}></div>
+                                                )}
+                                            </div>
+                                            <h3 className="font-display font-bold text-lg text-white mb-1 group-hover:text-accent-cyan transition-colors">{member.name}</h3>
+                                            <p className="text-[10px] text-accent-cyan uppercase tracking-widest font-mono mb-2">{member.role}</p>
+                                            <div className="w-full pt-3 border-t border-white/5 flex justify-between items-center text-xs text-gray-500 font-mono">
+                                                <span>{member.branch}</span>
+                                                <span className="text-gray-400">{member.year}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+                        )}
                     </div>
                 </div>
-            </div>
-
-            {/* Custom Styles */}
-            <style>{`
-                .custom-scrollbar::-webkit-scrollbar {
-                    width: 8px;
-                }
-                
-                .custom-scrollbar::-webkit-scrollbar-track {
-                    background: rgba(255, 255, 255, 0.05);
-                    border-radius: 4px;
-                }
-                
-                .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background: rgba(255, 255, 255, 0.2);
-                    border-radius: 4px;
-                }
-                
-                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                    background: rgba(255, 255, 255, 0.3);
-                }
-
-                /* Hide scrollbar for horizontal carousel */
-                .scrollbar-hide::-webkit-scrollbar {
-                    display: none;
-                }
-                
-                .scrollbar-hide {
-                    -ms-overflow-style: none;
-                    scrollbar-width: none;
-                }
-
-                .royal-font {
-                    font-family: 'Coolvetica', 'Orbitron', sans-serif;
-                }
-
-                /* Snap scroll */
-                .snap-x {
-                    scroll-snap-type: x mandatory;
-                }
-                
-                .snap-start {
-                    scroll-snap-align: start;
-                }
-            `}</style>
+            </main>
         </div>
     );
 };
