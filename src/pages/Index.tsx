@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { SolarSystem2D } from '@/components/SolarSystem2D/SolarSystem2D';
-import { HUD } from '@/components/ui/HUD';
+import { HeadsUpDisplay } from '@/components/ui/HeadsUpDisplay';
 import { Preloader } from '@/components/Preloader';
 
 import { X, Mail, Linkedin, Github, Zap } from 'lucide-react';
@@ -67,7 +67,7 @@ const Index = () => {
         <SolarSystem2D />
 
         {/* HUD Overlay */}
-        <HUD />
+        <HeadsUpDisplay />
       </div>
 
       {/* Spacer to allow scrolling */}

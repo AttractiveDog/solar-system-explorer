@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { SESSION_START_TIME } from '@/utils/sessionTime';
 
-export const HUD = () => {
+export const HeadsUpDisplay = () => {
   const [time, setTime] = useState(0);
 
   useEffect(() => {
