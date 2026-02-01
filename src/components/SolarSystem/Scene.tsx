@@ -7,7 +7,7 @@ import { OrbitPath } from './OrbitPath';
 
 const planets = [
   {
-    name: 'TERRA',
+    name: 'Codex',
     color: '#4a9eff',
     size: 1.2,
     orbitRadius: 15,
@@ -19,7 +19,7 @@ const planets = [
     surfaceDetail: 'rocky' as const,
   },
   {
-    name: 'EMBER',
+    name: 'Cube',
     color: '#ff6b35',
     size: 0.9,
     orbitRadius: 20,
@@ -31,7 +31,7 @@ const planets = [
     surfaceDetail: 'rocky' as const,
   },
   {
-    name: 'AZURE',
+    name: 'Finamics',
     color: '#00d4aa',
     size: 1.8,
     orbitRadius: 26,
@@ -45,7 +45,7 @@ const planets = [
     surfaceDetail: 'gaseous' as const,
   },
   {
-    name: 'PHANTOM-X',
+    name: 'unknown-1',
     color: '#4a1a6b',
     size: 1.4,
     orbitRadius: 33,
@@ -57,7 +57,7 @@ const planets = [
     surfaceDetail: 'mysterious' as const,
   },
   {
-    name: 'VOID-7',
+    name: 'unknown-2',
     color: '#1a1a3a',
     size: 2.2,
     orbitRadius: 42,

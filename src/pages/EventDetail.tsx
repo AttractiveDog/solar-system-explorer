@@ -20,6 +20,12 @@ const EventDetail = () => {
         'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&h=500&fit=crop',  // Tech event 4
     ];
 
+    const organisers = [
+        { name: 'Dr. Sarah Miller', role: 'Event Lead', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop' },
+        { name: 'John Cooper', role: 'Coordinator', image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop' },
+        { name: 'Emma Thompson', role: 'Tech Support', image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop' }
+    ];
+
     const getImageUrl = (url: string) => {
         if (!url) return '';
         if (url.startsWith('http')) return url;
@@ -80,15 +86,7 @@ const EventDetail = () => {
         return timeString;
     };
 
-    const getParticipants = () => {
-        if (!event || !event.participants) return [];
 
-        if (Array.isArray(event.participants)) {
-            // Filter only valid User objects
-            return event.participants.filter(p => typeof p === 'object' && p !== null && '_id' in p) as APIUser[];
-        }
-        return [];
-    };
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -166,8 +164,7 @@ const EventDetail = () => {
         );
     }
 
-    const participants = getParticipants();
-    const participantCount = event.participantCount || participants.length;
+
 
     return (
         <div className="relative w-full h-screen bg-[#050510] font-sans overflow-hidden">
@@ -195,7 +192,7 @@ const EventDetail = () => {
 
 
             {/* Scrollable Content Container */}
-            <div className="relative h-full pt-32 overflow-y-auto overflow-x-hidden scroll-smooth custom-scrollbar">
+            <div className="relative h-full pt-40 overflow-y-auto overflow-x-hidden scroll-smooth custom-scrollbar">
                 {/* Main Content Wrapper - Scaled */}
                 <div className="w-full min-h-full flex items-start justify-center py-6 px-4 md:px-8">
                     <div className="w-full max-w-7xl" style={{ transform: 'scale(0.85)', transformOrigin: 'top center' }}>
@@ -223,26 +220,26 @@ const EventDetail = () => {
                                 {/* Carousel Controls */}
                                 <button
                                     onClick={prevImage}
-                                    className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 backdrop-blur-sm border border-white/20 rounded-full hover:bg-black/70 transition-all opacity-0 group-hover:opacity-100"
+                                    className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black/20 backdrop-blur-xl border border-white/10 rounded-full hover:bg-cyan-500/20 hover:border-cyan-400/50 transition-all duration-300 hover:scale-110 hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] group-hover:opacity-100 z-10 group/btn"
                                 >
-                                    <ChevronLeft size={20} className="text-white" />
+                                    <ChevronLeft size={32} className="text-white/70 group-hover/btn:text-white transition-colors" />
                                 </button>
                                 <button
                                     onClick={nextImage}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 backdrop-blur-sm border border-white/20 rounded-full hover:bg-black/70 transition-all opacity-0 group-hover:opacity-100"
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-black/20 backdrop-blur-xl border border-white/10 rounded-full hover:bg-cyan-500/20 hover:border-cyan-400/50 transition-all duration-300 hover:scale-110 hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] group-hover:opacity-100 z-10 group/btn"
                                 >
-                                    <ChevronRight size={20} className="text-white" />
+                                    <ChevronRight size={32} className="text-white/70 group-hover/btn:text-white transition-colors" />
                                 </button>
 
                                 {/* Image Indicators */}
-                                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
                                     {eventImages.map((_, index) => (
                                         <button
                                             key={index}
                                             onClick={() => setCurrentImageIndex(index)}
-                                            className={`w-1.5 h-1.5 rounded-full transition-all ${index === currentImageIndex
-                                                ? 'bg-cyan-400 w-6'
-                                                : 'bg-white/50 hover:bg-white/70'
+                                            className={`h-3 rounded-full transition-all duration-300 ${index === currentImageIndex
+                                                ? 'bg-cyan-400 w-12 shadow-[0_0_10px_rgba(34,211,238,0.5)]'
+                                                : 'bg-white/40 w-3 hover:bg-white/80 hover:scale-110'
                                                 }`}
                                         />
                                     ))}
@@ -251,167 +248,128 @@ const EventDetail = () => {
                         </div>
 
                         {/* Event Details Grid */}
-                        <div className="grid md:grid-cols-2 gap-4 mb-6">
-                            {/* Left Column - Event Information */}
-                            <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-xl p-4">
-                                <h2 className="text-lg font-display font-bold text-white mb-4 flex items-center gap-2">
-                                    <Calendar className="text-cyan-400" size={20} />
-                                    Event Details
-                                </h2>
-
-                                <div className="space-y-3">
-                                    {/* Date */}
-                                    <div className="flex items-start gap-2">
-                                        <Calendar size={16} className="text-cyan-400 mt-1 flex-shrink-0" />
-                                        <div>
-                                            <div className="text-xs text-gray-400 uppercase tracking-wider mb-0.5">Date</div>
-                                            <div className="text-white text-sm font-medium">{formatDate(event.date)}</div>
-                                        </div>
+                        <div className="grid md:grid-cols-3 gap-6 mb-6">
+                            {/* Left Column (Span 2) - Event Information & Description */}
+                            <div className="md:col-span-2 space-y-6">
+                                {/* Event Details */}
+                                <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-xl p-6 relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 p-4 opacity-10">
+                                        <Calendar size={120} className="text-white" />
                                     </div>
 
-                                    {/* Time */}
-                                    <div className="flex items-start gap-2">
-                                        <Clock size={16} className="text-cyan-400 mt-1 flex-shrink-0" />
-                                        <div>
-                                            <div className="text-xs text-gray-400 uppercase tracking-wider mb-0.5">Time</div>
-                                            <div className="text-white text-sm font-medium">{formatTime(event.time)} ({event.duration} mins)</div>
-                                        </div>
-                                    </div>
+                                    <h2 className="text-xl font-display font-bold text-white mb-6 flex items-center gap-2 relative z-10">
+                                        <Calendar className="text-cyan-400" size={24} />
+                                        Event Overview
+                                    </h2>
 
-                                    {/* Location */}
-                                    <div className="flex items-start gap-2">
-                                        <MapPin size={16} className="text-cyan-400 mt-1 flex-shrink-0" />
-                                        <div>
-                                            <div className="text-xs text-gray-400 uppercase tracking-wider mb-0.5">Location</div>
-                                            <div className="text-white text-sm font-medium capitalize">
+                                    <div className="grid sm:grid-cols-2 gap-6 relative z-10">
+                                        {/* Date */}
+                                        <div className="space-y-1">
+                                            <div className="text-xs text-cyan-400 uppercase tracking-widest font-semibold flex items-center gap-2">
+                                                <Calendar size={12} /> Date
+                                            </div>
+                                            <div className="text-white text-lg font-medium">{formatDate(event.date)}</div>
+                                        </div>
+
+                                        {/* Time */}
+                                        <div className="space-y-1">
+                                            <div className="text-xs text-cyan-400 uppercase tracking-widest font-semibold flex items-center gap-2">
+                                                <Clock size={12} /> Time
+                                            </div>
+                                            <div className="text-white text-lg font-medium">{formatTime(event.time)} ({event.duration} mins)</div>
+                                        </div>
+
+                                        {/* Location */}
+                                        <div className="space-y-1 sm:col-span-2">
+                                            <div className="text-xs text-cyan-400 uppercase tracking-widest font-semibold flex items-center gap-2">
+                                                <MapPin size={12} /> Location
+                                            </div>
+                                            <div className="text-white text-lg font-medium capitalize">
                                                 {event.location}
                                                 {event.venue && ` - ${event.venue}`}
                                             </div>
                                         </div>
-                                    </div>
 
-                                    {/* Meeting Link */}
-                                    {event.meetingLink && (
-                                        <div className="flex items-start gap-2">
-                                            <ExternalLink size={16} className="text-cyan-400 mt-1 flex-shrink-0" />
-                                            <div>
-                                                <div className="text-xs text-gray-400 uppercase tracking-wider mb-0.5">Meeting Link</div>
+                                        {/* Meeting Link - Full Width */}
+                                        {event.meetingLink && (
+                                            <div className="space-y-1 sm:col-span-2">
+                                                <div className="text-xs text-cyan-400 uppercase tracking-widest font-semibold flex items-center gap-2">
+                                                    <ExternalLink size={12} /> Link
+                                                </div>
                                                 <a
                                                     href={event.meetingLink}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="text-cyan-400 hover:text-cyan-300 underline text-sm break-all"
+                                                    className="text-white hover:text-cyan-300 underline text-base break-all transition-colors"
                                                 >
-                                                    Join Meeting
+                                                    {event.meetingLink}
                                                 </a>
                                             </div>
-                                        </div>
-                                    )}
+                                        )}
 
-                                    {/* Participants Count */}
-                                    <div className="flex items-start gap-2">
-                                        <Users size={16} className="text-cyan-400 mt-1 flex-shrink-0" />
-                                        <div>
-                                            <div className="text-xs text-gray-400 uppercase tracking-wider mb-0.5">Participants</div>
-                                            <div className="text-white text-sm font-medium">
-                                                {participantCount} {event.maxParticipants && `/ ${event.maxParticipants}`} registered
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Tags */}
-                                    {event.tags && event.tags.length > 0 && (
-                                        <div className="flex items-start gap-2">
-                                            <Tag size={16} className="text-cyan-400 mt-1 flex-shrink-0" />
-                                            <div className="flex-1">
-                                                <div className="text-xs text-gray-400 uppercase tracking-wider mb-1">Tags</div>
-                                                <div className="flex flex-wrap gap-1">
+                                        {/* Tags */}
+                                        {event.tags && event.tags.length > 0 && (
+                                            <div className="space-y-2 sm:col-span-2 pt-2">
+                                                <div className="text-xs text-gray-400 uppercase tracking-widest font-semibold flex items-center gap-2">
+                                                    <Tag size={12} /> Tags
+                                                </div>
+                                                <div className="flex flex-wrap gap-2">
                                                     {event.tags.map((tag, index) => (
                                                         <span
                                                             key={index}
-                                                            className="px-2 py-0.5 bg-purple-500/20 border border-purple-400/30 rounded-full text-xs text-purple-300"
+                                                            className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-gray-300 uppercase tracking-wider"
                                                         >
                                                             {tag}
                                                         </span>
                                                     ))}
                                                 </div>
                                             </div>
-                                        </div>
-                                    )}
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Description */}
+                                <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-xl p-6">
+                                    <h2 className="text-xl font-display font-bold text-white mb-4">
+                                        About This Event
+                                    </h2>
+                                    <div className="prose prose-invert max-w-none text-gray-300 text-sm leading-relaxed whitespace-pre-line">
+                                        {event.description}
+                                    </div>
                                 </div>
                             </div>
 
-                            {/* Right Column - Description */}
-                            <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-xl p-4">
-                                <h2 className="text-lg font-display font-bold text-white mb-4">
-                                    About This Event
-                                </h2>
-                                <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-line">
-                                    {event.description}
-                                </p>
-                            </div>
-                        </div>
+                            {/* Right Column (Span 1) - Organisers */}
+                            <div className="space-y-6">
+                                <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-xl p-6 h-fit sticky top-6">
+                                    <h2 className="text-lg font-display font-bold text-white mb-4 flex items-center gap-2">
+                                        <Users className="text-purple-400" size={20} />
+                                        Organisers
+                                    </h2>
 
-                        {/* Participants List */}
-                        <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-xl p-4">
-                            <h2 className="text-lg font-display font-bold text-white mb-4 flex items-center gap-2">
-                                <Users className="text-cyan-400" size={20} />
-                                Participants ({participantCount})
-                            </h2>
-
-                            {participants.length > 0 ? (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                                    {participants.map((participant) => (
-                                        <div
-                                            key={participant._id}
-                                            className="bg-white/5 border border-white/10 rounded-lg p-3 hover:bg-white/10 transition-all duration-300 hover:scale-105 group"
-                                        >
-                                            <div className="flex items-center gap-2 overflow-hidden">
-                                                {/* Avatar */}
-                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-purple-500 flex items-center justify-center flex-shrink-0 group-hover:shadow-lg group-hover:shadow-cyan-400/50 transition-all overflow-hidden">
-                                                    {participant.photoURL || participant.avatar ? (
-                                                        <img
-                                                            src={getImageUrl(participant.photoURL || participant.avatar || '')}
-                                                            alt={participant.displayName || participant.username}
-                                                            className="w-full h-full rounded-full object-cover"
-                                                            onError={(e) => {
-                                                                e.currentTarget.style.display = 'none';
-                                                                e.currentTarget.parentElement?.classList.add('fallback-icon-visible');
-                                                            }}
-                                                        />
-                                                    ) : (
-                                                        <User size={20} className="text-white" />
-                                                    )}
-                                                    {/* Fallback Icon (hidden by default, shown if image fails/hidden) */}
-                                                    <User size={20} className="text-white absolute fallback-icon hidden" />
+                                    <div className="space-y-4">
+                                        {organisers.map((org, idx) => (
+                                            <div key={idx} className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors border border-transparent hover:border-white/10">
+                                                <div className="w-12 h-12 rounded-full overflow-hidden border border-white/20">
+                                                    <img src={org.image} alt={org.name} className="w-full h-full object-cover" />
                                                 </div>
-
-                                                {/* User Info */}
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="text-white text-sm font-semibold truncate">
-                                                        {participant.displayName || participant.username}
-                                                    </div>
-                                                    <div className="text-xs text-gray-400 truncate">
-                                                        @{participant.username}
-                                                    </div>
-                                                    {participant.stats && (
-                                                        <div className="text-xs text-cyan-400">
-                                                            {participant.stats.rank}
-                                                        </div>
-                                                    )}
+                                                <div>
+                                                    <h3 className="text-white font-bold text-sm">{org.name}</h3>
+                                                    <p className="text-cyan-400 text-xs uppercase tracking-wider">{org.role}</p>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
+
+                                    {/* Contact Button */}
+                                    <button className="w-full mt-6 py-3 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-500/30 rounded-lg text-cyan-400 font-semibold text-sm hover:bg-white/5 hover:border-cyan-400/50 transition-all uppercase tracking-wider">
+                                        Contact Organisers
+                                    </button>
                                 </div>
-                            ) : (
-                                <div className="text-center py-8">
-                                    <Users size={40} className="text-gray-600 mx-auto mb-3" />
-                                    <p className="text-gray-400 text-base">No participants registered yet</p>
-                                    <p className="text-gray-500 text-sm mt-1">Be the first to join this event!</p>
-                                </div>
-                            )}
+                            </div>
                         </div>
+
+
                     </div>
                 </div>
             </div>

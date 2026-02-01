@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, User, LogOut, Menu } from 'lucide-react';
+import { ArrowLeft, User, LogOut, Menu, Calendar, LayoutDashboard, Trophy, Users, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/UI/button';
 import {
@@ -9,6 +9,7 @@ import {
     SheetHeader,
     SheetTitle,
     SheetTrigger,
+    SheetClose
 } from "@/components/UI/sheet";
 import { toast } from 'sonner';
 import { SESSION_START_TIME } from '@/utils/sessionTime';
@@ -19,6 +20,7 @@ const GlobalHeader = () => {
     const location = useLocation();
     const { user, signOut } = useAuth();
     const isMobile = useIsMobile();
+    const [open, setOpen] = useState(false);
 
     const [missionTime, setMissionTime] = useState('00:00:00');
     const [isScrolled, setIsScrolled] = useState(false);
@@ -52,6 +54,7 @@ const GlobalHeader = () => {
             await signOut();
             toast.success('Signed out successfully');
             navigate('/login');
+            setOpen(false);
         } catch (error) {
             console.error('Sign out error:', error);
             toast.error('Failed to sign out');
@@ -60,9 +63,9 @@ const GlobalHeader = () => {
 
     return (
         <header
-            className={`fixed top-0 left-0 right-0 z-50 flex md:grid md:grid-cols-3 justify-between items-center px-4 md:px-8 py-2 md:py-4 transition-all duration-300 ${isScrolled
-                    ? 'bg-[#050510]/80 backdrop-blur-md border-b border-white/10 h-16 md:h-24'
-                    : 'bg-transparent border-transparent h-20 md:h-28'
+            className={`fixed top-0 left-0 right-0 z-50 flex md:grid md:grid-cols-3 justify-between items-center px-4 md:px-8 py-2 md:py-4 transition-all duration-500 ${isScrolled
+                ? 'bg-[#050510]/80 backdrop-blur-xl border-b border-white/10 h-16 md:h-20 shadow-[0_4px_30px_rgba(0,0,0,0.1)]'
+                : 'bg-[#050510]/40 backdrop-blur-lg border-b border-white/5 h-20 md:h-24'
                 }`}
         >
             {/* Left: Back Button (with spacing for HBTU Logo) */}
@@ -101,29 +104,56 @@ const GlobalHeader = () => {
 
                 {/* Mobile Menu Trigger */}
                 <div className="md:hidden">
-                    <Sheet>
+                    <Sheet open={open} onOpenChange={setOpen}>
                         <SheetTrigger asChild>
                             <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
                                 <Menu className="w-6 h-6" />
                             </Button>
                         </SheetTrigger>
-                        <SheetContent side="right" className="w-[300px] border-white/20 bg-[#050510]/95 backdrop-blur-xl text-white">
-                            <SheetHeader className="mb-8 border-b border-white/10 pb-4">
+                        <SheetContent side="right" className="w-[300px] border-white/20 bg-[#050510]/80 backdrop-blur-xl text-white overflow-y-auto">
+                            <SheetHeader className="mb-6 border-b border-white/10 pb-4">
                                 <SheetTitle className="text-left font-display text-2xl text-white">MISSION CONTROL</SheetTitle>
                             </SheetHeader>
 
                             <div className="flex flex-col gap-6">
                                 {/* Mission Time Mobile */}
-                                <div className="space-y-2">
+                                <div className="space-y-1">
                                     <p className="text-[10px] text-gray-400 font-display tracking-widest uppercase">Mission Time</p>
-                                    <p className="text-3xl font-display text-cyan-400 font-bold tracking-widest tabular-nums drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]">
+                                    <p className="text-2xl font-display text-cyan-400 font-bold tracking-widest tabular-nums drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]">
                                         {missionTime}
                                     </p>
                                 </div>
 
+                                {/* Navigation Links - NEW SECTION */}
+                                <div className="space-y-3">
+                                    <p className="text-[10px] text-gray-400 font-display tracking-widest uppercase">Navigation</p>
+                                    <div className="flex flex-col gap-2">
+                                        {[
+                                            { label: "DASHBOARD", icon: LayoutDashboard, path: "/dashboard", color: "text-amber-500" },
+                                            { label: "EVENTS", icon: Calendar, path: "/events", color: "text-orange-500" },
+                                            { label: "PROFILE", icon: User, path: "/profile", color: "text-yellow-600" },
+                                            { label: "TEAM", icon: Users, path: "/team", color: "text-red-400" },
+                                            { label: "LEADERBOARD", icon: Trophy, path: "/leaderboard", color: "text-orange-600" },
+                                        ].map((item) => (
+                                            <button
+                                                key={item.label}
+                                                onClick={() => {
+                                                    navigate(item.path);
+                                                    setOpen(false);
+                                                }}
+                                                className="flex items-center gap-3 p-3 rounded-lg border border-white/5 bg-white/5 hover:bg-white/10 active:scale-95 transition-all text-left"
+                                            >
+                                                <item.icon size={18} className={item.color} />
+                                                <span className="text-sm font-bold tracking-wider text-white flex-1">{item.label}</span>
+                                                <ChevronRight size={16} className="text-white/30" />
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
                                 {/* User Section Mobile */}
                                 {user ? (
-                                    <div className="space-y-4">
+                                    <div className="space-y-4 pt-4 border-t border-white/10">
                                         <div className="flex items-center gap-3 p-3 rounded-lg border border-white/10 bg-white/5">
                                             <div className="w-10 h-10 rounded-full overflow-hidden border border-white/20 bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
                                                 {user.photoURL ? (
@@ -132,7 +162,7 @@ const GlobalHeader = () => {
                                                     <User className="w-5 h-5 text-white" />
                                                 )}
                                             </div>
-                                            <div className="flex-1">
+                                            <div className="flex-1 overflow-hidden">
                                                 <p className="text-sm font-bold text-white truncate">{user.displayName || 'Astronaut'}</p>
                                                 <p className="text-xs text-gray-400 truncate">{user.email}</p>
                                             </div>
@@ -148,12 +178,12 @@ const GlobalHeader = () => {
                                         </Button>
                                     </div>
                                 ) : (
-                                    <Button onClick={() => navigate('/login')} className="w-full">
+                                    <Button onClick={() => { navigate('/login'); setOpen(false); }} className="w-full mt-4">
                                         Sign In
                                     </Button>
                                 )}
 
-                                <div className="mt-auto pt-8">
+                                <div className="mt-auto pt-4 pb-8">
                                     <div className="w-full p-4 rounded border border-white/20 bg-black/50 text-center">
                                         <span className="text-xs font-bold text-gray-500">ORG ACCESS</span>
                                     </div>

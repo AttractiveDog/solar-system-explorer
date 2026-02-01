@@ -124,10 +124,10 @@ const Leaderboard = () => {
                                         </div>
                                         <div className="col-span-2 flex justify-center">
                                             <span className={`px-2 py-1 rounded-full text-xs font-bold bg-white/10 border border-white/10 
-                                                ${student.club === 'TERRA' ? 'text-blue-400 border-blue-400/30 bg-blue-400/10' :
-                                                    student.club === 'EMBER' ? 'text-red-400 border-red-400/30 bg-red-400/10' :
-                                                        student.club === 'AZURE' ? 'text-cyan-400 border-cyan-400/30 bg-cyan-400/10' :
-                                                            student.club === 'PHANTOM-X' ? 'text-amber-400 border-amber-400/30 bg-amber-400/10' :
+                                                ${student.club === 'Codex' ? 'text-blue-400 border-blue-400/30 bg-blue-400/10' :
+                                                    student.club === 'Cube' ? 'text-red-400 border-red-400/30 bg-red-400/10' :
+                                                        student.club === 'Finamics' ? 'text-cyan-400 border-cyan-400/30 bg-cyan-400/10' :
+                                                            student.club === 'unknown-1' ? 'text-amber-400 border-amber-400/30 bg-amber-400/10' :
                                                                 'text-purple-400 border-purple-400/30 bg-purple-400/10'}`}>
                                                 {student.club}
                                             </span>

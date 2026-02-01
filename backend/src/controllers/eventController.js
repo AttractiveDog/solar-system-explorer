@@ -6,11 +6,13 @@ import User from '../models/User.js';
 // @access  Public
 export const getEvents = async (req, res) => {
   try {
-    const { status, club } = req.query;
+    const { status, club, category, type } = req.query;
     const filter = {};
 
     if (status) filter.status = status;
     if (club) filter.club = club;
+    if (category) filter.category = category;
+    if (type) filter.type = type;
 
     const events = await Event.find(filter)
       .populate('club', 'name icon color')
@@ -253,3 +255,46 @@ export const getUpcomingEvents = async (req, res) => {
     });
   }
 };
+
+// @desc    Get all available categories
+// @route   GET /api/v1/events/categories
+// @access  Public
+export const getCategories = async (req, res) => {
+  try {
+    const categories = await Event.distinct('category');
+
+    res.status(200).json({
+      success: true,
+      count: categories.length,
+      data: categories,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching categories',
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Get all available types
+// @route   GET /api/v1/events/types
+// @access  Public
+export const getTypes = async (req, res) => {
+  try {
+    const types = await Event.distinct('type');
+
+    res.status(200).json({
+      success: true,
+      count: types.length,
+      data: types,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching types',
+      error: error.message,
+    });
+  }
+};
+

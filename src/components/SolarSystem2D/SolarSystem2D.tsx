@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 const planets = [
   {
-    name: 'TERRA',
+    name: 'Codex',
     color: 'hsl(200, 80%, 55%)',      // Blue ocean
     glowColor: 'hsl(200, 90%, 60%)',  // Blue glow
     size: 180,
@@ -17,7 +17,7 @@ const planets = [
     delay: 0, // Starts at 0
   },
   {
-    name: 'EMBER',
+    name: 'Cube',
     color: 'hsl(15, 85%, 45%)',       // Mars red-orange
     glowColor: 'hsl(20, 100%, 55%)',  // Orange-red glow
     size: 160,
@@ -29,7 +29,7 @@ const planets = [
     delay: -18, // Start almost halfway opposite
   },
   {
-    name: 'AZURE',
+    name: 'Finamics',
     color: 'hsl(220, 80%, 50%)',      // Deep blue
     glowColor: 'hsl(210, 100%, 60%)', // Blue glow
     size: 200,
@@ -41,7 +41,7 @@ const planets = [
     delay: -12, // Start slightly offset
   },
   {
-    name: 'PHANTOM-X',
+    name: 'unknown-1',
     color: 'hsl(35, 50%, 55%)',       // Tan/Jupiter bands
     glowColor: 'hsl(30, 80%, 60%)',   // Warm tan-orange glow
     size: 120,
@@ -53,7 +53,7 @@ const planets = [
     delay: -40, // Far offset
   },
   {
-    name: 'VOID-7',
+    name: 'unknown-2',
     color: 'hsl(45, 40%, 50%)',       // Saturn gold/tan
     glowColor: 'hsl(45, 70%, 55%)',   // Golden glow
     size: 90,
@@ -356,12 +356,12 @@ const Planet = ({
   const animationName = `ellipseOrbit-${index}`;
 
   // Calculate keyframe positions for smooth elliptical motion
-  // For TERRA (index 0), add delay AFTER going off-screen (not while visible)
+  // For CODE CONSTELLATION (index 0), add delay AFTER going off-screen (not while visible)
   const generateKeyframes = () => {
     const steps = 36;
     let keyframes = '@keyframes ' + animationName + ' {\n';
 
-    // For TERRA: full visible orbit 0-85%, then off-screen pause 85-100%
+    // For CODE CONSTELLATION: full visible orbit 0-85%, then off-screen pause 85-100%
     const orbitEndPercent = index === 0 ? 85 : 100;
 
     for (let i = 0; i <= steps; i++) {
@@ -384,7 +384,7 @@ const Planet = ({
       keyframes += `  }\n`;
     }
 
-    // For TERRA, continue past visible area then pause OFF-SCREEN
+    // For CODE CONSTELLATION, continue past visible area then pause OFF-SCREEN
     if (index === 0) {
       // Continue the orbit curve beyond visible area (going right and down)
       const offAngle1 = -20 * (Math.PI / 180); // Past 0 degrees

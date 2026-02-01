@@ -8,6 +8,8 @@ import {
   registerForEvent,
   unregisterFromEvent,
   getUpcomingEvents,
+  getCategories,
+  getTypes,
 } from '../controllers/eventController.js';
 
 const router = express.Router();
@@ -18,6 +20,12 @@ router.route('/')
 
 router.route('/upcoming')
   .get(getUpcomingEvents);
+
+router.route('/categories')
+  .get(getCategories);
+
+router.route('/types')
+  .get(getTypes);
 
 router.route('/:id')
   .get(getEvent)

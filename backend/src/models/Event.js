@@ -51,6 +51,16 @@ const eventSchema = new mongoose.Schema({
     // URLs or paths to the images
   }],
   tags: [String],
+  category: {
+    type: String,
+    enum: ['discovery', 'mission', 'alert', 'system', 'achievement'],
+    default: 'system',
+  },
+  type: {
+    type: String,
+    enum: ['major', 'micro'],
+    default: 'major',
+  },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -61,7 +71,7 @@ const eventSchema = new mongoose.Schema({
 });
 
 // Virtual for participant count
-eventSchema.virtual('participantCount').get(function() {
+eventSchema.virtual('participantCount').get(function () {
   return this.participants ? this.participants.length : 0;
 });
 

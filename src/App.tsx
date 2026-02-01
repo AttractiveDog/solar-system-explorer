@@ -39,13 +39,18 @@ const App = () => (
         <Sonner />
 
         {/* University Logo - Moved to top left */}
-        <div className="fixed top-3 left-3 md:top-4 md:left-6 z-[2000] w-14 md:w-16 opacity-90 hover:opacity-100 transition-opacity pointer-events-none mix-blend-screen">
+        <a
+          href="https://hbtu.ac.in/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="fixed top-3 left-3 md:top-3 md:left-3 z-[2000] w-14 md:w-16 opacity-90 hover:opacity-100 transition-opacity block"
+        >
           <img
-            src="/hbtu-logo.png"
+            src="/hbtu-logo-final.png"
             alt="HBTU Logo"
-            className="w-full h-full object-contain filter invert"
+            className="w-full h-full object-contain"
           />
-        </div>
+        </a>
 
         <BrowserRouter>
           <NavbarWrapper />

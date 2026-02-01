@@ -145,6 +145,12 @@ export const eventAPI = {
     method: 'POST',
     body: JSON.stringify({ userId }),
   }),
+
+  // Get available categories
+  getCategories: () => apiRequest('/events/categories'),
+
+  // Get available types
+  getTypes: () => apiRequest('/events/types'),
 };
 
 // Achievement API

@@ -29,7 +29,7 @@ interface TeamMember {
 }
 
 const Team = () => {
-    const [activeMainTab, setActiveMainTab] = useState<'founders' | 'convenors' | 'team' | 'members'>('founders');
+    const [activeMainTab, setActiveMainTab] = useState<'founders' | 'mentor' | 'college-support' | 'structure' | 'members'>('founders');
     const [activeSubTab, setActiveSubTab] = useState<'core-team' | 'graphics' | 'management'>('core-team');
     const [activeMemberYear, setActiveMemberYear] = useState<'1st' | '2nd' | '3rd' | '4th'>('1st');
 
@@ -37,55 +37,64 @@ const Team = () => {
     const founders: TeamMember[] = [
         {
             id: 'f1',
-            name: 'Alex Stellar',
-            role: 'Co-Founder & CEO',
-            image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400',
-            branch: 'Computer Science',
+            name: 'Aarush Singh',
+            role: 'Founder',
+            image: '',
+            branch: 'Food Technology',
             year: 'Final Year'
         },
         {
             id: 'f2',
-            name: 'Nova Chen',
-            role: 'Co-Founder & CTO',
-            image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400',
-            branch: 'Computer Science',
+            name: 'Mahim Gupta',
+            role: 'Co-Founder',
+            image: '',
+            branch: 'Computer Science Engineering',
             year: 'Final Year'
         },
         {
             id: 'f3',
-            name: 'Orion Blake',
-            role: 'Co-Founder & COO',
-            image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=400',
-            branch: 'Business Admin',
+            name: 'Shashwat Shukla',
+            role: 'Co-Founder',
+            image: '',
+            branch: 'Food Technology',
             year: 'Final Year'
         }
     ];
 
-    const convenors: TeamMember[] = [
+    const mentors: TeamMember[] = [
         {
             id: 'm1',
-            name: 'Dr. Cassiopeia Ray',
-            role: 'H.O.D. Faculty',
-            image: 'https://images.unsplash.com/photo-1573496799652-408c2ac9fe98?auto=format&fit=crop&q=80&w=400',
+            name: '__',
+            role: '__',
+            image: '',
             branch: 'AI & ML',
             year: 'Faculty'
         },
         {
             id: 'm2',
-            name: 'Prof. Atlas Storm',
+            name: '',
             role: 'Entrepreneurship Faculty',
-            image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400',
+            image: '',
             branch: 'Entrepreneurship',
             year: 'Faculty'
         },
         {
             id: 'm3',
-            name: 'Dr. Vega Anderson',
+            name: '--',
             role: 'Dean',
-            image: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=400',
+            image: '--',
             branch: 'Administration',
             year: 'Dean'
         }
+    ];
+
+    const collegeSupport: TeamMember[] = [
+        {
+            id: 'cs1',
+            name: 'Mr Vipul Kumar',
+            role: 'TSC Convener',
+            image: '',
+        },
     ];
 
     const coreTeam: TeamMember[] = [
@@ -255,18 +264,25 @@ const Team = () => {
                             <span>Founders</span>
                         </button>
                         <button
-                            className={`px-6 py-2.5 rounded-full flex items-center gap-2 text-sm font-medium transition-all duration-300 ${activeMainTab === 'team' ? 'bg-accent-cyan text-black shadow-[0_0_20px_rgba(6,182,212,0.3)]' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
-                            onClick={() => setActiveMainTab('team')}
+                            className={`px-6 py-2.5 rounded-full flex items-center gap-2 text-sm font-medium transition-all duration-300 ${activeMainTab === 'mentor' ? 'bg-accent-cyan text-black shadow-[0_0_20px_rgba(6,182,212,0.3)]' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                            onClick={() => setActiveMainTab('mentor')}
+                        >
+                            <GraduationCap className="w-4 h-4" />
+                            <span>Mentor</span>
+                        </button>
+                        <button
+                            className={`px-6 py-2.5 rounded-full flex items-center gap-2 text-sm font-medium transition-all duration-300 ${activeMainTab === 'college-support' ? 'bg-accent-cyan text-black shadow-[0_0_20px_rgba(6,182,212,0.3)]' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                            onClick={() => setActiveMainTab('college-support')}
+                        >
+                            <UserCog className="w-4 h-4" />
+                            <span>College Support</span>
+                        </button>
+                        <button
+                            className={`px-6 py-2.5 rounded-full flex items-center gap-2 text-sm font-medium transition-all duration-300 ${activeMainTab === 'structure' ? 'bg-accent-cyan text-black shadow-[0_0_20px_rgba(6,182,212,0.3)]' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                            onClick={() => setActiveMainTab('structure')}
                         >
                             <Users className="w-4 h-4" />
                             <span>Structure</span>
-                        </button>
-                        <button
-                            className={`px-6 py-2.5 rounded-full flex items-center gap-2 text-sm font-medium transition-all duration-300 ${activeMainTab === 'convenors' ? 'bg-accent-cyan text-black shadow-[0_0_20px_rgba(6,182,212,0.3)]' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
-                            onClick={() => setActiveMainTab('convenors')}
-                        >
-                            <GraduationCap className="w-4 h-4" />
-                            <span>Convenors</span>
                         </button>
                         <button
                             className={`px-6 py-2.5 rounded-full flex items-center gap-2 text-sm font-medium transition-all duration-300 ${activeMainTab === 'members' ? 'bg-accent-cyan text-black shadow-[0_0_20px_rgba(6,182,212,0.3)]' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
@@ -280,7 +296,7 @@ const Team = () => {
 
                 <div className="flex flex-col lg:flex-row gap-8 xl:gap-12 min-h-[500px]">
                     {/* Sidebar / Sub-Navigation - Only show for Structure */}
-                    {activeMainTab === 'team' && (
+                    {activeMainTab === 'structure' && (
                         <div className="w-full lg:w-72 flex-shrink-0 animate-fade-in-left">
                             <div className="sticky top-32 glass-panel p-3 rounded-2xl border border-white/10">
                                 <div className="px-4 py-3 text-[10px] uppercase tracking-[0.2em] text-gray-500 font-display font-bold">Departments</div>
@@ -310,8 +326,8 @@ const Team = () => {
 
                     {/* Content Area */}
                     <div className="flex-1 w-full">
-                        {/* TEAM > Core Team */}
-                        {activeMainTab === 'team' && activeSubTab === 'core-team' && (
+                        {/* STRUCTURE > Core Team */}
+                        {activeMainTab === 'structure' && activeSubTab === 'core-team' && (
                             <section className="animate-fade-in grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                                 {coreTeam.map(member => (
                                     <div key={member.id} className="group glass-panel p-1 rounded-2xl hover:bg-card-dark hover:-translate-y-1 transition-all duration-300 border border-white/5">
@@ -338,8 +354,8 @@ const Team = () => {
                             </section>
                         )}
 
-                        {/* TEAM > Graphics */}
-                        {activeMainTab === 'team' && activeSubTab === 'graphics' && (
+                        {/* STRUCTURE > Graphics */}
+                        {activeMainTab === 'structure' && activeSubTab === 'graphics' && (
                             <section className="animate-fade-in grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                                 {graphicsTeam.map(member => (
                                     <div key={member.id} className="group glass-panel p-1 rounded-2xl hover:bg-card-dark hover:-translate-y-1 transition-all duration-300 border border-white/5">
@@ -357,8 +373,8 @@ const Team = () => {
                             </section>
                         )}
 
-                        {/* TEAM > Management */}
-                        {activeMainTab === 'team' && activeSubTab === 'management' && (
+                        {/* STRUCTURE > Management */}
+                        {activeMainTab === 'structure' && activeSubTab === 'management' && (
                             <section className="animate-fade-in grid grid-cols-1 md:grid-cols-2 gap-8">
                                 {managementTeam.map(member => (
                                     <div key={member.id} className="group glass-panel p-8 rounded-2xl border-l-4 border-l-accent-purple hover:bg-card-dark hover:translate-x-1 transition-all duration-300 flex items-center gap-6">
@@ -407,10 +423,10 @@ const Team = () => {
                             </section>
                         )}
 
-                        {/* CONVENORS - Grid */}
-                        {activeMainTab === 'convenors' && (
+                        {/* MENTOR - Grid */}
+                        {activeMainTab === 'mentor' && (
                             <section className="animate-fade-in max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                {convenors.map(member => (
+                                {mentors.map(member => (
                                     <div key={member.id} className="flex flex-col sm:flex-row items-center sm:items-start gap-8 p-8 glass-panel rounded-3xl hover:bg-white/[0.02] border border-white/5 hover:border-white/10 transition-all duration-300 hover:-translate-y-1">
                                         <div className="w-32 h-32 flex-shrink-0 rounded-2xl overflow-hidden shadow-2xl border border-white/10">
                                             <img className="w-full h-full object-cover" src={member.image} alt={member.name} />
@@ -419,6 +435,24 @@ const Team = () => {
                                             <h3 className="font-display font-bold text-2xl text-white tracking-wide mb-1">{member.name}</h3>
                                             <p className="text-xs text-accent-purple font-mono uppercase tracking-[0.15em] mb-4">{member.role}</p>
                                             <p className="text-sm text-gray-400 italic leading-relaxed border-l-2 border-white/10 pl-4">"Innovation is the bridge between the present and the future of space exploration."</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </section>
+                        )}
+
+                        {/* COLLEGE SUPPORT - Grid */}
+                        {activeMainTab === 'college-support' && (
+                            <section className="animate-fade-in max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                {collegeSupport.map(member => (
+                                    <div key={member.id} className="flex flex-col sm:flex-row items-center sm:items-start gap-8 p-8 glass-panel rounded-3xl hover:bg-white/[0.02] border border-white/5 hover:border-white/10 transition-all duration-300 hover:-translate-y-1">
+                                        <div className="w-32 h-32 flex-shrink-0 rounded-2xl overflow-hidden shadow-2xl border border-white/10">
+                                            <img className="w-full h-full object-cover" src={member.image} alt={member.name} />
+                                        </div>
+                                        <div className="text-center sm:text-left">
+                                            <h3 className="font-display font-bold text-2xl text-white tracking-wide mb-1">{member.name}</h3>
+                                            <p className="text-xs text-accent-cyan font-mono uppercase tracking-[0.15em] mb-4">{member.role}</p>
+                                            <p className="text-sm text-gray-400 italic leading-relaxed border-l-2 border-white/10 pl-4">"Supporting excellence in education and innovation."</p>
                                         </div>
                                     </div>
                                 ))}

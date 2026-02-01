@@ -192,8 +192,8 @@ const AboutPage = () => {
                             <button
                                 onClick={() => setActiveTab('website')}
                                 className={`px-6 py-3 rounded-lg font-semibold transition-all duration-300 whitespace-nowrap ${activeTab === 'website'
-                                        ? 'bg-gradient-to-r from-cyan-500 to-purple-600 text-white shadow-lg shadow-cyan-500/50'
-                                        : 'text-gray-400 hover:text-white hover:bg-slate-800/50'
+                                    ? 'bg-gradient-to-r from-cyan-500 to-purple-600 text-white shadow-lg shadow-cyan-500/50'
+                                    : 'text-gray-400 hover:text-white hover:bg-slate-800/50'
                                     }`}
                             >
                                 Website Team
@@ -201,8 +201,8 @@ const AboutPage = () => {
                             <button
                                 onClick={() => setActiveTab('events')}
                                 className={`px-6 py-3 rounded-lg font-semibold transition-all duration-300 whitespace-nowrap ${activeTab === 'events'
-                                        ? 'bg-gradient-to-r from-cyan-500 to-purple-600 text-white shadow-lg shadow-cyan-500/50'
-                                        : 'text-gray-400 hover:text-white hover:bg-slate-800/50'
+                                    ? 'bg-gradient-to-r from-cyan-500 to-purple-600 text-white shadow-lg shadow-cyan-500/50'
+                                    : 'text-gray-400 hover:text-white hover:bg-slate-800/50'
                                     }`}
                             >
                                 Event Team
@@ -210,8 +210,8 @@ const AboutPage = () => {
                             <button
                                 onClick={() => setActiveTab('members')}
                                 className={`px-6 py-3 rounded-lg font-semibold transition-all duration-300 whitespace-nowrap ${activeTab === 'members'
-                                        ? 'bg-gradient-to-r from-cyan-500 to-purple-600 text-white shadow-lg shadow-cyan-500/50'
-                                        : 'text-gray-400 hover:text-white hover:bg-slate-800/50'
+                                    ? 'bg-gradient-to-r from-cyan-500 to-purple-600 text-white shadow-lg shadow-cyan-500/50'
+                                    : 'text-gray-400 hover:text-white hover:bg-slate-800/50'
                                     }`}
                             >
                                 Club Members
@@ -228,8 +228,8 @@ const AboutPage = () => {
                                         key={year}
                                         onClick={() => setSelectedYear(year)}
                                         className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${selectedYear === year
-                                                ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg'
-                                                : 'text-gray-400 hover:text-white hover:bg-slate-800/50'
+                                            ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg'
+                                            : 'text-gray-400 hover:text-white hover:bg-slate-800/50'
                                             }`}
                                     >
                                         {index + 1}{index === 0 ? 'st' : index === 1 ? 'nd' : index === 2 ? 'rd' : 'th'} Year

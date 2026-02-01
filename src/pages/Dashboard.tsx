@@ -32,7 +32,7 @@ const Dashboard = () => {
     // Planet Schemes matching Landing Page Order
     const planetSchemes = [
         {
-            // TERRA (Earth-like)
+            // CODE CONSTELLATION (Earth-like)
             planetColor: 'from-blue-400 to-blue-600',
             color: 'hsl(210, 100%, 65%)',
             glowColor: 'hsl(210, 100%, 70%)',
@@ -41,7 +41,7 @@ const Dashboard = () => {
             texture: '/planet-terra.png'
         },
         {
-            // EMBER (Red-Orange)
+            // DESIGN NEBULA (Red-Orange)
             planetColor: 'from-orange-500 to-red-600',
             color: 'hsl(15, 100%, 50%)',
             glowColor: 'hsl(15, 100%, 60%)',
@@ -50,7 +50,7 @@ const Dashboard = () => {
             texture: '/planet-ember.jpg'
         },
         {
-            // AZURE (Deep Blue)
+            // DATA GALAXY (Deep Blue)
             planetColor: 'from-blue-600 to-indigo-600',
             color: 'hsl(220, 80%, 50%)',
             glowColor: 'hsl(210, 100%, 60%)',
@@ -59,7 +59,7 @@ const Dashboard = () => {
             texture: '/planet-azure.jpg'
         },
         {
-            // PHANTOM-X (Tan/Orange)
+            // BUSINESS ORBIT (Tan/Orange)
             planetColor: 'from-amber-400 to-orange-500',
             color: 'hsl(35, 90%, 55%)',
             glowColor: 'hsl(35, 100%, 60%)',

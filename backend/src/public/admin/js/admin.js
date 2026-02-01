@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function checkAuthStatus() {
     const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
     const adminUsername = localStorage.getItem('adminUsername');
-    
+
     if (isLoggedIn && adminUsername) {
         state.isLoggedIn = true;
         state.adminUsername = adminUsername;
@@ -54,10 +54,10 @@ function checkAuthStatus() {
 function setupEventListeners() {
     loginForm.addEventListener('submit', handleLogin);
     logoutBtn.addEventListener('click', handleLogout);
-    if(addClubBtn) addClubBtn.addEventListener('click', showAddClubModal);
-    if(addEventBtn) addEventBtn.addEventListener('click', showAddEventModal);
-    if(addAllowedEmailBtn) addAllowedEmailBtn.addEventListener('click', showAddAllowedEmailModal);
-    
+    if (addClubBtn) addClubBtn.addEventListener('click', showAddClubModal);
+    if (addEventBtn) addEventBtn.addEventListener('click', showAddEventModal);
+    if (addAllowedEmailBtn) addAllowedEmailBtn.addEventListener('click', showAddAllowedEmailModal);
+
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
@@ -70,7 +70,7 @@ function setupEventListeners() {
     modalClose.addEventListener('click', () => {
         editModal.style.display = 'none';
     });
-    
+
     window.addEventListener('click', (e) => {
         if (e.target === editModal) {
             editModal.style.display = 'none';
@@ -118,14 +118,14 @@ function setupEventListeners() {
 // Handle Login
 async function handleLogin(e) {
     e.preventDefault();
-    
+
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
-    
+
     // Show loading state
     showButtonLoading(loginBtn, true);
     hideError();
-    
+
     try {
         const response = await fetch(`${API_BASE_URL}/admin/login`, {
             method: 'POST',
@@ -134,17 +134,17 @@ async function handleLogin(e) {
             },
             body: JSON.stringify({ username, password }),
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             state.isLoggedIn = true;
             state.adminUsername = data.data.username;
-            
+
             // Save to localStorage
             localStorage.setItem('adminLoggedIn', 'true');
             localStorage.setItem('adminUsername', data.data.username);
-            
+
             showDashboard();
         } else {
             showError(data.message || 'Login failed');
@@ -161,13 +161,13 @@ async function handleLogin(e) {
 function handleLogout() {
     state.isLoggedIn = false;
     state.adminUsername = '';
-    
+
     localStorage.removeItem('adminLoggedIn');
     localStorage.removeItem('adminUsername');
-    
+
     loginScreen.style.display = 'flex';
     adminDashboard.style.display = 'none';
-    
+
     loginForm.reset();
 }
 
@@ -175,16 +175,16 @@ function handleLogout() {
 function showDashboard() {
     loginScreen.style.display = 'none';
     adminDashboard.style.display = 'flex';
-    
+
     adminUsernameEl.textContent = state.adminUsername;
-    
+
     loadDashboardStats();
 }
 
 // Switch Section
 function switchSection(section) {
     state.currentSection = section;
-    
+
     // Update navigation
     navLinks.forEach(link => {
         if (link.dataset.section === section) {
@@ -193,7 +193,7 @@ function switchSection(section) {
             link.classList.remove('active');
         }
     });
-    
+
     // Update sections
     sections.forEach(sec => {
         if (sec.id === `${section}Section`) {
@@ -202,7 +202,7 @@ function switchSection(section) {
             sec.classList.remove('active');
         }
     });
-    
+
     // Update title
     const titles = {
         dashboard: 'Dashboard',
@@ -212,7 +212,7 @@ function switchSection(section) {
         'allowed-emails': 'Allowed Emails Management',
     };
     sectionTitle.textContent = titles[section] || section;
-    
+
     // Load section data
     if (section === 'dashboard') {
         loadDashboardStats();
@@ -232,7 +232,7 @@ async function loadDashboardStats() {
     try {
         const response = await fetch(`${API_BASE_URL}/admin/stats`);
         const data = await response.json();
-        
+
         if (data.success) {
             document.getElementById('totalUsers').textContent = data.data.totalUsers;
             document.getElementById('totalClubs').textContent = data.data.totalClubs;
@@ -248,11 +248,11 @@ async function loadDashboardStats() {
 async function loadUsers(page = 1) {
     const tbody = document.getElementById('usersTableBody');
     tbody.innerHTML = '<tr><td colspan="6" class="loading">Loading...</td></tr>';
-    
+
     try {
         const response = await fetch(`${API_BASE_URL}/admin/users?page=${page}&limit=10`);
         const data = await response.json();
-        
+
         if (data.success && data.data.length > 0) {
             tbody.innerHTML = data.data.map(user => `
                 <tr>
@@ -269,7 +269,7 @@ async function loadUsers(page = 1) {
                     </td>
                 </tr>
             `).join('');
-            
+
             renderPagination('users', data.page, data.pages);
         } else {
             tbody.innerHTML = '<tr><td colspan="6" class="loading">No users found</td></tr>';
@@ -284,11 +284,11 @@ async function loadUsers(page = 1) {
 async function loadClubs(page = 1) {
     const tbody = document.getElementById('clubsTableBody');
     tbody.innerHTML = '<tr><td colspan="5" class="loading">Loading...</td></tr>';
-    
+
     try {
         const response = await fetch(`${API_BASE_URL}/admin/clubs?page=${page}&limit=10`);
         const data = await response.json();
-        
+
         if (data.success && data.data.length > 0) {
             tbody.innerHTML = data.data.map(club => `
                 <tr>
@@ -304,7 +304,7 @@ async function loadClubs(page = 1) {
                     </td>
                 </tr>
             `).join('');
-            
+
             renderPagination('clubs', data.page, data.pages);
         } else {
             tbody.innerHTML = '<tr><td colspan="5" class="loading">No clubs found</td></tr>';
@@ -319,11 +319,11 @@ async function loadClubs(page = 1) {
 async function loadEvents(page = 1) {
     const tbody = document.getElementById('eventsTableBody');
     tbody.innerHTML = '<tr><td colspan="6" class="loading">Loading...</td></tr>';
-    
+
     try {
         const response = await fetch(`${API_BASE_URL}/admin/events?page=${page}&limit=10`);
         const data = await response.json();
-        
+
         if (data.success && data.data.length > 0) {
             tbody.innerHTML = data.data.map(event => `
                 <tr>
@@ -340,7 +340,7 @@ async function loadEvents(page = 1) {
                     </td>
                 </tr>
             `).join('');
-            
+
             renderPagination('events', data.page, data.pages);
         } else {
             tbody.innerHTML = '<tr><td colspan="6" class="loading">No events found</td></tr>';
@@ -354,14 +354,14 @@ async function loadEvents(page = 1) {
 // Delete Functions
 async function deleteUser(id) {
     if (!confirm('Are you sure you want to delete this user?')) return;
-    
+
     try {
         const response = await fetch(`${API_BASE_URL}/admin/users/${id}`, {
             method: 'DELETE',
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             alert('User deleted successfully');
             loadUsers(state.currentPage.users);
@@ -377,14 +377,14 @@ async function deleteUser(id) {
 
 async function deleteClub(id) {
     if (!confirm('Are you sure you want to delete this club?')) return;
-    
+
     try {
         const response = await fetch(`${API_BASE_URL}/admin/clubs/${id}`, {
             method: 'DELETE',
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             alert('Club deleted successfully');
             loadClubs(state.currentPage.clubs);
@@ -400,14 +400,14 @@ async function deleteClub(id) {
 
 async function deleteEvent(id) {
     if (!confirm('Are you sure you want to delete this event?')) return;
-    
+
     try {
         const response = await fetch(`${API_BASE_URL}/admin/events/${id}`, {
             method: 'DELETE',
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             alert('Event deleted successfully');
             loadEvents(state.currentPage.events);
@@ -467,7 +467,7 @@ async function editUser(id) {
                     </div>
                 </form>
             `;
-            
+
             editModal.style.display = 'block';
 
             // Handle form submission
@@ -497,9 +497,9 @@ async function editUser(id) {
                         },
                         body: JSON.stringify(formData)
                     });
-                    
+
                     const updateData = await updateResponse.json();
-                    
+
                     if (updateData.success) {
                         alert('User updated successfully');
                         editModal.style.display = 'none';
@@ -533,7 +533,7 @@ async function editClub(id) {
         if (!clubData.success) {
             throw new Error(clubData.message || 'Failed to fetch club details');
         }
-        
+
         const club = clubData.data;
 
         // Fetch users for owner selection
@@ -542,7 +542,7 @@ async function editClub(id) {
             const usersReponse = await fetch(`${API_BASE_URL}/admin/users?limit=100`);
             const usersData = await usersReponse.json();
             if (usersData.success) {
-                usersOptions += usersData.data.map(u => 
+                usersOptions += usersData.data.map(u =>
                     `<option value="${u._id}" ${club.createdBy?._id === u._id ? 'selected' : ''}>${u.username} (${u.email})</option>`
                 ).join('');
             }
@@ -605,7 +605,7 @@ async function editClub(id) {
                 </div>
             </form>
         `;
-        
+
         editModal.style.display = 'block';
 
         // Handle form submission
@@ -634,9 +634,9 @@ async function editClub(id) {
                     },
                     body: JSON.stringify(formData)
                 });
-                
+
                 const updateData = await updateResponse.json();
-                
+
                 if (updateData.success) {
                     alert('Club updated successfully');
                     editModal.style.display = 'none';
@@ -669,7 +669,7 @@ async function editEvent(id) {
         if (!eventData.success) {
             throw new Error(eventData.message || 'Failed to fetch event details');
         }
-        
+
         const event = eventData.data;
 
         // Fetch clubs for selection
@@ -677,9 +677,9 @@ async function editEvent(id) {
         try {
             const clubsRes = await fetch(`${API_BASE_URL}/admin/clubs?limit=100`);
             const clubsData = await clubsRes.json();
-            
+
             if (clubsData.success) {
-                clubsOptions += clubsData.data.map(c => 
+                clubsOptions += clubsData.data.map(c =>
                     `<option value="${c._id}" ${event.club?._id === c._id ? 'selected' : ''}>${c.name}</option>`
                 ).join('');
             }
@@ -693,10 +693,10 @@ async function editEvent(id) {
         try {
             const usersRes = await fetch(`${API_BASE_URL}/admin/users?limit=1000`);
             const usersData = await usersRes.json();
-            
+
             if (usersData.success) {
                 const currentParticipantEmails = new Set((event.participants || []).map(p => p.email));
-                usersOptions = usersData.data.map(u => 
+                usersOptions = usersData.data.map(u =>
                     `<option value="${u.email}" ${currentParticipantEmails.has(u.email) ? 'selected' : ''}>${u.username} (${u.email})</option>`
                 ).join('');
             }
@@ -706,7 +706,7 @@ async function editEvent(id) {
         }
 
         modalTitle.textContent = 'Edit Event';
-        
+
         // Format date for date input (YYYY-MM-DD)
         const dateObj = new Date(event.date);
         const dateStr = dateObj.toISOString().split('T')[0];
@@ -801,14 +801,14 @@ async function editEvent(id) {
                 </div>
             </form>
         `;
-        
+
         // Helper to toggle fields
 
-        window.toggleLocationFields = function(val) {
+        window.toggleLocationFields = function (val) {
             const linkGroup = document.getElementById('meetingLinkGroup');
             const venueGroup = document.getElementById('venueGroup');
 
-            
+
             if (val === 'online') {
                 linkGroup.style.display = 'block';
                 venueGroup.style.display = 'none';
@@ -820,7 +820,7 @@ async function editEvent(id) {
                 venueGroup.style.display = 'block';
             }
         };
-        
+
         editModal.style.display = 'block';
 
         document.getElementById('editEventForm').addEventListener('submit', async (e) => {
@@ -845,7 +845,7 @@ async function editEvent(id) {
                 meetingLink: document.getElementById('editEventMeetingLink').value,
                 venue: document.getElementById('editEventVenue').value,
                 maxParticipants: document.getElementById('editEventMaxParticipants').value ? parseInt(document.getElementById('editEventMaxParticipants').value) : null,
-            participants: Array.from(document.getElementById('editEventParticipants').selectedOptions).map(opt => opt.value)
+                participants: Array.from(document.getElementById('editEventParticipants').selectedOptions).map(opt => opt.value)
             };
 
             const formDataToSend = new FormData();
@@ -876,9 +876,9 @@ async function editEvent(id) {
                     method: 'PUT',
                     body: formDataToSend
                 });
-                
+
                 const updateData = await updateResponse.json();
-                
+
                 if (updateData.success) {
                     alert('Event updated successfully');
                     editModal.style.display = 'none';
@@ -904,7 +904,7 @@ async function editEvent(id) {
 // Show Add Club Modal
 async function showAddClubModal() {
     modalTitle.textContent = 'Add New Club';
-    
+
     // Fetch potential owners
     let usersOptions = '<option value="">Select Owner...</option>';
     try {
@@ -971,7 +971,7 @@ async function showAddClubModal() {
             </div>
         </form>
     `;
-    
+
     editModal.style.display = 'block';
 
     document.getElementById('addClubForm').addEventListener('submit', async (e) => {
@@ -999,9 +999,9 @@ async function showAddClubModal() {
                 },
                 body: JSON.stringify(formData)
             });
-            
+
             const data = await response.json();
-            
+
             if (data.success) {
                 alert('Club created successfully');
                 editModal.style.display = 'none';
@@ -1023,14 +1023,14 @@ async function showAddClubModal() {
 // Show Add Event Modal
 async function showAddEventModal() {
     modalTitle.textContent = 'Add New Event';
-    
+
     // Fetch data for selects
     let clubsOptions = '<option value="">Select Club...</option>';
-    
+
     try {
         const clubsRes = await fetch(`${API_BASE_URL}/admin/clubs?limit=100`);
         const clubsData = await clubsRes.json();
-        
+
         if (clubsData.success) {
             clubsOptions += clubsData.data.map(c => `<option value="${c._id}">${c.name}</option>`).join('');
         }
@@ -1044,9 +1044,9 @@ async function showAddEventModal() {
     try {
         const usersRes = await fetch(`${API_BASE_URL}/admin/users?limit=1000`);
         const usersData = await usersRes.json();
-        
+
         if (usersData.success) {
-            usersOptions = usersData.data.map(u => 
+            usersOptions = usersData.data.map(u =>
                 `<option value="${u.email}">${u.username} (${u.email})</option>`
             ).join('');
         }
@@ -1133,12 +1133,12 @@ async function showAddEventModal() {
             </div>
         </form>
     `;
-    
+
     // Helper to toggle fields
-    window.toggleLocationFields = function(val) {
+    window.toggleLocationFields = function (val) {
         const linkGroup = document.getElementById('meetingLinkGroup');
         const venueGroup = document.getElementById('venueGroup');
-        
+
         if (val === 'online') {
             linkGroup.style.display = 'block';
             venueGroup.style.display = 'none';
@@ -1150,7 +1150,7 @@ async function showAddEventModal() {
             venueGroup.style.display = 'block';
         }
     };
-    
+
     editModal.style.display = 'block';
 
     document.getElementById('addEventForm').addEventListener('submit', async (e) => {
@@ -1203,9 +1203,9 @@ async function showAddEventModal() {
                 // Content-Type header should be omitted for FormData, the browser sets it automatically with boundary
                 body: formDataToSend
             });
-            
+
             const data = await response.json();
-            
+
             if (data.success) {
                 alert('Event created successfully');
                 editModal.style.display = 'none';
@@ -1236,16 +1236,16 @@ window.loadEvents = loadEvents;
 // Render Pagination
 function renderPagination(type, currentPage, totalPages) {
     const paginationEl = document.getElementById(`${type}Pagination`);
-    
+
     if (totalPages <= 1) {
         paginationEl.innerHTML = '';
         return;
     }
-    
+
     let html = '';
-    
+
     html += `<button ${currentPage === 1 ? 'disabled' : ''} onclick="load${capitalize(type)}(${currentPage - 1})">Previous</button>`;
-    
+
     for (let i = 1; i <= totalPages; i++) {
         if (i === currentPage) {
             html += `<button class="active">${i}</button>`;
@@ -1255,9 +1255,9 @@ function renderPagination(type, currentPage, totalPages) {
             html += `<button disabled>...</button>`;
         }
     }
-    
+
     html += `<button ${currentPage === totalPages ? 'disabled' : ''} onclick="load${capitalize(type)}(${currentPage + 1})">Next</button>`;
-    
+
     paginationEl.innerHTML = html;
     state.currentPage[type] = currentPage;
 }
@@ -1266,7 +1266,7 @@ function renderPagination(type, currentPage, totalPages) {
 function showButtonLoading(button, show) {
     const text = button.querySelector('.btn-text');
     const loader = button.querySelector('.btn-loader');
-    
+
     if (show) {
         text.style.display = 'none';
         loader.style.display = 'block';
@@ -1290,10 +1290,10 @@ function hideError() {
 function formatDate(dateString) {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
     });
 }
 
@@ -1304,17 +1304,17 @@ function capitalize(str) {
 function previewImages(input, containerId = 'imagePreviewContainer') {
     const container = document.getElementById(containerId);
     container.innerHTML = '';
-    
+
     if (input.files && input.files.length > 0) {
         if (input.files.length > 5) {
             alert('Maximum 5 images allowed');
-             input.value = ''; // Clear selection
+            input.value = ''; // Clear selection
             return;
         }
 
         Array.from(input.files).forEach(file => {
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 const img = document.createElement('img');
                 img.src = e.target.result;
                 img.style.width = '100px';
@@ -1332,11 +1332,11 @@ function previewImages(input, containerId = 'imagePreviewContainer') {
 async function loadAllowedEmails() {
     const tbody = document.getElementById('allowedEmailsTableBody');
     tbody.innerHTML = '<tr><td colspan="3" class="loading">Loading...</td></tr>';
-    
+
     try {
         const response = await fetch(`${API_BASE_URL}/admin/allowed-emails`);
         const data = await response.json();
-        
+
         if (data.success && data.data.length > 0) {
             tbody.innerHTML = data.data.map(email => `
                 <tr>
@@ -1360,14 +1360,14 @@ async function loadAllowedEmails() {
 
 async function deleteAllowedEmail(id) {
     if (!confirm('Are you sure you want to remove this email?')) return;
-    
+
     try {
         const response = await fetch(`${API_BASE_URL}/admin/allowed-emails/${id}`, {
             method: 'DELETE',
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             alert('Email removed successfully');
             loadAllowedEmails();
@@ -1395,18 +1395,18 @@ function showAddAllowedEmailModal() {
             </div>
         </form>
     `;
-    
+
     editModal.style.display = 'block';
-    
+
     document.getElementById('addAllowedEmailForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const submitBtn = e.target.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
         submitBtn.textContent = 'Adding...';
         submitBtn.disabled = true;
-        
+
         const email = document.getElementById('allowedEmailInput').value;
-        
+
         try {
             const response = await fetch(`${API_BASE_URL}/admin/allowed-emails`, {
                 method: 'POST',
@@ -1415,9 +1415,9 @@ function showAddAllowedEmailModal() {
                 },
                 body: JSON.stringify({ email }),
             });
-            
+
             const data = await response.json();
-            
+
             if (data.success) {
                 alert('Email added successfully');
                 editModal.style.display = 'none';

@@ -1,8 +1,8 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Search, Calendar, Activity, Zap, AlertTriangle, Info, CheckCircle2, User, Clock, Loader2 } from 'lucide-react';
-import { format, isToday, isYesterday, startOfDay } from 'date-fns';
-import { eventAPI, Event as APIEvent } from '../services/api';
+import { Search, Calendar, Activity, Zap, AlertTriangle, Info, CheckCircle2 } from 'lucide-react';
+import { Timeline } from '@/components/UI/timeline';
+import { eventAPI, Event as BackendEvent } from '@/services/api';
 
 interface Event {
     id: string;
@@ -14,6 +14,140 @@ interface Event {
     location?: string;
     priority: 'low' | 'medium' | 'high' | 'critical';
 }
+
+const mockEvents: Event[] = [
+    // --- FEBRUARY 2026 ---
+    {
+        id: 'feb-1',
+        timestamp: new Date('2026-02-04T10:00:00'),
+        type: 'major',
+        category: 'mission',
+        title: 'Intergalactic Startathon 2026',
+        description: 'Kickoff of the largest galactic innovation hackathon. Teams from all sectors competing to solve deep-space colonization challenges.',
+        location: 'Space Station Alpha',
+        priority: 'critical'
+    },
+
+    // --- MARCH 2026 ---
+    {
+        id: 'mar-blur',
+        timestamp: new Date('2026-03-15T12:00:00'),
+        type: 'micro',
+        category: 'discovery',
+        title: 'Coming Soon',
+        description: 'Encrypted data packet detected. Awaiting decryption key.',
+        location: 'Sector 9',
+        priority: 'medium'
+    },
+
+    // --- APRIL 2026 ---
+    {
+        id: 'apr-blur',
+        timestamp: new Date('2026-04-20T14:00:00'),
+        type: 'major',
+        category: 'system',
+        title: 'Coming Soon',
+        description: 'Scheduled system upgrade protocol initialized. Details classified.',
+        location: 'Core Systems',
+        priority: 'low'
+    },
+
+    // --- MAY 2026 ---
+    {
+        id: 'may-blur',
+        timestamp: new Date('2026-05-10T09:00:00'),
+        type: 'major',
+        category: 'alert',
+        title: 'Coming Soon',
+        description: 'Pre-cognitive warning signals received. Analysis pending.',
+        location: 'Unknown',
+        priority: 'critical'
+    },
+
+    // --- JUNE 2026 ---
+    {
+        id: 'jun-blur',
+        timestamp: new Date('2026-06-21T06:00:00'),
+        type: 'major',
+        category: 'mission',
+        title: 'Coming Soon',
+        description: 'Mid-year expedition plans currently under review.',
+        location: 'TBD',
+        priority: 'high'
+    },
+
+    // --- JULY 2026 ---
+    {
+        id: 'jul-blur',
+        timestamp: new Date('2026-07-04T20:00:00'),
+        type: 'micro',
+        category: 'achievement',
+        title: 'Coming Soon',
+        description: 'Federation milestone celebration preparation underway.',
+        location: 'Global',
+        priority: 'low'
+    },
+
+    // --- AUGUST 2026 ---
+    {
+        id: 'aug-blur',
+        timestamp: new Date('2026-08-15T11:00:00'),
+        type: 'major',
+        category: 'discovery',
+        title: 'Coming Soon',
+        description: 'Deep space sensor array alignment scheduled.',
+        location: 'Observation Deck',
+        priority: 'medium'
+    },
+
+    // --- SEPTEMBER 2026 ---
+    {
+        id: 'sep-blur',
+        timestamp: new Date('2026-09-10T16:00:00'),
+        type: 'micro',
+        category: 'system',
+        title: 'Coming Soon',
+        description: 'Quarterly infrastructure diagnostics placeholder.',
+        location: 'Engineering',
+        priority: 'low'
+    },
+
+    // --- OCTOBER 2026 ---
+    {
+        id: 'oct-blur',
+        timestamp: new Date('2026-10-31T21:00:00'),
+        type: 'major',
+        category: 'alert',
+        title: 'Coming Soon',
+        description: 'Seasonal anomaly predictions being calculated.',
+        location: 'All Decks',
+        priority: 'medium'
+    },
+
+    // --- NOVEMBER 2026 ---
+    {
+        id: 'nov-blur',
+        timestamp: new Date('2026-11-20T10:00:00'),
+        type: 'major',
+        category: 'mission',
+        title: 'Coming Soon',
+        description: 'Mission "Solar Flare" status: TOP SECRET.',
+        location: 'Sun Station',
+        priority: 'critical'
+    },
+
+    // --- DECEMBER 2026 ---
+    {
+        id: 'dec-blur',
+        timestamp: new Date('2026-12-31T23:55:00'),
+        type: 'major',
+        category: 'achievement',
+        title: 'Coming Soon',
+        description: 'End of year protocols. Final system purge scheduled.',
+        location: 'Mainframe',
+        priority: 'high'
+    }
+];
 
 const categoryIcons = {
     discovery: Activity,
@@ -42,59 +176,62 @@ const EventLogs = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<string>('all');
     const [selectedType, setSelectedType] = useState<string>('all');
+    const [events, setEvents] = useState<Event[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [allEvents, setAllEvents] = useState<Event[]>([]);
     const navigate = useNavigate();
+    const scrollRef = useRef<HTMLDivElement>(null);
 
-    // Fetch events from MongoDB
+    // Fetch events from backend
     useEffect(() => {
         const fetchEvents = async () => {
             try {
                 setLoading(true);
-                setError(null);
-
                 const response = await eventAPI.getAll();
-                const formattedEvents = response.data.map((event: APIEvent) => {
-                    // Map event data to Event Logs format
-                    const eventDate = new Date(event.date);
-                    const timeString = event.time;
 
-                    // Create timestamp by combining date and time
-                    const [hours, minutes] = timeString.split(':').map(Number);
-                    const timestamp = new Date(eventDate);
-                    timestamp.setHours(hours || 0, minutes || 0);
+                // Map backend events to component Event interface
+                const mappedEvents: Event[] = response.data.map((backendEvent: BackendEvent) => {
+                    // Determine category based on tags or club
+                    let category: Event['category'] = 'system';
+                    if (backendEvent.tags.some(tag => tag.toLowerCase().includes('discovery') || tag.toLowerCase().includes('science'))) {
+                        category = 'discovery';
+                    } else if (backendEvent.tags.some(tag => tag.toLowerCase().includes('mission') || tag.toLowerCase().includes('workshop'))) {
+                        category = 'mission';
+                    } else if (backendEvent.tags.some(tag => tag.toLowerCase().includes('alert') || tag.toLowerCase().includes('urgent'))) {
+                        category = 'alert';
+                    } else if (backendEvent.tags.some(tag => tag.toLowerCase().includes('achievement'))) {
+                        category = 'achievement';
+                    }
 
-                    // Determine event type based on participant count or other criteria
-                    const participantCount = event.participantCount || (Array.isArray(event.participants) ? event.participants.length : 0);
-                    const type: 'major' | 'micro' = participantCount > 30 ? 'major' : 'micro';
+                    // Determine type based on duration or status
+                    const type: Event['type'] = backendEvent.duration >= 120 || backendEvent.status === 'upcoming' ? 'major' : 'micro';
 
-                    // Map status to category and priority
-                    const statusCategoryMap: Record<string, { category: Event['category'], priority: Event['priority'] }> = {
-                        'upcoming': { category: 'mission', priority: 'medium' },
-                        'ongoing': { category: 'alert', priority: 'high' },
-                        'completed': { category: 'achievement', priority: 'low' },
-                        'cancelled': { category: 'system', priority: 'low' }
-                    };
-
-                    const mapping = statusCategoryMap[event.status] || { category: 'system', priority: 'medium' };
+                    // Determine priority based on status and participant count
+                    let priority: Event['priority'] = 'low';
+                    if (backendEvent.status === 'ongoing') {
+                        priority = 'critical';
+                    } else if ((backendEvent.participantCount || 0) > 30) {
+                        priority = 'high';
+                    } else if ((backendEvent.participantCount || 0) > 15) {
+                        priority = 'medium';
+                    }
 
                     return {
-                        id: event._id,
-                        timestamp,
+                        id: backendEvent._id,
+                        timestamp: new Date(backendEvent.date),
                         type,
-                        category: mapping.category,
-                        title: event.title,
-                        description: event.description,
-                        location: event.location === 'online' ? 'Virtual Space' : event.venue || 'TBD',
-                        priority: mapping.priority
+                        category,
+                        title: backendEvent.title,
+                        description: backendEvent.description,
+                        location: backendEvent.venue || backendEvent.location || 'Online',
+                        priority
                     };
                 });
 
-                setAllEvents(formattedEvents);
-            } catch (err: any) {
-                console.error('Error fetching events:', err);
-                setError(err.message || 'Failed to load events');
+                setEvents(mappedEvents);
+            } catch (error) {
+                console.error('Error fetching events:', error);
+                // Keep existing mock events as fallback
+                setEvents(mockEvents);
             } finally {
                 setLoading(false);
             }
@@ -104,7 +241,7 @@ const EventLogs = () => {
     }, []);
 
     const filteredEvents = useMemo(() => {
-        return allEvents.filter(event => {
+        return events.filter(event => {
             const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 event.location?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -114,46 +251,190 @@ const EventLogs = () => {
 
             return matchesSearch && matchesCategory && matchesType;
         });
-    }, [searchQuery, selectedCategory, selectedType, allEvents]);
+    }, [searchQuery, selectedCategory, selectedType, events]);
 
-    const groupedEvents = useMemo(() => {
-        const groups: { [key: string]: Event[] } = {};
+    // Keyboard navigation for scrolling
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (!scrollRef.current) return;
 
-        filteredEvents.forEach(event => {
-            const dateKey = startOfDay(event.timestamp).toISOString();
-            if (!groups[dateKey]) {
-                groups[dateKey] = [];
+            const scrollAmount = 100; // pixels to scroll per key press
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                scrollRef.current.scrollBy({ top: scrollAmount, behavior: 'smooth' });
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                scrollRef.current.scrollBy({ top: -scrollAmount, behavior: 'smooth' });
+            } else if (e.key === 'PageDown') {
+                e.preventDefault();
+                scrollRef.current.scrollBy({ top: scrollRef.current.clientHeight, behavior: 'smooth' });
+            } else if (e.key === 'PageUp') {
+                e.preventDefault();
+                scrollRef.current.scrollBy({ top: -scrollRef.current.clientHeight, behavior: 'smooth' });
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                scrollRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
             }
-            groups[dateKey].push(event);
-        });
+        };
 
-        // Ensure events within groups are sorted by time (descending)
-        Object.keys(groups).forEach(key => {
-            groups[key].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-        });
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
 
-        // Sort groups by date (descending)
-        return Object.entries(groups).sort((a, b) => {
-            return new Date(b[0]).getTime() - new Date(a[0]).getTime();
-        });
-    }, [filteredEvents]);
-
-    const formatTimestamp = (date: Date) => {
-        const now = new Date();
-        const diff = now.getTime() - date.getTime();
-        const hours = Math.floor(diff / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-
-        if (hours > 0) {
-            return `${hours}h ${minutes}m ago`;
+    // Auto-focus the scrollable container
+    useEffect(() => {
+        if (scrollRef.current && filteredEvents.length > 0) {
+            // Small delay to ensure DOM is ready
+            const timer = setTimeout(() => {
+                scrollRef.current?.focus();
+            }, 100);
+            return () => clearTimeout(timer);
         }
-        return `${minutes}m ago`;
+    }, [filteredEvents.length]);
+
+
+
+    // Helper: Determine if event is close to current date (within 30 days)
+    const isEventNearby = (eventDate: Date) => {
+        const now = new Date('2026-02-01'); // Current date in the app
+        const diffInDays = Math.abs((eventDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        return diffInDays <= 30;
     };
 
+    // Group events intelligently - show full date for nearby events, month for distant ones
+    const timelineData = useMemo(() => {
+        // Sort events chronologically
+        const sortedEvents = [...filteredEvents].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+
+        const groups: { [key: string]: { displayTitle: string, events: Event[], sortKey: number } } = {};
+
+        sortedEvents.forEach(event => {
+            const isNear = isEventNearby(event.timestamp);
+
+            let groupKey: string;
+            let displayTitle: string;
+
+            if (isNear) {
+                // Show full date for nearby events (within 30 days)
+                groupKey = event.timestamp.toISOString().split('T')[0];
+                const dayOfWeek = event.timestamp.toLocaleDateString('en-US', { weekday: 'long' });
+                const monthDay = event.timestamp.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                displayTitle = `${dayOfWeek}, ${monthDay}`;
+            } else {
+                // Show only month and year for future/distant events
+                groupKey = `${event.timestamp.getFullYear()}-${event.timestamp.getMonth()}`;
+                displayTitle = event.timestamp.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            }
+
+            if (!groups[groupKey]) {
+                groups[groupKey] = {
+                    displayTitle,
+                    events: [],
+                    sortKey: event.timestamp.getTime()
+                };
+            }
+            groups[groupKey].events.push(event);
+        });
+
+        // Convert to array and sort by time
+        return Object.values(groups)
+            .sort((a, b) => a.sortKey - b.sortKey)
+            .map(group => ({
+                title: group.displayTitle,
+                content: (
+                    <div className="space-y-6 pb-8">
+                        {group.events.map((event) => {
+                            const CategoryIcon = categoryIcons[event.category];
+                            const dayNumber = event.timestamp.getDate();
+                            const dayName = event.timestamp.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+                            const isBlurred = event.title === 'Coming Soon';
+                            const isNear = isEventNearby(event.timestamp);
+
+                            return (
+                                <div
+                                    key={event.id}
+                                    onClick={() => !isBlurred && navigate(`/events/${event.id}`)}
+                                    className={`relative bg-white/5 backdrop-blur-sm border rounded-xl p-6 transition-all duration-500 ${event.type === 'major'
+                                        ? 'border-cyan-400/30 shadow-lg shadow-cyan-400/10'
+                                        : 'border-white/10'
+                                        } ${isBlurred ? 'opacity-70' : 'hover:bg-white/10 hover:scale-[1.01] cursor-pointer'}`}
+                                >
+                                    {/* Top Row: Badges and Date (only show day if nearby) */}
+                                    <div className="flex items-start justify-between gap-4 mb-4">
+                                        {/* Date on Left - only for nearby events */}
+                                        {isNear && (
+                                            <div className="flex items-center gap-3">
+                                                <div className="text-center min-w-[60px]">
+                                                    <div className={`text-3xl font-display font-bold leading-none transition-colors ${isBlurred ? 'text-gray-600 blur-[2px]' : 'text-white/90'}`}>
+                                                        {isBlurred ? '??' : dayNumber}
+                                                    </div>
+                                                    <div className="text-xs font-medium text-gray-500 tracking-wider mt-1">
+                                                        {isBlurred ? '???' : dayName}
+                                                    </div>
+                                                </div>
+                                                <div className="w-px h-12 bg-white/10" />
+                                            </div>
+                                        )}
+
+                                        {/* Badges */}
+                                        <div className="flex flex-wrap items-center gap-2 flex-1 justify-end">
+                                            <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${categoryColors[event.category]}`}>
+                                                <CategoryIcon size={12} className="inline mr-1" />
+                                                {event.category.toUpperCase()}
+                                            </span>
+                                            {event.type === 'major' && (
+                                                <span className="px-3 py-1 rounded-full text-xs font-semibold border border-cyan-400/30 bg-cyan-500/20 text-cyan-300">
+                                                    MAJOR
+                                                </span>
+                                            )}
+                                            <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${priorityColors[event.priority]}`}>
+                                                {event.priority.toUpperCase()}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Title */}
+                                    <h3 className={`text-xl md:text-2xl font-display font-bold text-white mb-3 ${isBlurred ? 'blur-sm select-none' : ''}`}>
+                                        {event.title}
+                                    </h3>
+
+                                    {/* Description */}
+                                    <p className={`text-gray-300 text-sm md:text-base leading-relaxed mb-4 ${isBlurred ? 'blur-[4px] select-none opacity-60' : ''}`}>
+                                        {event.description}
+                                    </p>
+
+                                    {/* Footer: Time and Location */}
+                                    <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                                        <div className={`text-xs text-gray-500 font-mono ${isBlurred ? 'blur-[1px]' : ''}`}>
+                                            {isBlurred ? '??:??' : event.timestamp.toLocaleTimeString('en-US', {
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                                hour12: false
+                                            })}
+                                        </div>
+                                        {event.location && (
+                                            <div className={`flex items-center gap-2 text-xs text-gray-500 ${isBlurred ? 'blur-[2px]' : ''}`}>
+                                                <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                                                <span className="font-mono">{event.location}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )
+            }));
+    }, [filteredEvents]);
+
     return (
-        <div className="relative w-full min-h-screen h-auto bg-[#050510] font-sans overflow-x-hidden overflow-y-auto">
+        <div className="relative w-full min-h-screen bg-[#050510] font-sans">
             {/* Starfield Background */}
-            <div className="absolute inset-0 overflow-hidden">
+            <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 {[...Array(150)].map((_, i) => (
                     <div
                         key={i}
@@ -172,20 +453,20 @@ const EventLogs = () => {
             </div>
 
             {/* Main Content */}
-            <div className="relative z-10 w-full h-full pt-24 md:pt-32 pb-8 px-4 md:px-8">
-                <div className="max-w-7xl mx-auto h-full flex flex-col">
+            <div className="relative z-10 w-full min-h-screen pt-32 pb-12 px-4 md:px-8">
+                <div className="max-w-6xl mx-auto">
                     {/* Page Header */}
-                    <div className="mb-6">
-                        <h1 className="text-4xl font-display font-bold text-white tracking-wider mb-2">
+                    <div className="mb-8">
+                        <h1 className="text-4xl md:text-5xl font-display font-bold text-white tracking-wider mb-3">
                             EVENT LOGS
                         </h1>
-                        <p className="text-gray-400 text-sm">
+                        <p className="text-gray-400 text-sm md:text-base">
                             Timeline of mission events, system alerts, and discoveries
                         </p>
                     </div>
 
                     {/* Search and Filters */}
-                    <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-lg p-4 mb-6">
+                    <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-xl p-5 mb-8 sticky top-28 z-40">
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                             {/* Search Bar */}
                             <div className="md:col-span-2 relative">
@@ -195,7 +476,7 @@ const EventLogs = () => {
                                     placeholder="Search events..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400/50 transition-all"
+                                    className="w-full pl-10 pr-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400/50 transition-all"
                                 />
                             </div>
 
@@ -203,7 +484,7 @@ const EventLogs = () => {
                             <select
                                 value={selectedCategory}
                                 onChange={(e) => setSelectedCategory(e.target.value)}
-                                className="px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400/50 transition-all cursor-pointer"
+                                className="px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400/50 transition-all cursor-pointer"
                             >
                                 <option value="all" className="bg-[#050510]">All Categories</option>
                                 <option value="discovery" className="bg-[#050510]">Discovery</option>
@@ -217,7 +498,7 @@ const EventLogs = () => {
                             <select
                                 value={selectedType}
                                 onChange={(e) => setSelectedType(e.target.value)}
-                                className="px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400/50 transition-all cursor-pointer"
+                                className="px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400/50 transition-all cursor-pointer"
                             >
                                 <option value="all" className="bg-[#050510]">All Types</option>
                                 <option value="major" className="bg-[#050510]">Major Events</option>
@@ -226,145 +507,38 @@ const EventLogs = () => {
                         </div>
 
                         {/* Results Count */}
-                        <div className="mt-3 flex items-center gap-2 text-sm text-gray-400">
-                            <Calendar size={16} />
-                            <span>Showing {filteredEvents.length} of {allEvents.length} events</span>
+                        <div className="mt-4 flex items-center justify-between text-sm text-gray-400">
+                            <div className="flex items-center gap-2">
+                                <Calendar size={16} />
+                                <span>Showing {filteredEvents.length} of {events.length} events</span>
+                            </div>
+                            <div className="hidden md:flex items-center gap-2 text-xs text-gray-500">
+                                <kbd className="px-2 py-1 bg-white/5 border border-white/10 rounded text-cyan-400">↑</kbd>
+                                <kbd className="px-2 py-1 bg-white/5 border border-white/10 rounded text-cyan-400">↓</kbd>
+                                <span>to scroll</span>
+                            </div>
                         </div>
                     </div>
 
-                    {/* Loading State */}
-                    {loading && (
-                        <div className="flex-1 flex items-center justify-center">
-                            <div className="text-center">
-                                <Loader2 size={48} className="text-cyan-400 animate-spin mx-auto mb-4" />
-                                <p className="text-white text-lg font-display">Loading events...</p>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Error State */}
-                    {error && !loading && (
-                        <div className="flex-1 flex items-center justify-center">
-                            <div className="text-center bg-red-500/10 border border-red-500/30 rounded-xl p-8 max-w-md">
-                                <p className="text-red-400 text-lg mb-4">⚠️ {error}</p>
-                                <button
-                                    onClick={() => window.location.reload()}
-                                    className="px-6 py-2 bg-red-500/20 border border-red-400/30 rounded-lg hover:bg-red-500/30 transition-all text-white"
-                                >
-                                    Retry
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
                     {/* Timeline */}
-                    {!loading && !error && (
-                        <div className="flex-1 bg-white/5 backdrop-blur-md border border-white/20 rounded-lg overflow-hidden">
-                            <div className="h-full overflow-y-auto custom-scrollbar p-6">
-                                {filteredEvents.length === 0 ? (
-                                    <div className="h-full flex flex-col items-center justify-center text-center">
-                                        <Activity size={48} className="text-gray-600 mb-4" />
-                                        <p className="text-gray-400 text-lg">No events found</p>
-                                        <p className="text-gray-500 text-sm mt-2">Try adjusting your search filters</p>
-                                    </div>
-                                ) : (
-                                    <div className="relative">
-                                        <div className="space-y-8 pb-10">
-                                            {groupedEvents.map(([dateKey, events]) => {
-                                                const date = new Date(dateKey);
-                                                let dateLabel = format(date, 'MMMM d, yyyy');
-                                                if (isToday(date)) dateLabel = 'Today';
-                                                else if (isYesterday(date)) dateLabel = 'Yesterday';
-
-                                                return (
-                                                    <div key={dateKey} className="relative">
-                                                        {/* Sticky Date Header */}
-                                                        <div className="sticky top-0 z-30 -mx-6 px-6 py-4 bg-[#050510]/95 backdrop-blur-md border-b border-white/5 mb-4 flex items-center gap-4 shadow-lg shadow-black/20">
-                                                            <div className="flex items-center gap-3">
-                                                                <span className="text-white font-bold text-lg tracking-wide font-display">
-                                                                    {dateLabel}
-                                                                </span>
-                                                                <span className="text-sm text-gray-500 font-mono bg-white/5 px-2 py-0.5 rounded-full">
-                                                                    {events.length}
-                                                                </span>
-                                                            </div>
-                                                            <div className="h-px bg-gradient-to-r from-white/10 to-transparent flex-1" />
-                                                            <div className="text-xs text-gray-600 font-mono uppercase tracking-wider">
-                                                                {format(date, 'EEEE')}
-                                                            </div>
-                                                        </div>
-
-                                                        {/* Google Photos-style Grid */}
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-2">
-                                                            {events.map((event, index) => {
-                                                                const CategoryIcon = categoryIcons[event.category];
-                                                                return (
-                                                                    <button
-                                                                        key={event.id}
-                                                                        onClick={() => navigate(`/events/${event.id}`)}
-                                                                        className={`group relative flex flex-col h-full bg-white/5 backdrop-blur-sm border rounded-xl overflow-hidden hover:bg-white/10 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-cyan-500/10 text-left animate-in fade-in zoom-in-95 duration-500 fill-mode-both ${event.type === 'major'
-                                                                            ? 'border-cyan-400/30'
-                                                                            : 'border-white/10'
-                                                                            }`}
-                                                                        style={{ animationDelay: `${index * 50}ms` }}
-                                                                    >
-                                                                        {/* Top Section: Icon & Time */}
-                                                                        <div className={`p-4 pb-2 flex justify-between items-start relative overflow-hidden`}>
-                                                                            {/* Background Glow for Category */}
-                                                                            <div className={`absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl opacity-20 ${categoryColors[event.category].split(' ')[1]}`} />
-
-                                                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center border ${categoryColors[event.category]}`}>
-                                                                                <CategoryIcon size={18} />
-                                                                            </div>
-
-                                                                            {event.type === 'major' && (
-                                                                                <div className="absolute top-0 right-0 p-1">
-                                                                                    <div className="w-2 h-2 bg-cyan-400 rounded-full shadow-[0_0_8px_rgba(34,211,238,0.8)] animate-pulse" />
-                                                                                </div>
-                                                                            )}
-
-                                                                            <span className="text-xs font-mono text-gray-400 bg-black/20 px-2 py-1 rounded backdrop-blur-sm z-10">
-                                                                                {event.timestamp.toLocaleTimeString('en-US', {
-                                                                                    hour: '2-digit',
-                                                                                    minute: '2-digit',
-                                                                                    hour12: false
-                                                                                })}
-                                                                            </span>
-                                                                        </div>
-
-                                                                        {/* Content Section */}
-                                                                        <div className="p-4 pt-2 flex-1 flex flex-col">
-                                                                            <h3 className="text-lg font-display font-bold text-white mb-2 leading-tight group-hover:text-cyan-300 transition-colors line-clamp-2">
-                                                                                {event.title}
-                                                                            </h3>
-
-                                                                            <p className="text-gray-400 text-xs mb-4 line-clamp-3 leading-relaxed flex-1">
-                                                                                {event.description}
-                                                                            </p>
-
-                                                                            {/* Footer Tags */}
-                                                                            <div className="flex flex-wrap gap-2 mt-auto">
-                                                                                <span className={`px-2 py-0.5 rounded text-[10px] uppercase tracking-wider font-semibold border ${priorityColors[event.priority]}`}>
-                                                                                    {event.priority}
-                                                                                </span>
-                                                                                {event.location && (
-                                                                                    <span className="px-2 py-0.5 rounded text-[10px] bg-white/5 text-gray-400 border border-white/5 truncate max-w-[120px]">
-                                                                                        📍 {event.location}
-                                                                                    </span>
-                                                                                )}
-                                                                            </div>
-                                                                        </div>
-                                                                    </button>
-                                                                );
-                                                            })}
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
+                    {loading ? (
+                        <div className="h-96 flex flex-col items-center justify-center text-center">
+                            <div className="w-12 h-12 border-4 border-cyan-400/30 border-t-cyan-400 rounded-full animate-spin mb-4"></div>
+                            <p className="text-gray-400 text-lg">Loading events from the cosmos...</p>
+                        </div>
+                    ) : filteredEvents.length === 0 ? (
+                        <div className="h-96 flex flex-col items-center justify-center text-center">
+                            <Activity size={48} className="text-gray-600 mb-4" />
+                            <p className="text-gray-400 text-lg">No events found</p>
+                            <p className="text-gray-500 text-sm mt-2">Try adjusting your search filters</p>
+                        </div>
+                    ) : (
+                        <div
+                            ref={scrollRef}
+                            className="h-[calc(100vh-28rem)] overflow-y-auto custom-scrollbar bg-white/5 backdrop-blur-md border border-white/20 rounded-xl p-6 focus:outline-none focus:ring-2 focus:ring-cyan-400/50"
+                            tabIndex={0}
+                        >
+                            <Timeline data={timelineData} scrollContainerRef={scrollRef} />
                         </div>
                     )}
                 </div>
@@ -373,21 +547,35 @@ const EventLogs = () => {
             {/* Custom Scrollbar Styles */}
             <style>{`
                 .custom-scrollbar::-webkit-scrollbar {
-                    width: 8px;
+                    width: 10px;
                 }
                 
                 .custom-scrollbar::-webkit-scrollbar-track {
                     background: rgba(255, 255, 255, 0.05);
-                    border-radius: 4px;
+                    border-radius: 5px;
+                    margin: 8px 0;
                 }
                 
                 .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background: rgba(255, 255, 255, 0.2);
-                    border-radius: 4px;
+                    background: linear-gradient(180deg, rgba(34, 211, 238, 0.4) 0%, rgba(34, 211, 238, 0.2) 100%);
+                    border-radius: 5px;
+                    border: 2px solid rgba(34, 211, 238, 0.1);
+                    transition: all 0.3s ease;
                 }
                 
                 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                    background: rgba(255, 255, 255, 0.3);
+                    background: linear-gradient(180deg, rgba(34, 211, 238, 0.6) 0%, rgba(34, 211, 238, 0.4) 100%);
+                    border-color: rgba(34, 211, 238, 0.3);
+                }
+
+                .custom-scrollbar::-webkit-scrollbar-thumb:active {
+                    background: linear-gradient(180deg, rgba(34, 211, 238, 0.8) 0%, rgba(34, 211, 238, 0.6) 100%);
+                }
+
+                /* Firefox scrollbar */
+                .custom-scrollbar {
+                    scrollbar-width: thin;
+                    scrollbar-color: rgba(34, 211, 238, 0.4) rgba(255, 255, 255, 0.05);
                 }
             `}</style>
         </div>
