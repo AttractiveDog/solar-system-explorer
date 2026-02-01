@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { SolarSystem2D } from '@/components/SolarSystem2D/SolarSystem2D';
-import { HUD } from '@/components/UI/HUD';
+import { HUD } from '@/components/ui/HUD';
 import { Preloader } from '@/components/Preloader';
 
 import { X, Mail, Linkedin, Github, Zap } from 'lucide-react';
-import { PaperShaderBackground } from '@/components/UI/PaperShaderBackground';
+import { PaperShaderBackground } from '@/components/ui/PaperShaderBackground';
 
 declare global {
   interface Window {

@@ -1,5 +1,5 @@
 
-import { ShaderAnimation } from "@/components/UI/shader-animation";
+import { ShaderAnimation } from "@/components/ui/shader-animation";
 import { useEffect, useState } from "react";
 
 export function Preloader({ onComplete }: { onComplete: () => void }) {

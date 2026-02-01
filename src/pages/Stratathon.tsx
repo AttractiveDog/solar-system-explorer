@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import ShaderBackground from '@/components/UI/shader-background';
+import ShaderBackground from '@/components/ui/shader-background';
 import './Stratathon.css';
 
 const Stratathon: React.FC = () => {

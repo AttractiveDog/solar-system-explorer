@@ -2,14 +2,14 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, User, LogOut, Menu } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/UI/button';
+import { Button } from '@/components/ui/button';
 import {
     Sheet,
     SheetContent,
     SheetHeader,
     SheetTitle,
     SheetTrigger,
-} from "@/components/UI/sheet";
+} from "@/components/ui/sheet";
 import { toast } from 'sonner';
 import { SESSION_START_TIME } from '@/utils/sessionTime';
 import { useIsMobile } from '@/hooks/use-mobile';

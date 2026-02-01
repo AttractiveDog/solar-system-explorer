@@ -1,5 +1,5 @@
 import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/UI/button';
+import { Button } from '@/components/ui/button';
 import { LogOut, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
