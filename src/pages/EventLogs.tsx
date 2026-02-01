@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Calendar, Activity, Zap, AlertTriangle, Info, CheckCircle2 } from 'lucide-react';
-import { Timeline } from '@/components/UI/timeline';
+import { Timeline } from '@/components/ui/timeline';
 import { eventAPI, Event as BackendEvent } from '@/services/api';
 
 interface Event {
