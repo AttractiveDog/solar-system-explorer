@@ -51,9 +51,12 @@ const corsOptions = {
     : true,
   credentials: true,
 };
+
+
+
 app.use(cors(corsOptions));
 
-// Body parser middleware
+// test Body parser middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
