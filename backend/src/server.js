@@ -47,7 +47,7 @@ app.use('/api', limiter);
 // CORS configuration
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
-    ? (process.env.CORS_ORIGIN || 'http://localhost:5173') 
+    ? ['http://localhost:5173', 'https://solar-system-explorer-phi.vercel.app', process.env.CORS_ORIGIN].filter(Boolean)
     : true,
   credentials: true,
 };
