@@ -65,11 +65,19 @@ const corsOptions = {
     }
     
     // Check if the origin is in the allowed list
-    if (allowedOrigins.includes(origin)) {
+    // Also explicitly allow localhost for development
+    const isAllowed = allowedOrigins.includes(origin) || 
+                      origin.includes('localhost') || 
+                      origin.includes('127.0.0.1') ||
+                      origin.includes('vercel.app'); // Allow Vercel preview deployments
+
+    if (isAllowed) {
       callback(null, true);
     } else {
       console.warn(`⚠️ CORS blocked request from origin: ${origin}`);
-      callback(null, true); // Still allow but log the warning
+      // For now, in order to unblock the user, we will extend the fallback to true
+      // But ideally this should be false in a strict production env
+      callback(null, true); 
     }
   },
   credentials: true,

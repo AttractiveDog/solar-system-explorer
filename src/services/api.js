@@ -1,5 +1,5 @@
 // API Configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://solar-system-explorer-ktwt.vercel.app/api/v1';
 
 // Generic API request function
 async function apiRequest(endpoint, options = {}) {

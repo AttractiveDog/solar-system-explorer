@@ -30,7 +30,7 @@ const EventDetail = () => {
         if (!url) return '';
         if (url.startsWith('http')) return url;
         // Fallback to localhost:5000 if env is missing, ensuring we point to backend
-        const API_URL = import.meta.env.VITE_API_URL || '/api/v1';
+        const API_URL = import.meta.env.VITE_API_URL || 'https://solar-system-explorer-ktwt.vercel.app/api/v1';
         const BASE_URL = API_URL.replace('/api/v1', '');
         return `${BASE_URL}${url}`;
     };
