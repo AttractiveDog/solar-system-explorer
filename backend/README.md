@@ -78,6 +78,41 @@ npm start
 
 The server will start on `http://localhost:5000` (or the PORT you specified in `.env`)
 
+## ☁️ Vercel Deployment
+
+This backend is optimized for **Vercel serverless deployment**.
+
+### Quick Deploy
+
+```bash
+cd backend
+vercel
+```
+
+### Important Files
+
+- **`vercel.json`** - Vercel configuration for serverless functions
+- **`VERCEL_DEPLOYMENT.md`** - Complete step-by-step deployment guide
+- **`FILE_UPLOAD_MIGRATION.md`** - Cloud storage implementation guide
+- **`VERCEL_OPTIMIZATION_SUMMARY.md`** - Quick reference of all changes
+
+### Required Environment Variables for Vercel
+
+Set these in your Vercel dashboard:
+
+- `MONGODB_URI` - Your MongoDB Atlas connection string
+- `NODE_ENV=production`
+- `API_VERSION=v1`
+- `CORS_ORIGIN` - Your frontend URL (e.g., `https://your-app.vercel.app`)
+
+### File Uploads on Vercel
+
+⚠️ **Important**: The current setup uses memory storage on Vercel, which means uploaded files won't persist. For production, you'll need to implement cloud storage (Vercel Blob, Cloudinary, or AWS S3). See `FILE_UPLOAD_MIGRATION.md` for detailed instructions.
+
+### Complete Deployment Guide
+
+📖 **See `VERCEL_DEPLOYMENT.md` for comprehensive deployment instructions.**
+
 ## 🌱 Seeding the Database
 
 To populate the database with sample data for testing:

@@ -127,16 +127,24 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
+// Start server (only in non-serverless environment)
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server is running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
-  console.log(`📡 API available at http://localhost:${PORT}/api/${API_VERSION}`);
-});
 
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err) => {
-  console.error('❌ Unhandled Promise Rejection:', err);
-  // Close server & exit process
-  process.exit(1);
-});
+// For Vercel serverless deployment, we export the app
+// For local development, we start the server
+if (process.env.VERCEL !== '1') {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server is running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+    console.log(`📡 API available at http://localhost:${PORT}/api/${API_VERSION}`);
+  });
+
+  // Handle unhandled promise rejections
+  process.on('unhandledRejection', (err) => {
+    console.error('❌ Unhandled Promise Rejection:', err);
+    // Close server & exit process
+    process.exit(1);
+  });
+}
+
+// Export the Express app for Vercel
+export default app;
