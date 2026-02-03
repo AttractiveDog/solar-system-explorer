@@ -22,6 +22,13 @@ const __dirname = path.dirname(__filename);
 // Load environment variables
 dotenv.config();
 
+console.log('Backend starting. Environment:', {
+  VERCEL: process.env.VERCEL,
+  NODE_ENV: process.env.NODE_ENV,
+  MONGODB_URI_PROVIDED: !!process.env.MONGODB_URI,
+  CORS_ORIGIN: process.env.CORS_ORIGIN
+});
+
 // Connect to MongoDB
 // Connect to MongoDB
 if (process.env.MONGODB_URI) {
@@ -143,6 +150,12 @@ app.get('/health', (req, res) => {
     message: 'Server is running',
     timestamp: new Date().toISOString(),
   });
+});
+
+// Test Endpoint (No DB)
+app.get('/api/test-cors', (req, res) => {
+  console.log('Test CORS endpoint hit');
+  res.json({ message: 'CORS is working', origin: req.headers.origin, env_vercel: process.env.VERCEL });
 });
 
 // Root endpoint
