@@ -56,7 +56,23 @@ const getAllowedOrigins = () => {
         .split(',')
         .map(origin => origin.trim())
         .filter(Boolean);
-      return [...defaultOrigins, ...envOrigins];
+      
+      // Add both www and non-www versions of each origin
+      const allOrigins = new Set([...defaultOrigins]);
+      envOrigins.forEach(origin => {
+        allOrigins.add(origin);
+        // Add www variant if it doesn't have it
+        if (!origin.includes('www.')) {
+          const wwwVariant = origin.replace('://', '://www.');
+          allOrigins.add(wwwVariant);
+        } else {
+          // Add non-www variant if it has www
+          const nonWwwVariant = origin.replace('://www.', '://');
+          allOrigins.add(nonWwwVariant);
+        }
+      });
+      
+      return Array.from(allOrigins);
     }
     return defaultOrigins;
   }
