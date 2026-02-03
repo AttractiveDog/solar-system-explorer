@@ -46,7 +46,7 @@ app.use('/api', limiter);
 
 // CORS configuration
 const allowedOrigins = process.env.CORS_ORIGIN 
-  ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
+  ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim()).filter(Boolean)
   : ['*'];
 
 console.log('🌐 CORS - Allowed origins:', allowedOrigins);
@@ -54,6 +54,8 @@ console.log('🌐 CORS - Allowed origins:', allowedOrigins);
 // More permissive CORS for production/Vercel
 const corsOptions = {
   origin: function (origin, callback) {
+    console.log('🔍 Incoming origin request:', origin);
+
     // Allow requests with no origin (like mobile apps, Postman, etc.)
     if (!origin) {
       return callback(null, true);
