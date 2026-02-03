@@ -53,8 +53,12 @@ const allowedOrigins = process.env.CORS_ORIGIN
 
 console.log('🌐 CORS - Allowed origins:', allowedOrigins);
 
+// Manual CORS Middleware
 app.use((req, res, next) => {
   const origin = req.headers.origin;
+  
+  // Debug unexpected routing issues
+  console.log(`[DEBUG] Request: method=${req.method} url=${req.url} origin=${origin}`);
 
   // Safe origin check
   let isAllowed = false;
@@ -155,7 +159,13 @@ app.get('/health', (req, res) => {
 // Test Endpoint (No DB)
 app.get('/api/test-cors', (req, res) => {
   console.log('Test CORS endpoint hit');
-  res.json({ message: 'CORS is working', origin: req.headers.origin, env_vercel: process.env.VERCEL });
+  res.json({ message: 'CORS is working', origin: req.headers.origin, env_vercel: process.env.VERCEL, url_received: req.url });
+});
+
+// Also try root level in case of rewrites
+app.get('/test-cors', (req, res) => {
+  console.log('Test CORS endpoint hit (root)');
+  res.json({ message: 'CORS is working (root)', origin: req.headers.origin, env_vercel: process.env.VERCEL, url_received: req.url });
 });
 
 // Root endpoint
