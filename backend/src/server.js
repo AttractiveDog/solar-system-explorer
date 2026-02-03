@@ -49,30 +49,17 @@ const allowedOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
   : ['*'];
 
+// More permissive CORS for production/Vercel
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, Postman, or curl)
-    if (!origin) return callback(null, true);
-    
-    // If wildcard is in allowed origins, allow all
-    if (allowedOrigins.includes('*')) {
-      return callback(null, true);
-    }
-    
-    // Check if the origin is in the allowed list
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      console.log(`Blocked CORS request from origin: ${origin}`);
-      callback(null, true); // Still allow for now, but log it
-    }
-  },
+  origin: true, // Reflect the request origin (allow all origins with credentials)
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['X-Requested-With', 'Content-Type', 'Authorization', 'Accept'],
+  allowedHeaders: ['X-Requested-With', 'Content-Type', 'Authorization', 'Accept', 'Origin'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  maxAge: 86400, // 24 hours
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 };
-
-
 
 app.use(cors(corsOptions));
 
@@ -145,9 +132,11 @@ app.use((err, req, res, next) => {
 
   // Ensure CORS headers are always sent, even in error responses
   const origin = req.headers.origin;
-  if (origin && (allowedOrigins.includes('*') || allowedOrigins.includes(origin))) {
+  if (origin) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Authorization, Accept, Origin');
   }
 
   res.status(err.status || 500).json({

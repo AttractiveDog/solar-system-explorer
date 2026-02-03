@@ -6,20 +6,24 @@ import User from '../models/User.js';
 // @access  Public
 export const getClubs = async (req, res) => {
   try {
+    console.log('Fetching clubs...');
     const clubs = await Club.find()
       .populate('members.user', 'username avatar')
       .populate('createdBy', 'username');
     
+    console.log(`Successfully fetched ${clubs.length} clubs`);
     res.status(200).json({
       success: true,
       count: clubs.length,
       data: clubs,
     });
   } catch (error) {
+    console.error('Error in getClubs:', error);
     res.status(500).json({
       success: false,
       message: 'Error fetching clubs',
       error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined,
     });
   }
 };
