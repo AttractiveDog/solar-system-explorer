@@ -44,45 +44,9 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
-// CORS configuration
-// Parse CORS_ORIGIN - supports comma-separated list of origins
-const getAllowedOrigins = () => {
-  const defaultOrigins = ['http://localhost:5173'];
-  
-  if (process.env.NODE_ENV === 'production') {
-    if (process.env.CORS_ORIGIN) {
-      // Split by comma and trim whitespace
-      const envOrigins = process.env.CORS_ORIGIN
-        .split(',')
-        .map(origin => origin.trim())
-        .filter(Boolean);
-      
-      // Add both www and non-www versions of each origin
-      const allOrigins = new Set([...defaultOrigins]);
-      envOrigins.forEach(origin => {
-        allOrigins.add(origin);
-        // Add www variant if it doesn't have it
-        if (!origin.includes('www.')) {
-          const wwwVariant = origin.replace('://', '://www.');
-          allOrigins.add(wwwVariant);
-        } else {
-          // Add non-www variant if it has www
-          const nonWwwVariant = origin.replace('://www.', '://');
-          allOrigins.add(nonWwwVariant);
-        }
-      });
-      
-      return Array.from(allOrigins);
-    }
-    return defaultOrigins;
-  }
-  
-  // In development, allow all origins
-  return true;
-};
-
+// CORS configuration - Allow all origins
 const corsOptions = {
-  origin: getAllowedOrigins(),
+  origin: true, // Allow all origins
   credentials: true,
 };
 
