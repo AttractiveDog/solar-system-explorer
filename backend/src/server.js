@@ -143,6 +143,13 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
   console.error('Error:', err.stack);
 
+  // Ensure CORS headers are always sent, even in error responses
+  const origin = req.headers.origin;
+  if (origin && (allowedOrigins.includes('*') || allowedOrigins.includes(origin))) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  }
+
   res.status(err.status || 500).json({
     success: false,
     message: err.message || 'Internal Server Error',
