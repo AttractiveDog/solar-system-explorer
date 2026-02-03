@@ -31,7 +31,10 @@ This backend has been optimized for deployment on Vercel. Follow these steps to 
    - `MONGODB_URI` - Your MongoDB connection string
    - `NODE_ENV` - Set to `production`
    - `API_VERSION` - Set to `v1` (or your preferred version)
-   - `CORS_ORIGIN` - Your frontend URL (e.g., `https://your-frontend.vercel.app`)
+   - `CORS_ORIGIN` - Your frontend URL(s). For multiple URLs, separate with commas:
+     - Single: `https://your-frontend.vercel.app`
+     - Multiple: `https://app1.vercel.app,https://app2.vercel.app`
+     - See [CORS_CONFIGURATION.md](CORS_CONFIGURATION.md) for details
 
 4. **Deploy**
    - Click "Deploy"
@@ -162,8 +165,10 @@ Current setup uses `multer` for file uploads to local filesystem, which won't wo
    - Verify `MONGODB_URI` environment variable is set correctly
 
 2. **CORS Errors**
-   - Verify `CORS_ORIGIN` includes your frontend URL
+   - Verify `CORS_ORIGIN` includes your frontend URL(s)
+   - For multiple URLs, ensure they're comma-separated
    - Check that frontend is making requests to correct backend URL
+   - See [CORS_CONFIGURATION.md](CORS_CONFIGURATION.md) for detailed setup
 
 3. **404 Errors**
    - Check `vercel.json` routing configuration

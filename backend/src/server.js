@@ -45,10 +45,28 @@ const limiter = rateLimit({
 app.use('/api', limiter);
 
 // CORS configuration
+// Parse CORS_ORIGIN - supports comma-separated list of origins
+const getAllowedOrigins = () => {
+  const defaultOrigins = ['http://localhost:5173'];
+  
+  if (process.env.NODE_ENV === 'production') {
+    if (process.env.CORS_ORIGIN) {
+      // Split by comma and trim whitespace
+      const envOrigins = process.env.CORS_ORIGIN
+        .split(',')
+        .map(origin => origin.trim())
+        .filter(Boolean);
+      return [...defaultOrigins, ...envOrigins];
+    }
+    return defaultOrigins;
+  }
+  
+  // In development, allow all origins
+  return true;
+};
+
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production'
-    ? ['http://localhost:5173', 'https://solar-system-explorer-phi.vercel.app', process.env.CORS_ORIGIN].filter(Boolean)
-    : true,
+  origin: getAllowedOrigins(),
   credentials: true,
 };
 
