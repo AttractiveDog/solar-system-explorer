@@ -39,7 +39,57 @@ const app = express();
 // Trust proxy
 app.set('trust proxy', 1);
 
-// Security middleware
+// --- MANUAL CORS MIDDLEWARE (Must be first) ---
+const allowedOrigins = process.env.CORS_ORIGIN 
+  ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim()).filter(Boolean)
+  : ['*'];
+
+console.log('🌐 CORS - Allowed origins:', allowedOrigins);
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+
+  // Safe origin check
+  let isAllowed = false;
+  
+  if (!origin) {
+    // Non-browser request
+    isAllowed = true;
+  } else if (allowedOrigins.includes('*')) {
+     isAllowed = true;
+  } else if (allowedOrigins.includes(origin)) {
+    isAllowed = true;
+  } else if (origin.includes('localhost') || origin.includes('vercel.app')) {
+    // Dev/Preview convenience
+    isAllowed = true;
+  }
+
+  if (isAllowed) {
+      // If origin is present, echo it back. If not (server-to-server), use *
+     res.setHeader('Access-Control-Allow-Origin', origin || '*');
+  } else {
+     // If blocked, we might want to just not set the header, or log it.
+     // But for debugging, let's allow it but warn (or just strictly block in prod?)
+     // For now, to solve user's issue: ALLOW EVERYTHING if it matches "comethbtu" just in case of subdomains
+     if (origin && origin.includes('comethbtu')) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+     }
+  }
+
+  // Always set standard CORS headers
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+
+  // Handle preflight immediately to prevent other middleware from interfering
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  next();
+});
+// ----------------------------------------------
+// Security middleware (After CORS)
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
@@ -49,50 +99,11 @@ const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each IP to 100 requests per windowMs
   message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  skip: (req) => req.method === 'OPTIONS', // Skip rate limiting for OPTIONS requests
 });
 app.use('/api', limiter);
-
-// CORS configuration
-const allowedOrigins = process.env.CORS_ORIGIN 
-  ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim()).filter(Boolean)
-  : ['*'];
-
-console.log('🌐 CORS - Allowed origins:', allowedOrigins);
-
-// More permissive CORS for production/Vercel
-// Manual CORS Middleware
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  
-  // Log for debugging
-  // console.log('🔍 Incoming origin:', origin);
-
-  if (origin && (allowedOrigins.includes(origin) || allowedOrigins.includes('*'))) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  } else if (!origin) {
-    // Allow non-browser requests (e.g. server-to-server, Postman)
-    res.setHeader('Access-Control-Allow-Origin', '*');
-  } else {
-    // Optional: Allow localhost/vercel.app even if not in explicit list (dev convenience)
-    if (origin.includes('localhost') || origin.includes('vercel.app')) {
-       res.setHeader('Access-Control-Allow-Origin', origin);
-    }
-  }
-
-  // Always set these headers for preflight
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-
-  // Handle preflight immediately
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  next();
-});
-
-// app.use(cors(corsOptions)); // Disable package-based CORS to prevent conflicts
 
 // test Body parser middleware
 app.use(express.json());
