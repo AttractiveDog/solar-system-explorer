@@ -75,6 +75,9 @@ const API_VERSION = process.env.API_VERSION || 'v1';
 app.use('/admin', express.static(path.join(__dirname, 'public/admin')));
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
+// Handle OPTIONS requests explicitly for CORS preflight
+app.options('*', cors(corsOptions));
+
 // Routes
 app.use(`/api/${API_VERSION}/users`, userRoutes);
 app.use(`/api/${API_VERSION}/clubs`, clubRoutes);
