@@ -23,7 +23,15 @@ const __dirname = path.dirname(__filename);
 dotenv.config();
 
 // Connect to MongoDB
-connectDB();
+// Connect to MongoDB
+if (process.env.MONGODB_URI) {
+  connectDB().catch(err => {
+    console.error('❌ Failed to connect to MongoDB in initial connection:', err);
+    // Do NOT exit process here for serverless, let the request handlers fail gracefully
+  });
+} else {
+  console.warn('⚠️ MONGODB_URI is not defined. Database features will not work.');
+}
 
 // Initialize Express app
 const app = express();
@@ -52,46 +60,39 @@ const allowedOrigins = process.env.CORS_ORIGIN
 console.log('🌐 CORS - Allowed origins:', allowedOrigins);
 
 // More permissive CORS for production/Vercel
-const corsOptions = {
-  origin: function (origin, callback) {
-    console.log('🔍 Incoming origin request:', origin);
+// Manual CORS Middleware
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  
+  // Log for debugging
+  // console.log('🔍 Incoming origin:', origin);
 
-    // Allow requests with no origin (like mobile apps, Postman, etc.)
-    if (!origin) {
-      return callback(null, true);
+  if (origin && (allowedOrigins.includes(origin) || allowedOrigins.includes('*'))) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else if (!origin) {
+    // Allow non-browser requests (e.g. server-to-server, Postman)
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  } else {
+    // Optional: Allow localhost/vercel.app even if not in explicit list (dev convenience)
+    if (origin.includes('localhost') || origin.includes('vercel.app')) {
+       res.setHeader('Access-Control-Allow-Origin', origin);
     }
-    
-    // If wildcard is set, allow all origins
-    if (allowedOrigins.includes('*')) {
-      return callback(null, true);
-    }
-    
-    // Check if the origin is in the allowed list
-    // Also explicitly allow localhost for development
-    const isAllowed = allowedOrigins.includes(origin) || 
-                      origin.includes('localhost') || 
-                      origin.includes('127.0.0.1') ||
-                      origin.includes('vercel.app'); // Allow Vercel preview deployments
+  }
 
-    if (isAllowed) {
-      callback(null, true);
-    } else {
-      console.warn(`⚠️ CORS blocked request from origin: ${origin}`);
-      // For now, in order to unblock the user, we will extend the fallback to true
-      // But ideally this should be false in a strict production env
-      callback(null, true); 
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['X-Requested-With', 'Content-Type', 'Authorization', 'Accept', 'Origin'],
-  exposedHeaders: ['Content-Range', 'X-Content-Range'],
-  maxAge: 86400, // 24 hours
-  preflightContinue: false,
-  optionsSuccessStatus: 204
-};
+  // Always set these headers for preflight
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
 
-app.use(cors(corsOptions));
+  // Handle preflight immediately
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  next();
+});
+
+// app.use(cors(corsOptions)); // Disable package-based CORS to prevent conflicts
 
 // test Body parser middleware
 app.use(express.json());
@@ -114,8 +115,8 @@ const API_VERSION = process.env.API_VERSION || 'v1';
 app.use('/admin', express.static(path.join(__dirname, 'public/admin')));
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// Handle OPTIONS requests explicitly for CORS preflight
-app.options('*', cors(corsOptions));
+// Handle OPTIONS requests explicitly for CORS preflight (Handled by manual middleware above)
+// app.options('*', cors(corsOptions));
 
 // Routes
 app.use(`/api/${API_VERSION}/users`, userRoutes);
@@ -191,7 +192,10 @@ if (process.env.VERCEL !== '1') {
   process.on('unhandledRejection', (err) => {
     console.error('❌ Unhandled Promise Rejection:', err);
     // Close server & exit process
-    process.exit(1);
+    // Only exit in development/local, not in serverless
+    if (process.env.VERCEL !== '1') {
+      process.exit(1);
+    }
   });
 }
 
