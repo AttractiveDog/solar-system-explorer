@@ -28,7 +28,10 @@ const connectDB = async () => {
     return conn;
   } catch (error) {
     console.error('❌ Error connecting to MongoDB:', error.message);
-    process.exit(1);
+    // In serverless, we shouldn't exit the process, as it causes "Invocation Failed"
+    // Instead, allow the error to persist so subsequent requests might retry
+    // or the error middleware catches it.
+    throw error;
   }
 };
 
