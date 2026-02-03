@@ -6,26 +6,26 @@
       "use": "@vercel/node"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/admin/(.*)",
-      "dest": "src/server.js"
+      "source": "/admin/(.*)",
+      "destination": "/src/server.js"
     },
     {
-      "src": "/uploads/(.*)",
-      "dest": "src/server.js"
+      "source": "/uploads/(.*)",
+      "destination": "/src/server.js"
     },
     {
-      "src": "/api/(.*)",
-      "dest": "src/server.js"
+      "source": "/api/(.*)",
+      "destination": "/src/server.js"
     },
     {
-      "src": "/health",
-      "dest": "src/server.js"
+      "source": "/health",
+      "destination": "/src/server.js"
     },
     {
-      "src": "/(.*)",
-      "dest": "src/server.js"
+      "source": "/(.*)",
+      "destination": "/src/server.js"
     }
   ],
   "headers": [
