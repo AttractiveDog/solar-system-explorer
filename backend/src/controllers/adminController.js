@@ -4,12 +4,19 @@ import Club from '../models/Club.js';
 import Event from '../models/Event.js';
 import { Achievement } from '../models/Achievement.js';
 import AllowedEmail from '../models/AllowedEmail.js';
+import { ensureConnection } from '../config/database.js';
 
 // @desc    Admin login
 // @route   POST /api/v1/admin/login
 // @access  Public
 export const adminLogin = async (req, res) => {
   try {
+    console.log('Admin login attempt:', { username: req.body.username });
+    
+    // Ensure database connection is ready (critical for serverless)
+    await ensureConnection();
+    console.log('Database connection verified for admin login');
+    
     const { username, password } = req.body;
 
     if (!username || !password) {
@@ -75,6 +82,9 @@ export const adminLogin = async (req, res) => {
 // @access  Private (Admin)
 export const getDashboardStats = async (req, res) => {
   try {
+    // Ensure database connection is ready (critical for serverless)
+    await ensureConnection();
+    
     const [totalUsers, totalClubs, totalEvents, totalAchievements] = await Promise.all([
       User.countDocuments(),
       Club.countDocuments(),
@@ -112,6 +122,7 @@ export const getDashboardStats = async (req, res) => {
 // @access  Private (Admin)
 export const getAllUsersAdmin = async (req, res) => {
   try {
+    await ensureConnection();
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
@@ -178,6 +189,7 @@ export const getUserByIdAdmin = async (req, res) => {
 // @access  Private (Admin)
 export const getAllClubsAdmin = async (req, res) => {
   try {
+    await ensureConnection();
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
@@ -272,6 +284,7 @@ export const getEventByIdAdmin = async (req, res) => {
 // @access  Private (Admin)
 export const getAllEventsAdmin = async (req, res) => {
   try {
+    await ensureConnection();
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
@@ -541,6 +554,7 @@ export const updateEventAdmin = async (req, res) => {
 // @access  Private (Admin)
 export const createClubAdmin = async (req, res) => {
   try {
+    await ensureConnection();
     const { name, description, icon, color, gradient, category, createdBy } = req.body;
 
     // Validate required fields
@@ -600,6 +614,7 @@ export const createClubAdmin = async (req, res) => {
 // @access  Private (Admin)
 export const createEventAdmin = async (req, res) => {
   try {
+    await ensureConnection();
     const { 
       title, 
       description, 
