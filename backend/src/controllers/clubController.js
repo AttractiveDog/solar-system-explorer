@@ -1,5 +1,6 @@
 import Club from '../models/Club.js';
 import User from '../models/User.js';
+import { ensureConnection } from '../config/database.js';
 
 // @desc    Get all clubs
 // @route   GET /api/v1/clubs
@@ -7,6 +8,10 @@ import User from '../models/User.js';
 export const getClubs = async (req, res) => {
   try {
     console.log('Fetching clubs...');
+    
+    // Ensure database connection is ready (critical for serverless)
+    await ensureConnection();
+    
     const clubs = await Club.find()
       .populate('members.user', 'username avatar')
       .populate('createdBy', 'username');

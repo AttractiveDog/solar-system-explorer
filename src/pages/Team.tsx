@@ -46,7 +46,7 @@ interface TeamData {
     };
 }
 
-const API_BASE = 'http://localhost:5000/api/v1';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
 
 const Team = () => {
     const [activeMainTab, setActiveMainTab] = useState<'founders' | 'mentor' | 'college-support' | 'structure' | 'members'>('founders');
@@ -120,59 +120,59 @@ const Team = () => {
     const founders = teamData.founders.map(m => ({
         ...m,
         id: m._id || m.id || '',
-        image: `http://localhost:5000/uploads/team-images/${m.image || 'placeholder.jpg'}`
+        image: `${import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000'}/uploads/team-images/${m.image || 'placeholder.jpg'}`
     }));
 
     const mentors = teamData.mentors.map(m => ({
         ...m,
         id: m._id || m.id || '',
-        image: `http://localhost:5000/uploads/team-images/${m.image || 'placeholder.jpg'}`
+        image: `${import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000'}/uploads/team-images/${m.image || 'placeholder.jpg'}`
     }));
 
     const collegeSupport = teamData.collegeSupport.map(m => ({
         ...m,
         id: m._id || m.id || '',
-        image: `http://localhost:5000/uploads/team-images/${m.image || 'placeholder.jpg'}`
+        image: `${import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000'}/uploads/team-images/${m.image || 'placeholder.jpg'}`
     }));
 
     const coreTeam = teamData.coreTeam.map(m => ({
         ...m,
         id: m._id || m.id || '',
-        image: `http://localhost:5000/uploads/team-images/${m.image || 'placeholder.jpg'}`
+        image: `${import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000'}/uploads/team-images/${m.image || 'placeholder.jpg'}`
     }));
 
     const graphicsTeam = teamData.graphics.map(m => ({
         ...m,
         id: m._id || m.id || '',
-        image: `http://localhost:5000/uploads/team-images/${m.image || 'placeholder.jpg'}`
+        image: `${import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000'}/uploads/team-images/${m.image || 'placeholder.jpg'}`
     }));
 
     const managementTeam = teamData.management.map(m => ({
         ...m,
         id: m._id || m.id || '',
-        image: `http://localhost:5000/uploads/team-images/${m.image || 'placeholder.jpg'}`
+        image: `${import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000'}/uploads/team-images/${m.image || 'placeholder.jpg'}`
     }));
 
     const membersByYear = {
         '1st': teamData.members.year1.map(m => ({
             ...m,
             id: m._id || m.id || '',
-            image: `http://localhost:5000/uploads/team-images/${m.image || 'placeholder.jpg'}`
+            image: `${import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000'}/uploads/team-images/${m.image || 'placeholder.jpg'}`
         })),
         '2nd': teamData.members.year2.map(m => ({
             ...m,
             id: m._id || m.id || '',
-            image: `http://localhost:5000/uploads/team-images/${m.image || 'placeholder.jpg'}`
+            image: `${import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000'}/uploads/team-images/${m.image || 'placeholder.jpg'}`
         })),
         '3rd': teamData.members.year3.map(m => ({
             ...m,
             id: m._id || m.id || '',
-            image: `http://localhost:5000/uploads/team-images/${m.image || 'placeholder.jpg'}`
+            image: `${import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000'}/uploads/team-images/${m.image || 'placeholder.jpg'}`
         })),
         '4th': teamData.members.year4.map(m => ({
             ...m,
             id: m._id || m.id || '',
-            image: `http://localhost:5000/uploads/team-images/${m.image || 'placeholder.jpg'}`
+            image: `${import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000'}/uploads/team-images/${m.image || 'placeholder.jpg'}`
         }))
     };
 

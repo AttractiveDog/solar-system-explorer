@@ -32,11 +32,13 @@ console.log('Backend starting. Environment:', {
 });
 
 // Connect to MongoDB
-// Connect to MongoDB
+// In serverless, the connection will be established on first request if needed
+// The ensureConnection() calls in controllers will handle connection establishment
 if (process.env.MONGODB_URI) {
   connectDB().catch(err => {
-    console.error('❌ Failed to connect to MongoDB in initial connection:', err);
-    // Do NOT exit process here for serverless, let the request handlers fail gracefully
+    console.error('❌ Initial MongoDB connection attempt failed:', err.message);
+    console.log('⏳ Connection will be retried on first API request');
+    // Don't exit - let individual requests handle connection
   });
 } else {
   console.warn('⚠️ MONGODB_URI is not defined. Database features will not work.');

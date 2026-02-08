@@ -19,7 +19,7 @@ interface TeamMember {
     isActive?: boolean;
 }
 
-const API_BASE = 'http://localhost:5000/api/v1';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
 
 const AdminTeamManagement: React.FC = () => {
     const [members, setMembers] = useState<TeamMember[]>([]);
@@ -174,7 +174,7 @@ const AdminTeamManagement: React.FC = () => {
             status: member.status || 'offline',
         });
         if (member.image) {
-            setImagePreview(`http://localhost:5000/uploads/team-images/${member.image}`);
+            setImagePreview(`${import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000'}/uploads/team-images/${member.image}`);
         }
         setShowForm(true);
     };
@@ -263,7 +263,7 @@ const AdminTeamManagement: React.FC = () => {
                     filteredMembers.map(member => (
                         <div key={member._id} className="member-card">
                             <img
-                                src={`http://localhost:5000/uploads/team-images/${member.image || 'placeholder.jpg'}`}
+                                src={`${import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000'}/uploads/team-images/${member.image || 'placeholder.jpg'}`}
                                 alt={member.name}
                                 className="member-image"
                             />
