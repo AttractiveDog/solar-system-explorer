@@ -18,3 +18,4 @@ router.post('/sync', syncFirebaseUser);
 router.get('/firebase/:firebaseUid', getUserByFirebaseUid);
 
 export default router;
+

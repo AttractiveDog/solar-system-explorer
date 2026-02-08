@@ -13,6 +13,7 @@ import Profile from "./pages/Profile";
 import EventLogs from "./pages/EventLogs";
 import EventDetail from "./pages/EventDetail";
 import Team from "./pages/Team";
+// AdminTeamManagement removed - functionality integrated into main admin panel
 import Leaderboard from "./pages/Leaderboard";
 import Stratathon from "./pages/Stratathon";
 import NotFound from "./pages/NotFound";
@@ -63,6 +64,7 @@ const App = () => (
             <Route path="/events" element={<EventLogs />} />
             <Route path="/events/:eventId" element={<EventDetail />} />
             <Route path="/team" element={<Team />} />
+            {/* /admin/team-management route removed - use main admin panel at localhost:5000/admin/ */}
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/stratathon" element={<Stratathon />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

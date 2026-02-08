@@ -12,6 +12,8 @@ import clubRoutes from './routes/clubRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
 import achievementRoutes from './routes/achievementRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import teamRoutes from './routes/teamRoutes.js';
+import noticeRoutes from './routes/noticeRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -47,7 +49,7 @@ const app = express();
 app.set('trust proxy', 1);
 
 // --- MANUAL CORS MIDDLEWARE (Must be first) ---
-const allowedOrigins = process.env.CORS_ORIGIN 
+const allowedOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim()).filter(Boolean)
   : ['*'];
 
@@ -56,18 +58,18 @@ console.log('🌐 CORS - Allowed origins:', allowedOrigins);
 // Manual CORS Middleware
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  
+
   // Debug unexpected routing issues
   console.log(`[DEBUG] Request: method=${req.method} url=${req.url} origin=${origin}`);
 
   // Safe origin check
   let isAllowed = false;
-  
+
   if (!origin) {
     // Non-browser request
     isAllowed = true;
   } else if (allowedOrigins.includes('*')) {
-     isAllowed = true;
+    isAllowed = true;
   } else if (allowedOrigins.includes(origin)) {
     isAllowed = true;
   } else if (origin.includes('localhost') || origin.includes('vercel.app')) {
@@ -76,15 +78,15 @@ app.use((req, res, next) => {
   }
 
   if (isAllowed) {
-      // If origin is present, echo it back. If not (server-to-server), use *
-     res.setHeader('Access-Control-Allow-Origin', origin || '*');
+    // If origin is present, echo it back. If not (server-to-server), use *
+    res.setHeader('Access-Control-Allow-Origin', origin || '*');
   } else {
-     // If blocked, we might want to just not set the header, or log it.
-     // But for debugging, let's allow it but warn (or just strictly block in prod?)
-     // For now, to solve user's issue: ALLOW EVERYTHING if it matches "comethbtu" just in case of subdomains
-     if (origin && origin.includes('comethbtu')) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-     }
+    // If blocked, we might want to just not set the header, or log it.
+    // But for debugging, let's allow it but warn (or just strictly block in prod?)
+    // For now, to solve user's issue: ALLOW EVERYTHING if it matches "comethbtu" just in case of subdomains
+    if (origin && origin.includes('comethbtu')) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+    }
   }
 
   // Always set standard CORS headers
@@ -136,6 +138,7 @@ const API_VERSION = process.env.API_VERSION || 'v1';
 // Serve static files for admin panel
 app.use('/admin', express.static(path.join(__dirname, 'public/admin')));
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/uploads/team-images', express.static(path.join(__dirname, '../uploads/team-images')));
 
 // Handle OPTIONS requests explicitly for CORS preflight (Handled by manual middleware above)
 // app.options('*', cors(corsOptions));
@@ -146,6 +149,8 @@ app.use(`/api/${API_VERSION}/clubs`, clubRoutes);
 app.use(`/api/${API_VERSION}/events`, eventRoutes);
 app.use(`/api/${API_VERSION}/achievements`, achievementRoutes);
 app.use(`/api/${API_VERSION}/admin`, adminRoutes);
+app.use(`/api/${API_VERSION}`, teamRoutes);
+app.use(`/api/${API_VERSION}/notices`, noticeRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

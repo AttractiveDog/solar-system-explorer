@@ -344,31 +344,22 @@ const Index = () => {
                   <span className="block text-purple-300 mt-1 font-semibold">play in HBTU, built on the backbone of ComET infrastructure.</span>
                 </p>
 
-                {/* Buttons */}
+                {/* Register Button */}
                 <div className="flex flex-col gap-3 items-center">
                   <a
-                    href="/stratathon"
-                    className="group relative inline-flex items-center justify-center px-8 py-3.5 w-full text-white text-sm font-black rounded-lg hover:scale-[1.02] transition-all duration-300 overflow-hidden border border-purple-500/50"
+                    href="/register"
+                    className="group relative inline-flex items-center justify-center px-10 py-4 w-full text-white text-base md:text-lg font-black rounded-xl hover:scale-[1.05] active:scale-[0.98] transition-all duration-300 overflow-hidden border-2 border-purple-400/60"
                     style={{
-                      background: 'linear-gradient(90deg, rgba(139, 92, 246, 0.4) 0%, rgba(6, 182, 212, 0.4) 100%)',
-                      boxShadow: '0 0 30px rgba(139, 92, 246, 0.3), inset 0 0 20px rgba(139, 92, 246, 0.1)',
+                      background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.6) 0%, rgba(6, 182, 212, 0.6) 50%, rgba(168, 85, 247, 0.6) 100%)',
+                      boxShadow: '0 0 40px rgba(139, 92, 246, 0.5), 0 0 60px rgba(6, 182, 212, 0.4), inset 0 0 30px rgba(255, 255, 255, 0.1)',
                     }}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-400/30 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out"></div>
-                    <span className="relative tracking-[0.2em] uppercase flex items-center gap-2">
-                      LATEST UPDATES
-                    </span>
-                  </a>
-
-                  <a
-                    href="/leaderboard"
-                    className="group relative inline-flex items-center justify-center px-8 py-3.5 w-full bg-transparent text-white text-sm font-black rounded-lg hover:scale-[1.02] transition-all duration-300 border border-cyan-500/50"
-                    style={{
-                      boxShadow: '0 0 20px rgba(6, 182, 212, 0.2)',
-                    }}
-                  >
-                    <span className="relative tracking-[0.2em] uppercase flex items-center gap-2">
-                      LEADERBOARD
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000 ease-in-out"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-cyan-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <span className="relative tracking-[0.25em] uppercase flex items-center gap-3 drop-shadow-lg">
+                      <Zap size={20} className="animate-pulse" fill="white" />
+                      REGISTER NOW
+                      <Zap size={20} className="animate-pulse" fill="white" />
                     </span>
                   </a>
                 </div>

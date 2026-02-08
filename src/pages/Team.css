@@ -109,3 +109,47 @@
         transform: translateY(0);
     }
 }
+
+/* Loading and Error States */
+.team-loading,
+.team-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    gap: 1rem;
+    color: #94a3b8;
+}
+
+.team-loading .spinner {
+    animation: spin 1s linear infinite;
+    color: #22d3ee;
+}
+
+.team-error {
+    color: #ef4444;
+}
+
+.team-error button {
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    background: rgba(6, 182, 212, 0.2);
+    color: #22d3ee;
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.team-error button:hover {
+    background: rgba(6, 182, 212, 0.3);
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

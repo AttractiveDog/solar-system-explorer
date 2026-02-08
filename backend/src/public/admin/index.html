@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solar System Explorer - Admin Panel</title>
     <meta name="description" content="Admin panel for managing Solar System Explorer data">
     <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
     <!-- Login Screen -->
     <div id="loginScreen" class="login-container">
@@ -17,16 +21,16 @@
             <div class="login-header">
                 <div class="logo">
                     <svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="25" cy="25" r="20" fill="url(#gradient1)"/>
-                        <circle cx="25" cy="25" r="12" fill="url(#gradient2)" opacity="0.8"/>
+                        <circle cx="25" cy="25" r="20" fill="url(#gradient1)" />
+                        <circle cx="25" cy="25" r="12" fill="url(#gradient2)" opacity="0.8" />
                         <defs>
                             <linearGradient id="gradient1" x1="5" y1="5" x2="45" y2="45">
-                                <stop offset="0%" stop-color="#667eea"/>
-                                <stop offset="100%" stop-color="#764ba2"/>
+                                <stop offset="0%" stop-color="#667eea" />
+                                <stop offset="100%" stop-color="#764ba2" />
                             </linearGradient>
                             <linearGradient id="gradient2" x1="13" y1="13" x2="37" y2="37">
-                                <stop offset="0%" stop-color="#f093fb"/>
-                                <stop offset="100%" stop-color="#f5576c"/>
+                                <stop offset="0%" stop-color="#f093fb" />
+                                <stop offset="100%" stop-color="#f5576c" />
                             </linearGradient>
                         </defs>
                     </svg>
@@ -34,27 +38,27 @@
                 <h1>Admin Portal</h1>
                 <p>Solar System Explorer</p>
             </div>
-            
+
             <form id="loginForm" class="login-form">
                 <div class="form-group">
                     <label for="username">Username</label>
                     <input type="text" id="username" name="username" placeholder="Enter your username" required>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password" placeholder="Enter your password" required>
                 </div>
-                
+
                 <div id="loginError" class="error-message" style="display: none;"></div>
-                
+
                 <button type="submit" class="btn-primary" id="loginBtn">
                     <span class="btn-text">Sign In</span>
                     <div class="btn-loader" style="display: none;"></div>
                 </button>
             </form>
         </div>
-        
+
         <div class="particles">
             <div class="particle"></div>
             <div class="particle"></div>
@@ -71,44 +75,44 @@
             <div class="sidebar-header">
                 <div class="logo-small">
                     <svg width="35" height="35" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="25" cy="25" r="20" fill="url(#gradient3)"/>
-                        <circle cx="25" cy="25" r="12" fill="url(#gradient4)" opacity="0.8"/>
+                        <circle cx="25" cy="25" r="20" fill="url(#gradient3)" />
+                        <circle cx="25" cy="25" r="12" fill="url(#gradient4)" opacity="0.8" />
                         <defs>
                             <linearGradient id="gradient3" x1="5" y1="5" x2="45" y2="45">
-                                <stop offset="0%" stop-color="#667eea"/>
-                                <stop offset="100%" stop-color="#764ba2"/>
+                                <stop offset="0%" stop-color="#667eea" />
+                                <stop offset="100%" stop-color="#764ba2" />
                             </linearGradient>
                             <linearGradient id="gradient4" x1="13" y1="13" x2="37" y2="37">
-                                <stop offset="0%" stop-color="#f093fb"/>
-                                <stop offset="100%" stop-color="#f5576c"/>
+                                <stop offset="0%" stop-color="#f093fb" />
+                                <stop offset="100%" stop-color="#f5576c" />
                             </linearGradient>
                         </defs>
                     </svg>
                 </div>
                 <h2>Admin Panel</h2>
             </div>
-            
+
             <nav class="sidebar-nav">
                 <a href="#" class="nav-link active" data-section="dashboard">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="3" width="7" height="7"/>
-                        <rect x="14" y="3" width="7" height="7"/>
-                        <rect x="14" y="14" width="7" height="7"/>
-                        <rect x="3" y="14" width="7" height="7"/>
+                        <rect x="3" y="3" width="7" height="7" />
+                        <rect x="14" y="3" width="7" height="7" />
+                        <rect x="14" y="14" width="7" height="7" />
+                        <rect x="3" y="14" width="7" height="7" />
                     </svg>
                     <span>Dashboard</span>
                 </a>
-                
+
                 <a href="#" class="nav-link" data-section="users">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                        <circle cx="9" cy="7" r="4"/>
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                     </svg>
                     <span>Users</span>
                 </a>
-                
+
                 <a href="#" class="nav-link" data-section="allowed-emails">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
@@ -116,33 +120,50 @@
                     </svg>
                     <span>Allowed Emails</span>
                 </a>
-                
+
                 <a href="#" class="nav-link" data-section="clubs">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polygon points="12 2 2 7 12 12 22 7 12 2"/>
-                        <polyline points="2 17 12 22 22 17"/>
-                        <polyline points="2 12 12 17 22 12"/>
+                        <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                        <polyline points="2 17 12 22 22 17" />
+                        <polyline points="2 12 12 17 22 12" />
                     </svg>
                     <span>Clubs</span>
                 </a>
-                
+
                 <a href="#" class="nav-link" data-section="events">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                        <line x1="16" y1="2" x2="16" y2="6"/>
-                        <line x1="8" y1="2" x2="8" y2="6"/>
-                        <line x1="3" y1="10" x2="21" y2="10"/>
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                        <line x1="16" y1="2" x2="16" y2="6" />
+                        <line x1="8" y1="2" x2="8" y2="6" />
+                        <line x1="3" y1="10" x2="21" y2="10" />
                     </svg>
                     <span>Events</span>
                 </a>
+
+                <a href="#" class="nav-link" data-section="notices">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    <span>Notice Board</span>
+                </a>
+
+                <a href="#" class="nav-link" data-section="team">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                    <span>Team Management</span>
+                </a>
             </nav>
-            
+
             <div class="sidebar-footer">
                 <button class="btn-logout" id="logoutBtn">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                        <polyline points="16 17 21 12 16 7"/>
-                        <line x1="21" y1="12" x2="9" y2="12"/>
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                        <polyline points="16 17 21 12 16 7" />
+                        <line x1="21" y1="12" x2="9" y2="12" />
                     </svg>
                     <span>Logout</span>
                 </button>
@@ -166,11 +187,12 @@
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon users">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                                <circle cx="9" cy="7" r="4"/>
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                <circle cx="9" cy="7" r="4" />
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                             </svg>
                         </div>
                         <div class="stat-info">
@@ -181,10 +203,11 @@
 
                     <div class="stat-card">
                         <div class="stat-icon clubs">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polygon points="12 2 2 7 12 12 22 7 12 2"/>
-                                <polyline points="2 17 12 22 22 17"/>
-                                <polyline points="2 12 12 17 22 12"/>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                                <polyline points="2 17 12 22 22 17" />
+                                <polyline points="2 12 12 17 22 12" />
                             </svg>
                         </div>
                         <div class="stat-info">
@@ -195,11 +218,12 @@
 
                     <div class="stat-card">
                         <div class="stat-icon events">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                                <line x1="16" y1="2" x2="16" y2="6"/>
-                                <line x1="8" y1="2" x2="8" y2="6"/>
-                                <line x1="3" y1="10" x2="21" y2="10"/>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                <line x1="16" y1="2" x2="16" y2="6" />
+                                <line x1="8" y1="2" x2="8" y2="6" />
+                                <line x1="3" y1="10" x2="21" y2="10" />
                             </svg>
                         </div>
                         <div class="stat-info">
@@ -210,9 +234,10 @@
 
                     <div class="stat-card">
                         <div class="stat-icon achievements">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="8" r="7"/>
-                                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="8" r="7" />
+                                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
                             </svg>
                         </div>
                         <div class="stat-info">
@@ -352,6 +377,48 @@
                 </div>
                 <div class="pagination" id="eventsPagination"></div>
             </section>
+
+            <!-- Notice Board Section -->
+            <section id="noticesSection" class="content-section">
+                <div class="section-header">
+                    <h2>Notice Board Management</h2>
+                    <button class="btn-primary" id="addNoticeBtn">
+                        <span class="btn-text">Add Notice</span>
+                    </button>
+                </div>
+                <div id="noticeList" class="notice-list">
+                    <div class="loading">Loading notices...</div>
+                </div>
+            </section>
+
+            <!-- Team Management Section -->
+            <section id="teamSection" class="content-section">
+                <div class="section-header">
+                    <h2>Team Management</h2>
+                    <div class="header-actions-row" style="display: flex; gap: 10px; align-items: center;">
+                        <button class="btn-primary" id="addTeamMemberBtn">
+                            <span class="btn-text">Add Team Member</span>
+                        </button>
+                        <div class="search-box">
+                            <input type="text" id="teamSearch" placeholder="Search team members...">
+                        </div>
+                        <select id="teamCategoryFilter"
+                            style="padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: white;">
+                            <option value="all">All Categories</option>
+                            <option value="founder">Founders</option>
+                            <option value="mentor">Mentors</option>
+                            <option value="college-support">College Support</option>
+                            <option value="core-team">Core Team</option>
+                            <option value="graphics">Graphics</option>
+                            <option value="management">Management</option>
+                            <option value="member">Members</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="teamMembersGrid" class="team-grid">
+                    <div class="loading">Loading team members...</div>
+                </div>
+            </section>
         </main>
     </div>
 
@@ -368,6 +435,87 @@
         </div>
     </div>
 
+    <!-- Notice Modal -->
+    <div id="noticeModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add Notice</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="noticeForm">
+                    <div class="form-group">
+                        <label for="noticeTitle">Title *</label>
+                        <input type="text" id="noticeTitle" name="title" required maxlength="200"
+                            placeholder="Enter notice title">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="noticeDescription">Description *</label>
+                        <textarea id="noticeDescription" name="description" rows="4" required maxlength="1000"
+                            placeholder="Enter notice description"></textarea>
+                    </div>
+
+                    <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label for="noticeColor">Color</label>
+                            <select id="noticeColor" name="color">
+                                <option value="purple" selected>Purple</option>
+                                <option value="cyan">Cyan</option>
+                                <option value="orange">Orange</option>
+                                <option value="green">Green</option>
+                                <option value="blue">Blue</option>
+                                <option value="red">Red</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="noticePriority">Priority (0-10)</label>
+                            <input type="number" id="noticePriority" name="priority" min="0" max="10" value="0">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="noticeLink">Link (optional)</label>
+                        <input type="url" id="noticeLink" name="link" placeholder="https://example.com">
+                    </div>
+
+                    <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label for="noticeExpiresAt">Expires At (optional)</label>
+                            <input type="datetime-local" id="noticeExpiresAt" name="expiresAt">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="noticeOrder">Order</label>
+                            <input type="number" id="noticeOrder" name="order" value="0">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="noticeActive" name="isActive" checked
+                                style="width: auto; margin: 0;">
+                            <span>Active</span>
+                        </label>
+                    </div>
+
+                    <div class="modal-actions"
+                        style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                        <button type="button" class="btn-secondary" id="cancelNoticeBtn">Cancel</button>
+                        <button type="submit" class="btn-primary">
+                            <span class="btn-text">Save Notice</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
     <script src="js/admin.js"></script>
+    <script src="js/team-management.js"></script>
+    <script src="js/notice-management.js"></script>
 </body>
+
 </html>

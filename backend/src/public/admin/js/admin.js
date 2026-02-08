@@ -57,6 +57,8 @@ function setupEventListeners() {
     if (addClubBtn) addClubBtn.addEventListener('click', showAddClubModal);
     if (addEventBtn) addEventBtn.addEventListener('click', showAddEventModal);
     if (addAllowedEmailBtn) addAllowedEmailBtn.addEventListener('click', showAddAllowedEmailModal);
+    const addTeamMemberBtn = document.getElementById('addTeamMemberBtn');
+    if (addTeamMemberBtn) addTeamMemberBtn.addEventListener('click', showAddTeamMemberModal);
 
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
@@ -210,6 +212,8 @@ function switchSection(section) {
         clubs: 'Club Management',
         events: 'Event Management',
         'allowed-emails': 'Allowed Emails Management',
+        notices: 'Notice Board Management',
+        team: 'Team Management',
     };
     sectionTitle.textContent = titles[section] || section;
 
@@ -224,6 +228,10 @@ function switchSection(section) {
         loadEvents();
     } else if (section === 'allowed-emails') {
         loadAllowedEmails();
+    } else if (section === 'notices') {
+        // Notice loading is handled by notice-management.js
+    } else if (section === 'team') {
+        loadTeamMembers();
     }
 }
 

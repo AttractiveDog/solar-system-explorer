@@ -1,4 +1,5 @@
 import User from '../models/User.js';
+import Admin from '../models/Admin.js';
 import AllowedEmail from '../models/AllowedEmail.js';
 
 /**
@@ -29,18 +30,18 @@ export const syncFirebaseUser = async (req, res) => {
         user.displayName = displayName || user.displayName;
         user.photoURL = photoURL || user.photoURL;
         user.provider = provider || user.provider;
-        
+
         // Use photoURL as avatar if not set
         if (photoURL && !user.avatar) {
           user.avatar = photoURL;
         }
-        
+
         await user.save();
       } else {
         // Create new user
         // Check if email is in the allowed list
         const isAllowed = await AllowedEmail.findOne({ email });
-        
+
         if (!isAllowed) {
           return res.status(403).json({
             success: false,
@@ -49,7 +50,7 @@ export const syncFirebaseUser = async (req, res) => {
         }
 
         const username = email.split('@')[0] + '_' + Date.now(); // Generate unique username
-        
+
         user = await User.create({
           firebaseUid,
           username,
@@ -70,11 +71,11 @@ export const syncFirebaseUser = async (req, res) => {
       // Update existing Firebase user
       user.displayName = displayName || user.displayName;
       user.photoURL = photoURL || user.photoURL;
-      
+
       if (photoURL && (!user.avatar || user.avatar.includes('dicebear'))) {
         user.avatar = photoURL;
       }
-      
+
       await user.save();
     }
 
@@ -127,3 +128,4 @@ export const getUserByFirebaseUid = async (req, res) => {
     });
   }
 };
+

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Star,
     GraduationCap,
@@ -11,205 +11,179 @@ import {
     List,
     Filter,
     Info,
-    ChevronRight
+    ChevronRight,
+    Loader
 } from 'lucide-react';
 import './Team.css';
 
 interface TeamMember {
-    id: string;
+    _id?: string;
+    id?: string;
     name: string;
     role: string;
     image: string;
     branch?: string;
     year?: string;
+    bio?: string;
     linkedin?: string;
     github?: string;
     email?: string;
     status?: 'online' | 'away' | 'offline';
 }
 
+interface TeamData {
+    founders: TeamMember[];
+    mentors: TeamMember[];
+    collegeSupport: TeamMember[];
+    coreTeam: TeamMember[];
+    graphics: TeamMember[];
+    management: TeamMember[];
+    members: {
+        year1: TeamMember[];
+        year2: TeamMember[];
+        year3: TeamMember[];
+        year4: TeamMember[];
+    };
+}
+
+const API_BASE = 'http://localhost:5000/api/v1';
+
 const Team = () => {
     const [activeMainTab, setActiveMainTab] = useState<'founders' | 'mentor' | 'college-support' | 'structure' | 'members'>('founders');
     const [activeSubTab, setActiveSubTab] = useState<'core-team' | 'graphics' | 'management'>('core-team');
     const [activeMemberYear, setActiveMemberYear] = useState<'1st' | '2nd' | '3rd' | '4th'>('1st');
 
-    // Data
-    const founders: TeamMember[] = [
-        {
-            id: 'f1',
-            name: 'Aarush Singh',
-            role: 'Founder',
-            image: '',
-            branch: 'Food Technology',
-            year: 'Final Year'
-        },
-        {
-            id: 'f2',
-            name: 'Mahim Gupta',
-            role: 'Co-Founder',
-            image: '',
-            branch: 'Computer Science Engineering',
-            year: 'Final Year'
-        },
-        {
-            id: 'f3',
-            name: 'Shashwat Shukla',
-            role: 'Co-Founder',
-            image: '',
-            branch: 'Food Technology',
-            year: 'Final Year'
+    // API state management
+    const [teamData, setTeamData] = useState<TeamData | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    // Fetch team data from API
+    useEffect(() => {
+        const fetchTeamData = async () => {
+            try {
+                setLoading(true);
+                const response = await fetch(`${API_BASE}/team`);
+                const data = await response.json();
+
+                if (data.success) {
+                    setTeamData(data.data);
+                } else {
+                    setError('Failed to load team data');
+                }
+            } catch (err) {
+                console.error('Error fetching team data:', err);
+                setError('Failed to connect to server');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchTeamData();
+    }, []);
+
+    // Set default active year to first year with members
+    useEffect(() => {
+        if (teamData) {
+            const years: Array<'1st' | '2nd' | '3rd' | '4th'> = ['1st', '2nd', '3rd', '4th'];
+            const firstYearWithMembers = years.find(year => {
+                const yearData = teamData.members[`year${year[0]}` as 'year1' | 'year2' | 'year3' | 'year4'];
+                return yearData && yearData.length > 0;
+            });
+            if (firstYearWithMembers) {
+                setActiveMemberYear(firstYearWithMembers);
+            }
         }
-    ];
+    }, [teamData]);
 
-    const mentors: TeamMember[] = [
-        {
-            id: 'm1',
-            name: '__',
-            role: '__',
-            image: '',
-            branch: 'AI & ML',
-            year: 'Faculty'
-        },
-        {
-            id: 'm2',
-            name: '',
-            role: 'Entrepreneurship Faculty',
-            image: '',
-            branch: 'Entrepreneurship',
-            year: 'Faculty'
-        },
-        {
-            id: 'm3',
-            name: '--',
-            role: 'Dean',
-            image: '--',
-            branch: 'Administration',
-            year: 'Dean'
-        }
-    ];
+    // Show loading state
+    if (loading) {
+        return (
+            <div className="team-loading">
+                <Loader className="spinner" size={48} />
+                <p>Loading team members...</p>
+            </div>
+        );
+    }
 
-    const collegeSupport: TeamMember[] = [
-        {
-            id: 'cs1',
-            name: 'Mr Vipul Kumar',
-            role: 'TSC Convener',
-            image: '',
-        },
-    ];
+    // Show error state
+    if (error || !teamData) {
+        return (
+            <div className="team-error">
+                <p>{error || 'Failed to load team data'}</p>
+                <button onClick={() => window.location.reload()}>Retry</button>
+            </div>
+        );
+    }
 
-    const coreTeam: TeamMember[] = [
-        {
-            id: 't1',
-            name: 'Rigel Thompson',
-            role: 'Lead Developer',
-            image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400',
-            branch: 'Computer Science',
-            year: '3rd Yr',
-            status: 'online'
-        },
-        {
-            id: 't2',
-            name: 'Lyra Chang',
-            role: 'Frontend Engineer',
-            image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400',
-            branch: 'CS / Ent',
-            year: '2nd Yr',
-            status: 'online'
-        },
-        {
-            id: 't3',
-            name: 'Altair Patel',
-            role: 'Backend Engineer',
-            image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=400',
-            branch: 'CS / Tech',
-            year: '3rd Yr',
-            status: 'away'
-        }
-    ];
+    // Extract data from API response
+    const founders = teamData.founders.map(m => ({
+        ...m,
+        id: m._id || m.id || '',
+        image: `http://localhost:5000/uploads/team-images/${m.image || 'placeholder.jpg'}`
+    }));
 
-    const graphicsTeam: TeamMember[] = [
-        {
-            id: 'g1',
-            name: 'Nebula Davis',
-            role: 'Creative Director',
-            image: 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&q=80&w=400',
-            branch: 'Design',
-            year: 'Final Year'
-        },
-        {
-            id: 'g2',
-            name: 'Cosmos Brown',
-            role: 'Animation Lead',
-            image: 'https://images.unsplash.com/photo-1522075469751-3a3694c60e9e?auto=format&fit=crop&q=80&w=400',
-            branch: 'Animation',
-            year: '3rd Year'
-        },
-        {
-            id: 'g3',
-            name: 'Aurora Wilson',
-            role: 'UI/UX Designer',
-            image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=400',
-            branch: 'Design',
-            year: '3rd Year'
-        },
-        {
-            id: 'g4',
-            name: 'Galaxy Taylor',
-            role: 'Motion Designer',
-            image: 'https://images.unsplash.com/photo-1563237023-b1e97052961a?auto=format&fit=crop&q=80&w=400',
-            branch: 'Media Arts',
-            year: '2nd Year'
-        }
-    ];
+    const mentors = teamData.mentors.map(m => ({
+        ...m,
+        id: m._id || m.id || '',
+        image: `http://localhost:5000/uploads/team-images/${m.image || 'placeholder.jpg'}`
+    }));
 
-    const managementTeam: TeamMember[] = [
-        {
-            id: 'pr1',
-            name: 'Solstice White',
-            role: 'Marketing',
-            image: 'https://images.unsplash.com/photo-1589156280159-27698a70f29e?auto=format&fit=crop&q=80&w=400',
-            branch: 'Marketing',
-            year: 'Final Year',
-            status: 'online'
-        },
-        {
-            id: 'pr2',
-            name: 'Eclipse Moore',
-            role: 'Communications',
-            image: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&q=80&w=400',
-            branch: 'Communications',
-            year: '3rd Year',
-            status: 'away'
-        }
-    ];
+    const collegeSupport = teamData.collegeSupport.map(m => ({
+        ...m,
+        id: m._id || m.id || '',
+        image: `http://localhost:5000/uploads/team-images/${m.image || 'placeholder.jpg'}`
+    }));
 
-    const firstYearMembers: TeamMember[] = [
-        { id: '1y1', name: 'Aria Frost', role: 'Trainee', image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=400', branch: 'CS', year: '1st Year' },
-        { id: '1y2', name: 'Leo Spark', role: 'Trainee', image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400', branch: 'IT', year: '1st Year' },
-        { id: '1y3', name: 'Mira Sky', role: 'Trainee', image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400', branch: 'ECE', year: '1st Year' },
-    ];
-    const secondYearMembers: TeamMember[] = [
-        { id: '2y1', name: 'Kai Orbit', role: 'Junior Dev', image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400', branch: 'CS', year: '2nd Year', status: 'online' },
-        { id: '2y2', name: 'Luna Vonn', role: 'Junior Designer', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400', branch: 'Design', year: '2nd Year' },
-        { id: '2y3', name: 'Jett Starr', role: 'Junior Dev', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400', branch: 'IT', year: '2nd Year', status: 'away' },
-        { id: '2y4', name: 'Nova Reed', role: 'Content Writer', image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400', branch: 'Marketing', year: '2nd Year' },
-    ];
-    const thirdYearMembers: TeamMember[] = [
-        { id: '3y1', name: 'Rex Comet', role: 'Senior Dev', image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400', branch: 'CS', year: '3rd Year', status: 'online' },
-        { id: '3y2', name: 'Tess Ray', role: 'Senior Designer', image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400', branch: 'Design', year: '3rd Year' },
-        { id: '3y3', name: 'Zane Bolt', role: 'Tech Lead', image: 'https://images.unsplash.com/photo-1504257432389-52343af06ae3?auto=format&fit=crop&q=80&w=400', branch: 'IT', year: '3rd Year' },
-    ];
-    const fourthYearMembers: TeamMember[] = [
-        { id: '4y1', name: 'Vera Flux', role: 'Mentor', image: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=400', branch: 'CS', year: '4th Year' },
-        { id: '4y2', name: 'Cade Void', role: 'Advisor', image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=400', branch: 'MBA', year: '4th Year', status: 'online' },
-    ];
+    const coreTeam = teamData.coreTeam.map(m => ({
+        ...m,
+        id: m._id || m.id || '',
+        image: `http://localhost:5000/uploads/team-images/${m.image || 'placeholder.jpg'}`
+    }));
 
+    const graphicsTeam = teamData.graphics.map(m => ({
+        ...m,
+        id: m._id || m.id || '',
+        image: `http://localhost:5000/uploads/team-images/${m.image || 'placeholder.jpg'}`
+    }));
+
+    const managementTeam = teamData.management.map(m => ({
+        ...m,
+        id: m._id || m.id || '',
+        image: `http://localhost:5000/uploads/team-images/${m.image || 'placeholder.jpg'}`
+    }));
+
+    const membersByYear = {
+        '1st': teamData.members.year1.map(m => ({
+            ...m,
+            id: m._id || m.id || '',
+            image: `http://localhost:5000/uploads/team-images/${m.image || 'placeholder.jpg'}`
+        })),
+        '2nd': teamData.members.year2.map(m => ({
+            ...m,
+            id: m._id || m.id || '',
+            image: `http://localhost:5000/uploads/team-images/${m.image || 'placeholder.jpg'}`
+        })),
+        '3rd': teamData.members.year3.map(m => ({
+            ...m,
+            id: m._id || m.id || '',
+            image: `http://localhost:5000/uploads/team-images/${m.image || 'placeholder.jpg'}`
+        })),
+        '4th': teamData.members.year4.map(m => ({
+            ...m,
+            id: m._id || m.id || '',
+            image: `http://localhost:5000/uploads/team-images/${m.image || 'placeholder.jpg'}`
+        }))
+    };
+
+
+    // Helper function to get members by year from API data
     const getMembersByYear = () => {
         switch (activeMemberYear) {
-            case '1st': return firstYearMembers;
-            case '2nd': return secondYearMembers;
-            case '3rd': return thirdYearMembers;
-            case '4th': return fourthYearMembers;
+            case '1st': return membersByYear['1st'];
+            case '2nd': return membersByYear['2nd'];
+            case '3rd': return membersByYear['3rd'];
+            case '4th': return membersByYear['4th'];
             default: return [];
         }
     };
@@ -328,26 +302,57 @@ const Team = () => {
                     <div className="flex-1 w-full">
                         {/* STRUCTURE > Core Team */}
                         {activeMainTab === 'structure' && activeSubTab === 'core-team' && (
-                            <section className="animate-fade-in grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                            <section className="animate-fade-in grid grid-cols-1 md:grid-cols-2 gap-8">
                                 {coreTeam.map(member => (
-                                    <div key={member.id} className="group glass-panel p-1 rounded-2xl hover:bg-card-dark hover:-translate-y-1 transition-all duration-300 border border-white/5">
-                                        <div className="relative p-6 flex items-start gap-5">
-                                            <div className="relative">
-                                                <div className="w-16 h-16 rounded-xl overflow-hidden border border-white/10 group-hover:border-accent-cyan/50 transition-colors shadow-lg">
+                                    <div key={member.id} className="group glass-panel p-2 rounded-3xl hover:bg-card-dark hover:-translate-y-2 transition-all duration-300 border border-white/5">
+                                        <div className="relative p-4 sm:p-8 flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
+                                            <div className="relative flex-shrink-0">
+                                                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border-2 border-white/10 group-hover:border-accent-cyan/50 transition-colors shadow-xl">
                                                     <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
                                                 </div>
-                                                <div className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-[3px] border-black ${member.status !== 'offline' ? 'bg-accent-cyan' : 'bg-gray-500'}`}></div>
+                                                <div className={`absolute -bottom-2 -right-2 w-5 h-5 rounded-full border-4 border-black ${member.status !== 'offline' ? 'bg-accent-cyan shadow-[0_0_12px_cyan]' : 'bg-gray-500'}`}></div>
                                             </div>
-                                            <div className="flex-1 min-w-0 pt-0.5">
-                                                <h3 className="font-display font-bold text-lg text-white truncate group-hover:text-accent-cyan transition-colors">{member.name}</h3>
-                                                <p className="text-xs text-gray-400 font-mono uppercase tracking-wider mb-3">{member.role}</p>
-                                                <div className="flex items-center gap-2">
-                                                    <span className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-white/5 text-gray-300 border border-white/10 group-hover:border-accent-cyan/20 transition-colors">
-                                                        {member.year}
-                                                    </span>
+                                            <div className="flex-1 min-w-0 pt-1 text-center sm:text-left w-full">
+                                                <h3 className="font-display font-bold text-xl sm:text-2xl text-white group-hover:text-accent-cyan transition-colors mb-2">{member.name}</h3>
+                                                <p className="text-xs sm:text-sm text-gray-400 font-mono uppercase tracking-wider mb-3">{member.role}</p>
+                                                {member.bio && (
+                                                    <p className="text-xs text-gray-500 mb-3 line-clamp-2">{member.bio}</p>
+                                                )}
+                                                <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
+                                                    {member.branch && (
+                                                        <span className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white/5 text-gray-300 border border-white/10 group-hover:border-accent-cyan/30 transition-colors">
+                                                            {member.branch}
+                                                        </span>
+                                                    )}
+                                                    {(member.email || member.linkedin || member.github) && (
+                                                        <div className="flex gap-1.5">
+                                                            {member.email && (
+                                                                <a href={`mailto:${member.email}`} className="p-1.5 rounded bg-white/5 hover:bg-accent-cyan hover:text-black text-white transition-all" title="Email">
+                                                                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                                                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                                                                    </svg>
+                                                                </a>
+                                                            )}
+                                                            {member.linkedin && (
+                                                                <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded bg-white/5 hover:bg-accent-cyan hover:text-black text-white transition-all" title="LinkedIn">
+                                                                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                                                        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                                                                    </svg>
+                                                                </a>
+                                                            )}
+                                                            {member.github && (
+                                                                <a href={member.github} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded bg-white/5 hover:bg-accent-cyan hover:text-black text-white transition-all" title="GitHub">
+                                                                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                                                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                                                                    </svg>
+                                                                </a>
+                                                            )}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
-                                            <ChevronRight className="w-5 h-5 text-gray-600 group-hover:text-accent-cyan group-hover:translate-x-1 transition-all" />
+                                            <ChevronRight className="hidden sm:block w-6 h-6 text-gray-600 group-hover:text-accent-cyan group-hover:translate-x-1 transition-all" />
                                         </div>
                                     </div>
                                 ))}
@@ -356,16 +361,45 @@ const Team = () => {
 
                         {/* STRUCTURE > Graphics */}
                         {activeMainTab === 'structure' && activeSubTab === 'graphics' && (
-                            <section className="animate-fade-in grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                            <section className="animate-fade-in grid grid-cols-1 md:grid-cols-2 gap-8">
                                 {graphicsTeam.map(member => (
-                                    <div key={member.id} className="group glass-panel p-1 rounded-2xl hover:bg-card-dark hover:-translate-y-1 transition-all duration-300 border border-white/5">
-                                        <div className="relative p-6 flex items-center gap-5">
-                                            <div className="w-16 h-16 rounded-full overflow-hidden border border-white/10 group-hover:border-accent-purple/50 transition-colors shadow-lg">
+                                    <div key={member.id} className="group glass-panel p-2 rounded-3xl hover:bg-card-dark hover:-translate-y-2 transition-all duration-300 border border-white/5">
+                                        <div className="relative p-4 sm:p-8 flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6">
+                                            <div className="w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 rounded-2xl overflow-hidden border-2 border-white/10 group-hover:border-accent-purple/50 transition-colors shadow-xl">
                                                 <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
                                             </div>
-                                            <div className="flex-1">
-                                                <h3 className="font-display font-bold text-lg text-white group-hover:text-accent-purple transition-colors">{member.name}</h3>
-                                                <p className="text-xs text-gray-400 font-mono uppercase tracking-wider">{member.role}</p>
+                                            <div className="flex-1 text-center sm:text-left w-full">
+                                                <h3 className="font-display font-bold text-xl sm:text-2xl text-white group-hover:text-accent-purple transition-colors mb-2">{member.name}</h3>
+                                                <p className="text-xs sm:text-sm text-gray-400 font-mono uppercase tracking-wider mb-3">{member.role}</p>
+                                                {member.bio && (
+                                                    <p className="text-xs text-gray-500 mb-3">{member.bio}</p>
+                                                )}
+                                                {(member.email || member.linkedin || member.github) && (
+                                                    <div className="flex gap-2 mt-2 justify-center sm:justify-start">
+                                                        {member.email && (
+                                                            <a href={`mailto:${member.email}`} className="p-1.5 rounded bg-white/5 hover:bg-accent-purple hover:text-black text-white transition-all" title="Email">
+                                                                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                                                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                                                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                                                                </svg>
+                                                            </a>
+                                                        )}
+                                                        {member.linkedin && (
+                                                            <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded bg-white/5 hover:bg-accent-purple hover:text-black text-white transition-all" title="LinkedIn">
+                                                                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                                                                    <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                                                                </svg>
+                                                            </a>
+                                                        )}
+                                                        {member.github && (
+                                                            <a href={member.github} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded bg-white/5 hover:bg-accent-purple hover:text-black text-white transition-all" title="GitHub">
+                                                                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                                                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                                                                </svg>
+                                                            </a>
+                                                        )}
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -375,17 +409,46 @@ const Team = () => {
 
                         {/* STRUCTURE > Management */}
                         {activeMainTab === 'structure' && activeSubTab === 'management' && (
-                            <section className="animate-fade-in grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <section className="animate-fade-in grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
                                 {managementTeam.map(member => (
-                                    <div key={member.id} className="group glass-panel p-8 rounded-2xl border-l-4 border-l-accent-purple hover:bg-card-dark hover:translate-x-1 transition-all duration-300 flex items-center gap-6">
-                                        <img className="w-24 h-24 rounded-xl object-cover border border-white/10 shadow-xl" src={member.image} alt={member.name} />
-                                        <div>
-                                            <h4 className="font-display font-bold text-2xl text-white mb-1">{member.name}</h4>
-                                            <p className="text-xs text-accent-purple uppercase tracking-widest font-mono mb-3">{member.role}</p>
-                                            <div className="flex gap-2 items-center">
-                                                <span className={`w-2 h-2 rounded-full ${member.status === 'online' ? 'bg-green-500 shadow-[0_0_8px_lime]' : 'bg-gray-500'}`}></span>
-                                                <span className="text-xs text-gray-400 font-mono">{member.status === 'online' ? 'Online' : 'Away'}</span>
+                                    <div key={member.id} className="group glass-panel p-6 sm:p-10 rounded-3xl border-l-4 border-l-accent-purple hover:bg-card-dark hover:translate-x-2 transition-all duration-300 flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-8">
+                                        <img className="w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0 rounded-2xl object-cover border-2 border-white/10 shadow-2xl" src={member.image} alt={member.name} />
+                                        <div className="text-center sm:text-left w-full">
+                                            <h4 className="font-display font-bold text-2xl sm:text-3xl text-white mb-2">{member.name}</h4>
+                                            <p className="text-xs sm:text-sm text-accent-purple uppercase tracking-widest font-mono mb-3">{member.role}</p>
+                                            {member.bio && (
+                                                <p className="text-xs text-gray-400 mb-3">{member.bio}</p>
+                                            )}
+                                            <div className="flex gap-2 items-center justify-center sm:justify-start mb-3">
+                                                <span className={`w-3 h-3 rounded-full ${member.status === 'online' ? 'bg-green-500 shadow-[0_0_12px_lime]' : 'bg-gray-500'}`}></span>
+                                                <span className="text-sm text-gray-400 font-mono">{member.status === 'online' ? 'Online' : 'Away'}</span>
                                             </div>
+                                            {(member.email || member.linkedin || member.github) && (
+                                                <div className="flex gap-2 justify-center sm:justify-start">
+                                                    {member.email && (
+                                                        <a href={`mailto:${member.email}`} className="p-1.5 rounded bg-white/5 hover:bg-accent-purple hover:text-black text-white transition-all" title="Email">
+                                                            <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                                                            </svg>
+                                                        </a>
+                                                    )}
+                                                    {member.linkedin && (
+                                                        <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded bg-white/5 hover:bg-accent-purple hover:text-black text-white transition-all" title="LinkedIn">
+                                                            <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                                                                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                                                            </svg>
+                                                        </a>
+                                                    )}
+                                                    {member.github && (
+                                                        <a href={member.github} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded bg-white/5 hover:bg-accent-purple hover:text-black text-white transition-all" title="GitHub">
+                                                            <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                                                                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                                                            </svg>
+                                                        </a>
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 ))}
@@ -397,26 +460,75 @@ const Team = () => {
                             <section className="animate-fade-in max-w-6xl mx-auto">
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 xl:gap-12">
                                     {founders.map(member => (
-                                        <div key={member.id} className="group glass-panel relative p-10 rounded-3xl flex flex-col items-center text-center hover:bg-white/[0.02] border border-white/5 hover:border-accent-cyan/30 transition-all duration-500 hover:-translate-y-2 shadow-xl hover:shadow-2xl hover:shadow-accent-cyan/10">
+                                        <div key={member.id} className="group glass-panel relative p-8 rounded-3xl flex flex-col items-center text-center hover:bg-white/[0.02] border border-white/5 hover:border-accent-cyan/30 transition-all duration-500 hover:-translate-y-2 shadow-xl hover:shadow-2xl hover:shadow-accent-cyan/10">
                                             <div className="absolute top-0 right-0 p-6 opacity-20 group-hover:opacity-100 transition-opacity duration-300">
                                                 <Star className="w-6 h-6 text-accent-cyan" />
                                             </div>
 
-                                            <div className="relative mb-8">
-                                                <div className="absolute inset-0 bg-accent-cyan/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                                                <div className="w-40 h-40 rounded-full p-1.5 bg-gradient-to-br from-accent-cyan to-blue-600 relative z-10 shadow-[0_0_30px_rgba(6,182,212,0.15)] group-hover:shadow-[0_0_50px_rgba(6,182,212,0.4)] transition-all duration-500">
-                                                    <img alt={member.name} className="w-full h-full rounded-full object-cover border-4 border-black/50" src={member.image} />
+                                            <div className="relative mb-6">
+                                                <div className="absolute inset-0 bg-accent-cyan/20 blur-xl rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                                <div className="w-32 h-32 rounded-2xl overflow-hidden border-2 border-accent-cyan/30 relative z-10 shadow-[0_0_20px_rgba(6,182,212,0.2)] group-hover:shadow-[0_0_40px_rgba(6,182,212,0.4)] transition-all duration-500 group-hover:border-accent-cyan">
+                                                    <img alt={member.name} className="w-full h-full object-cover" src={member.image} />
                                                 </div>
                                             </div>
 
-                                            <h3 className="font-display font-bold text-3xl text-white mb-2 tracking-wide group-hover:text-accent-cyan transition-colors">{member.name}</h3>
-                                            <p className="text-accent-cyan/80 font-mono text-xs uppercase tracking-[0.2em] mb-8">{member.role}</p>
+                                            <h3 className="font-display font-bold text-2xl text-white mb-2 tracking-wide group-hover:text-accent-cyan transition-colors">{member.name}</h3>
+                                            <p className="text-accent-cyan/80 font-mono text-xs uppercase tracking-[0.2em] mb-3">{member.role}</p>
 
-                                            <div className="w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-8"></div>
+                                            {member.branch && (
+                                                <span className="px-4 py-1.5 mb-4 rounded-lg text-xs font-bold bg-white/5 text-gray-300 border border-white/10 group-hover:border-accent-cyan/30 transition-colors">
+                                                    {member.branch}
+                                                </span>
+                                            )}
 
-                                            <button className="px-8 py-2.5 rounded-lg bg-white/5 hover:bg-accent-cyan hover:text-black text-xs font-bold uppercase tracking-wider transition-all duration-300 border border-white/5 hover:border-accent-cyan shadow-lg">
-                                                View Profile
-                                            </button>
+                                            {member.bio && (
+                                                <p className="text-sm text-gray-400 leading-relaxed mb-4 px-2">{member.bio}</p>
+                                            )}
+
+                                            <div className="w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-4"></div>
+
+                                            {(member.email || member.linkedin || member.github) && (
+                                                <div className="flex gap-2 justify-center">
+                                                    {member.email && (
+                                                        <a
+                                                            href={`mailto:${member.email}`}
+                                                            className="p-2 rounded-lg bg-white/5 hover:bg-accent-cyan hover:text-black text-white transition-all duration-300 border border-white/10 hover:border-accent-cyan"
+                                                            title="Email"
+                                                        >
+                                                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                                                            </svg>
+                                                        </a>
+                                                    )}
+                                                    {member.linkedin && (
+                                                        <a
+                                                            href={member.linkedin}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="p-2 rounded-lg bg-white/5 hover:bg-accent-cyan hover:text-black text-white transition-all duration-300 border border-white/10 hover:border-accent-cyan"
+                                                            title="LinkedIn"
+                                                        >
+                                                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                                                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                                                            </svg>
+                                                        </a>
+                                                    )}
+                                                    {member.github && (
+                                                        <a
+                                                            href={member.github}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="p-2 rounded-lg bg-white/5 hover:bg-accent-cyan hover:text-black text-white transition-all duration-300 border border-white/10 hover:border-accent-cyan"
+                                                            title="GitHub"
+                                                        >
+                                                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                                                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                                                            </svg>
+                                                        </a>
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
                                     ))}
                                 </div>
@@ -433,8 +545,52 @@ const Team = () => {
                                         </div>
                                         <div className="text-center sm:text-left">
                                             <h3 className="font-display font-bold text-2xl text-white tracking-wide mb-1">{member.name}</h3>
-                                            <p className="text-xs text-accent-purple font-mono uppercase tracking-[0.15em] mb-4">{member.role}</p>
-                                            <p className="text-sm text-gray-400 italic leading-relaxed border-l-2 border-white/10 pl-4">"Innovation is the bridge between the present and the future of space exploration."</p>
+                                            <p className="text-xs text-accent-purple font-mono uppercase tracking-[0.15em] mb-3">{member.role}</p>
+                                            {member.bio && (
+                                                <p className="text-sm text-gray-400 leading-relaxed mb-4 border-l-2 border-white/10 pl-4">{member.bio}</p>
+                                            )}
+                                            {(member.email || member.linkedin || member.github) && (
+                                                <div className="flex gap-2 justify-center sm:justify-start">
+                                                    {member.email && (
+                                                        <a
+                                                            href={`mailto:${member.email}`}
+                                                            className="p-2 rounded-lg bg-white/5 hover:bg-accent-purple hover:text-black text-white transition-all duration-300 border border-white/10 hover:border-accent-purple"
+                                                            title="Email"
+                                                        >
+                                                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                                                            </svg>
+                                                        </a>
+                                                    )}
+                                                    {member.linkedin && (
+                                                        <a
+                                                            href={member.linkedin}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="p-2 rounded-lg bg-white/5 hover:bg-accent-purple hover:text-black text-white transition-all duration-300 border border-white/10 hover:border-accent-purple"
+                                                            title="LinkedIn"
+                                                        >
+                                                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                                                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                                                            </svg>
+                                                        </a>
+                                                    )}
+                                                    {member.github && (
+                                                        <a
+                                                            href={member.github}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="p-2 rounded-lg bg-white/5 hover:bg-accent-purple hover:text-black text-white transition-all duration-300 border border-white/10 hover:border-accent-purple"
+                                                            title="GitHub"
+                                                        >
+                                                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                                                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                                                            </svg>
+                                                        </a>
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 ))}
@@ -451,8 +607,52 @@ const Team = () => {
                                         </div>
                                         <div className="text-center sm:text-left">
                                             <h3 className="font-display font-bold text-2xl text-white tracking-wide mb-1">{member.name}</h3>
-                                            <p className="text-xs text-accent-cyan font-mono uppercase tracking-[0.15em] mb-4">{member.role}</p>
-                                            <p className="text-sm text-gray-400 italic leading-relaxed border-l-2 border-white/10 pl-4">"Supporting excellence in education and innovation."</p>
+                                            <p className="text-xs text-accent-cyan font-mono uppercase tracking-[0.15em] mb-3">{member.role}</p>
+                                            {member.bio && (
+                                                <p className="text-sm text-gray-400 leading-relaxed mb-4 border-l-2 border-white/10 pl-4">{member.bio}</p>
+                                            )}
+                                            {(member.email || member.linkedin || member.github) && (
+                                                <div className="flex gap-2 justify-center sm:justify-start">
+                                                    {member.email && (
+                                                        <a
+                                                            href={`mailto:${member.email}`}
+                                                            className="p-2 rounded-lg bg-white/5 hover:bg-accent-cyan hover:text-black text-white transition-all duration-300 border border-white/10 hover:border-accent-cyan"
+                                                            title="Email"
+                                                        >
+                                                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                                                            </svg>
+                                                        </a>
+                                                    )}
+                                                    {member.linkedin && (
+                                                        <a
+                                                            href={member.linkedin}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="p-2 rounded-lg bg-white/5 hover:bg-accent-cyan hover:text-black text-white transition-all duration-300 border border-white/10 hover:border-accent-cyan"
+                                                            title="LinkedIn"
+                                                        >
+                                                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                                                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                                                            </svg>
+                                                        </a>
+                                                    )}
+                                                    {member.github && (
+                                                        <a
+                                                            href={member.github}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="p-2 rounded-lg bg-white/5 hover:bg-accent-cyan hover:text-black text-white transition-all duration-300 border border-white/10 hover:border-accent-cyan"
+                                                            title="GitHub"
+                                                        >
+                                                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                                                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                                                            </svg>
+                                                        </a>
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 ))}
@@ -465,15 +665,17 @@ const Team = () => {
                                 {/* Year Tabs */}
                                 <div className="flex justify-center mb-10">
                                     <div className="flex flex-wrap justify-center gap-2 p-1 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
-                                        {(['1st', '2nd', '3rd', '4th'] as const).map(year => (
-                                            <button
-                                                key={year}
-                                                className={`px-6 py-2 rounded-md text-sm font-bold uppercase tracking-wider transition-all duration-300 ${activeMemberYear === year ? 'bg-accent-cyan text-black shadow-lg shadow-cyan-500/20' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
-                                                onClick={() => setActiveMemberYear(year)}
-                                            >
-                                                {year} Year
-                                            </button>
-                                        ))}
+                                        {(['1st', '2nd', '3rd', '4th'] as const)
+                                            .filter(year => membersByYear[year].length > 0)
+                                            .map(year => (
+                                                <button
+                                                    key={year}
+                                                    className={`px-6 py-2 rounded-md text-sm font-bold uppercase tracking-wider transition-all duration-300 ${activeMemberYear === year ? 'bg-accent-cyan text-black shadow-lg shadow-cyan-500/20' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                                                    onClick={() => setActiveMemberYear(year)}
+                                                >
+                                                    {year} Year
+                                                </button>
+                                            ))}
                                     </div>
                                 </div>
 
@@ -491,10 +693,15 @@ const Team = () => {
                                             </div>
                                             <h3 className="font-display font-bold text-lg text-white mb-1 group-hover:text-accent-cyan transition-colors">{member.name}</h3>
                                             <p className="text-[10px] text-accent-cyan uppercase tracking-widest font-mono mb-2">{member.role}</p>
-                                            <div className="w-full pt-3 border-t border-white/5 flex justify-between items-center text-xs text-gray-500 font-mono">
-                                                <span>{member.branch}</span>
-                                                <span className="text-gray-400">{member.year}</span>
-                                            </div>
+                                            {(member.branch || member.year) && (
+                                                <div className="w-full pt-3 border-t border-white/5 flex justify-between items-center text-xs text-gray-500 font-mono">
+                                                    {member.branch && <span>{member.branch}</span>}
+                                                    {member.year && <span className="text-gray-400">{member.year}</span>}
+                                                    {/* If only one exists, center it */}
+                                                    {(member.branch && !member.year) && <span></span>}
+                                                    {(!member.branch && member.year) && <span></span>}
+                                                </div>
+                                            )}
                                         </div>
                                     ))}
                                 </div>
