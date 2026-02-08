@@ -1,4 +1,4 @@
-# Authentication Removed from Admin Panel
+#  Authentication Removed from Admin Panel
 
 ## Summary
 Removed authentication requirement from the admin panel to make it publicly accessible, matching the behavior of other sections of the application.
