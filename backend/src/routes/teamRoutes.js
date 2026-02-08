@@ -2,6 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 import {
     getTeamMembers,
     getTeamMemberById,
@@ -18,10 +19,29 @@ const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
+// Determine upload directory based on environment
+// In Vercel (serverless), use /tmp directory which is writable
+// In local development, use the project's uploads directory
+const getUploadDir = () => {
+    if (process.env.VERCEL === '1') {
+        // Vercel serverless environment - use /tmp
+        return '/tmp/team-images';
+    }
+    // Local development
+    return path.join(__dirname, '../../uploads/team-images');
+};
+
 // Configure multer for image uploads
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, path.join(__dirname, '../../uploads/team-images'));
+        const uploadDir = getUploadDir();
+        
+        // Ensure directory exists (especially important for /tmp in serverless)
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        
+        cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);

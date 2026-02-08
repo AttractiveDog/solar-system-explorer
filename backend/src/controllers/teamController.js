@@ -8,6 +8,16 @@ import { ensureConnection } from '../config/database.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Helper function to get upload directory based on environment
+const getUploadDir = () => {
+    if (process.env.VERCEL === '1') {
+        // Vercel serverless - use /tmp
+        return '/tmp/team-images';
+    }
+    // Local development
+    return path.join(__dirname, '../../uploads/team-images');
+};
+
 // Get all team members (public endpoint)
 export const getTeamMembers = async (req, res) => {
     try {
@@ -86,7 +96,7 @@ export const createTeamMember = async (req, res) => {
 
         // Optimize image if uploaded
         if (req.file) {
-            const filepath = path.join(__dirname, '../../uploads/team-images', req.file.filename);
+            const filepath = path.join(getUploadDir(), req.file.filename);
             imageName = await optimizeImage(filepath, {
                 maxWidth: 800,
                 maxHeight: 800,
@@ -117,7 +127,7 @@ export const createTeamMember = async (req, res) => {
     } catch (error) {
         // Delete uploaded file if creation failed
         if (req.file) {
-            const filepath = path.join(__dirname, '../../uploads/team-images', req.file.filename);
+            const filepath = path.join(getUploadDir(), req.file.filename);
             if (fs.existsSync(filepath)) {
                 fs.unlinkSync(filepath);
             }
@@ -143,7 +153,7 @@ export const updateTeamMember = async (req, res) => {
         if (!member) {
             // Delete uploaded file if member not found
             if (req.file) {
-                const filepath = path.join(__dirname, '../../uploads/team-images', req.file.filename);
+                const filepath = path.join(getUploadDir(), req.file.filename);
                 if (fs.existsSync(filepath)) {
                     fs.unlinkSync(filepath);
                 }
@@ -158,14 +168,14 @@ export const updateTeamMember = async (req, res) => {
         if (req.file) {
             // Delete old image if not placeholder
             if (member.image && member.image !== 'placeholder.jpg') {
-                const oldImagePath = path.join(__dirname, '../../uploads/team-images', member.image);
+                const oldImagePath = path.join(getUploadDir(), member.image);
                 if (fs.existsSync(oldImagePath)) {
                     fs.unlinkSync(oldImagePath);
                 }
             }
 
             // Optimize new image
-            const filepath = path.join(__dirname, '../../uploads/team-images', req.file.filename);
+            const filepath = path.join(getUploadDir(), req.file.filename);
             const optimizedName = await optimizeImage(filepath, {
                 maxWidth: 800,
                 maxHeight: 800,
@@ -187,7 +197,7 @@ export const updateTeamMember = async (req, res) => {
     } catch (error) {
         // Delete uploaded file if update failed
         if (req.file) {
-            const filepath = path.join(__dirname, '../../uploads/team-images', req.file.filename);
+            const filepath = path.join(getUploadDir(), req.file.filename);
             if (fs.existsSync(filepath)) {
                 fs.unlinkSync(filepath);
             }
