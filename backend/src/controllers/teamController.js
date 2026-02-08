@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { optimizeImage } from '../utils/imageOptimizer.js';
+import { ensureConnection } from '../config/database.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -10,6 +11,9 @@ const __dirname = path.dirname(__filename);
 // Get all team members (public endpoint)
 export const getTeamMembers = async (req, res) => {
     try {
+        // Ensure database connection for serverless
+        await ensureConnection();
+        
         const teamMembers = await TeamMember.find({ isActive: true })
             .sort({ category: 1, order: 1 })
             .lean();
@@ -47,6 +51,8 @@ export const getTeamMembers = async (req, res) => {
 // Get single team member by ID (public endpoint)
 export const getTeamMemberById = async (req, res) => {
     try {
+        await ensureConnection();
+        
         const { id } = req.params;
         const member = await TeamMember.findOne({ _id: id, isActive: true });
 
@@ -74,6 +80,8 @@ export const getTeamMemberById = async (req, res) => {
 // Create new team member (admin only)
 export const createTeamMember = async (req, res) => {
     try {
+        await ensureConnection();
+        
         let imageName = 'placeholder.jpg';
 
         // Optimize image if uploaded
@@ -127,6 +135,8 @@ export const createTeamMember = async (req, res) => {
 // Update team member (admin only)
 export const updateTeamMember = async (req, res) => {
     try {
+        await ensureConnection();
+        
         const { id } = req.params;
         const member = await TeamMember.findById(id);
 
@@ -195,6 +205,8 @@ export const updateTeamMember = async (req, res) => {
 // Delete team member (soft delete - admin only)
 export const deleteTeamMember = async (req, res) => {
     try {
+        await ensureConnection();
+        
         const { id } = req.params;
         const member = await TeamMember.findById(id);
 
@@ -226,6 +238,8 @@ export const deleteTeamMember = async (req, res) => {
 // Restore soft-deleted member (admin only)
 export const restoreTeamMember = async (req, res) => {
     try {
+        await ensureConnection();
+        
         const { id } = req.params;
         const member = await TeamMember.findById(id);
 
@@ -257,6 +271,8 @@ export const restoreTeamMember = async (req, res) => {
 // Reorder team members (admin only)
 export const reorderTeamMembers = async (req, res) => {
     try {
+        await ensureConnection();
+        
         const { members } = req.body; // Array of { id, order }
 
         if (!Array.isArray(members)) {
