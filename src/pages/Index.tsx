@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { SolarSystem2D } from '@/components/SolarSystem2D/SolarSystem2D';
 import { HeadsUpDisplay } from '@/components/ui/HeadsUpDisplay';
 import { Preloader } from '@/components/Preloader';
+import { formatDistanceToNow } from 'date-fns';
 
-import { X, Mail, Linkedin, Github, Zap } from 'lucide-react';
+import { X, Mail, Linkedin, Github, Zap, ExternalLink } from 'lucide-react';
 import { PaperShaderBackground } from '@/components/ui/PaperShaderBackground';
 
 declare global {
@@ -11,6 +12,53 @@ declare global {
     hasShownCometAnimation?: boolean;
   }
 }
+
+interface Notice {
+  _id: string;
+  title: string;
+  description: string;
+  color: string;
+  priority: number;
+  isActive: boolean;
+  expiresAt: string | null;
+  link: string;
+  createdAt: string;
+}
+
+const colorMap: Record<string, { bg: string, border: string, dot: string }> = {
+  purple: {
+    bg: "from-purple-900/40 to-blue-900/30",
+    border: "border-purple-500/30 hover:border-purple-500/60",
+    dot: "bg-purple-400"
+  },
+  cyan: {
+    bg: "from-cyan-900/40 to-blue-900/30",
+    border: "border-cyan-500/30 hover:border-cyan-500/60",
+    dot: "bg-cyan-400"
+  },
+  orange: {
+    bg: "from-orange-900/40 to-red-900/30",
+    border: "border-orange-500/30 hover:border-orange-500/60",
+    dot: "bg-orange-400"
+  },
+  green: {
+    bg: "from-green-900/40 to-emerald-900/30",
+    border: "border-green-500/30 hover:border-green-500/60",
+    dot: "bg-green-400"
+  },
+  blue: {
+    bg: "from-blue-900/40 to-indigo-900/30",
+    border: "border-blue-500/30 hover:border-blue-500/60",
+    dot: "bg-blue-400"
+  },
+  red: {
+    bg: "from-red-900/40 to-orange-900/30",
+    border: "border-red-500/30 hover:border-red-500/60",
+    dot: "bg-red-400"
+  }
+};
+
+const defaultColor = colorMap['purple'];
 
 const Index = () => {
   // Show loading animation on first load or reload (window property resets on reload)
@@ -22,6 +70,30 @@ const Index = () => {
   const [showAbout, setShowAbout] = useState(false);
   const [showStratathonPopup, setShowStratathonPopup] = useState(false);
   const [isPopupMinimized, setIsPopupMinimized] = useState(false);
+
+  // Notices state
+  const [notices, setNotices] = useState<Notice[]>([]);
+  const [loadingNotices, setLoadingNotices] = useState(true);
+
+  const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+
+  useEffect(() => {
+    const fetchNotices = async () => {
+      try {
+        const response = await fetch(`${apiBaseUrl}/notices`);
+        const data = await response.json();
+        if (data.success) {
+          setNotices(data.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch notices:', error);
+      } finally {
+        setLoadingNotices(false);
+      }
+    };
+
+    fetchNotices();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -52,8 +124,6 @@ const Index = () => {
   return (
     <div className="relative w-full bg-background">
       {loading && <Preloader onComplete={handlePreloaderComplete} />}
-
-
 
       {/* Fixed Solar System Background - Blurs on Scroll */}
       <div
@@ -150,53 +220,49 @@ const Index = () => {
 
               {/* Notices List */}
               <div className="p-4 space-y-3 overflow-y-auto" style={{ maxHeight: '340px' }}>
-                {/* Notice Item 1 */}
-                <div className="p-3 rounded-lg bg-gradient-to-br from-purple-900/40 to-blue-900/30 border border-purple-500/30 hover:border-purple-500/60 transition-all">
-                  <div className="flex items-start gap-2">
-                    <div className="w-2 h-2 rounded-full bg-purple-400 mt-1 flex-shrink-0 animate-pulse"></div>
-                    <div className="flex-1">
-                      <p className="text-xs text-gray-400 mb-1">Today, 10:30 AM</p>
-                      <h4 className="text-sm md:text-base font-bold text-white mb-1">Game-E-Con Registration Open!</h4>
-                      <p className="text-xs md:text-sm text-gray-300">Join the biggest gaming event of the year. Register now for exclusive access.</p>
-                    </div>
+                {loadingNotices ? (
+                  <div className="flex justify-center items-center h-40">
+                    <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
                   </div>
-                </div>
-
-                {/* Notice Item 2 */}
-                <div className="p-3 rounded-lg bg-gradient-to-br from-cyan-900/40 to-blue-900/30 border border-cyan-500/30 hover:border-cyan-500/60 transition-all">
-                  <div className="flex items-start gap-2">
-                    <div className="w-2 h-2 rounded-full bg-cyan-400 mt-1 flex-shrink-0 animate-pulse"></div>
-                    <div className="flex-1">
-                      <p className="text-xs text-gray-400 mb-1">Yesterday</p>
-                      <h4 className="text-sm md:text-base font-bold text-white mb-1">Workshop: AI & ML Basics</h4>
-                      <p className="text-xs md:text-sm text-gray-300">Learn the fundamentals of artificial intelligence. Limited seats available.</p>
+                ) : notices.length === 0 ? (
+                  <div className="text-center text-gray-400 py-8 flex flex-col items-center">
+                    <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mb-2">
+                       <Zap className="text-gray-500" size={24} />
                     </div>
+                    <p>No active notices</p>
+                    <p className="text-xs text-gray-500 mt-1">Check back later for updates</p>
                   </div>
-                </div>
-
-                {/* Notice Item 3 */}
-                <div className="p-3 rounded-lg bg-gradient-to-br from-orange-900/40 to-red-900/30 border border-orange-500/30 hover:border-orange-500/60 transition-all">
-                  <div className="flex items-start gap-2">
-                    <div className="w-2 h-2 rounded-full bg-orange-400 mt-1 flex-shrink-0"></div>
-                    <div className="flex-1">
-                      <p className="text-xs text-gray-400 mb-1">2 days ago</p>
-                      <h4 className="text-sm md:text-base font-bold text-white mb-1">Hackathon Winners Announced</h4>
-                      <p className="text-xs md:text-sm text-gray-300">Congratulations to all teams. Check the leaderboard for results.</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Notice Item 4 */}
-                <div className="p-3 rounded-lg bg-gradient-to-br from-green-900/40 to-emerald-900/30 border border-green-500/30 hover:border-green-500/60 transition-all">
-                  <div className="flex items-start gap-2">
-                    <div className="w-2 h-2 rounded-full bg-green-400 mt-1 flex-shrink-0"></div>
-                    <div className="flex-1">
-                      <p className="text-xs text-gray-400 mb-1">1 week ago</p>
-                      <h4 className="text-sm md:text-base font-bold text-white mb-1">New Team Members Welcome</h4>
-                      <p className="text-xs md:text-sm text-gray-300">We're excited to welcome our new members to the ComET family!</p>
-                    </div>
-                  </div>
-                </div>
+                ) : (
+                  notices.map((notice) => {
+                    const colorStyle = colorMap[notice.color] || defaultColor;
+                    return (
+                      <div key={notice._id} className={`p-3 rounded-lg bg-gradient-to-br ${colorStyle.bg} border ${colorStyle.border} transition-all group relative`}>
+                        <div className="flex items-start gap-2">
+                          <div className={`w-2 h-2 rounded-full ${colorStyle.dot} mt-1 flex-shrink-0 animate-pulse`}></div>
+                          <div className="flex-1">
+                            <p className="text-xs text-gray-400 mb-1">
+                              {formatDistanceToNow(new Date(notice.createdAt), { addSuffix: true })}
+                            </p>
+                            <h4 className="text-sm md:text-base font-bold text-white mb-1">{notice.title}</h4>
+                            <p className="text-xs md:text-sm text-gray-300">{notice.description}</p>
+                            
+                            {notice.link && (
+                              <a 
+                                href={notice.link} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-xs text-blue-300 mt-2 hover:text-blue-100 transition-colors"
+                              >
+                                <span>Learn more</span>
+                                <ExternalLink size={10} />
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
               </div>
             </div>
           </div>
